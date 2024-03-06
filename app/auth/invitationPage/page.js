@@ -3,11 +3,15 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import React, { useRef } from "react";
 import { auth, db } from "../../firebase-config";
 import { doc, setDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
+
 
 export default function regsiter() {
     const fullNameRef = useRef();
     const emailRef = useRef();
     const passwordRef = useRef();
+    const route = useRouter();
+
 
     const register = async () => {
         console.log(
@@ -35,7 +39,8 @@ export default function regsiter() {
             await setDoc(userRef, data);
             console.log("Document added successfully!");
             console.log(response.user);
-            
+            route.push("/employee")
+
         } catch (error) {
             console.log("error in creation", error.message);
         }

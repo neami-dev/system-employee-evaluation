@@ -2,11 +2,15 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase-config";
 import React, { useRef } from "react";
+import { useRouter } from "next/navigation";
+
+
 
 export default function login() {
     const emailRef = useRef();
     const passwordRef = useRef();
-
+    const route = useRouter();
+    
     const login = async () => {
         console.log(emailRef.current.value, passwordRef.current.value);
 
@@ -16,6 +20,7 @@ export default function login() {
                 emailRef.current.value,
                 passwordRef.current.value
             );
+            route.push("/employee");
             console.log("response", response);
         } catch (error) {
             console.log("error in sign in ", error.message);
