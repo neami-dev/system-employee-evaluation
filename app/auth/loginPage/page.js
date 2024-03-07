@@ -20,9 +20,10 @@ export default function login() {
         console.log('password : ',password);
 
         const result = await signIn({ email, password });
-        console.log("result: ", result);
+        console.log("result: ", result.result);
+        console.log("error: ", result.error);
 
-        route.push("/employee");
+        
     };
     return (
         <>
