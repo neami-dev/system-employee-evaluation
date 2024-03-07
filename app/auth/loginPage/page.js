@@ -15,8 +15,11 @@ export default function login() {
         const password = passwordRef.current.value;
 
         const result = await signIn({ email, password });
+        console.log(result.error);
 
-        route.push("/employee");
+        if (result.error == null) {
+            route.push("/employee/profile");
+        }
     };
     return (
         <>

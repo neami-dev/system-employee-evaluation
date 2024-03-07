@@ -2,7 +2,7 @@ import { db } from "../firebase-config";
 import {  addDoc, collection } from "firebase/firestore";
 
 // Function to add data to a Firestore
-export default async function addData({ collectionName, data }) {
+export default async function addDocument({ collectionName, data }) {
     let result = null,
         error = null;
 

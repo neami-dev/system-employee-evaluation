@@ -13,11 +13,14 @@ export default function regsiter() {
         const email = emailRef.current.value;
         const password = passwordRef.current.value;
         const fullName = fullNameRef.current.value;
-        const photoURL = "";
+       
 
-        const response = await signUp({email,password,fullName,photoURL})
-        
-        route.push("/employee");
+        const response = await signUp({email,password,fullName})
+        console.log(response.result);
+        console.log(response.error);
+        if (response.error == null) {
+            route.push("/profile/employee");
+        }
        
     };
 
