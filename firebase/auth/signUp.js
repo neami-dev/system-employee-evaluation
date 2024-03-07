@@ -2,7 +2,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase-config";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
-export default async function signUp({ email, password, fullName, photoURL }) {
+export default async function signUp({ email, password, fullName }) {
     let result = null,
         error = null;
 
@@ -10,6 +10,9 @@ export default async function signUp({ email, password, fullName, photoURL }) {
         department: null,
         joiningDate: new Date(),
         score: 0,
+        skills:[],
+        whoIAm : "",
+        projects :{name:"",desription:""}
     };
 
     try {
@@ -17,7 +20,7 @@ export default async function signUp({ email, password, fullName, photoURL }) {
 
         await updateProfile(result.user, {
             displayName: fullName,
-            photoURL: photoURL,
+          
         });
 
         const userRef = doc(db, "userData", result.user.uid);
