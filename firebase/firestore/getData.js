@@ -1,8 +1,6 @@
 
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase-config";
- 
-
 
 // Function to retrieve a document from a Firestore collection
 export default async function getDocument({collectionName, id}) {
