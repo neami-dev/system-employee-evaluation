@@ -1,12 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     onAuthStateChanged,
     signOut,
 } from "firebase/auth";
-import { auth } from "../firebase-config";
+import { auth, usersCollectionRef } from "../../firebase/firebase-config";
+import { getDocs } from "firebase/firestore";
 
 export default function page() {
     const [registerEmail, setRegisterEmail] = useState("");
@@ -38,33 +39,18 @@ export default function page() {
     //       setupGuides([]);
     //     }
     //   });
-    const register = async () => {
-        try {
-            const user = await createUserWithEmailAndPassword(
-                auth,
-                registerEmail,
-                registerPassword
+    console.log("data");
+    useEffect(() => {
+        const getUsers = async () => {
+            const data = await getDocs(usersCollectionRef);
+            console.log("data");
+            console.log(
+                data.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
             );
-            console.log(user);
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
-    const login = async () => {
-        try {
-            const user = await signInWithEmailAndPassword(
-                auth,
-                loginEmail,
-                loginPassword
-            );
-            console.log(user);
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
-    const logout = async () => {
-        await signOut(auth);
-    };
+        };
+
+        getUsers();
+    }, []);
     return (
         <div>
             <div>

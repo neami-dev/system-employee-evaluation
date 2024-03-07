@@ -1,23 +1,27 @@
-"use client"
-import { db } from '@/app/firebase-config';
-import { getFirestore, collection, doc, setDoc } from "@firebase/firestore";
-import { useRouter } from 'next/navigation'
+"use client";
+import { db, usersCollectionRef } from "@/firebase/firebase-config";
+import {
+    getFirestore,
+    collection,
+    doc,
+    setDoc,
+    getDocs,
+} from "@firebase/firestore";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-import React from 'react'
+export default function test() {
+    useEffect(() => {
+        const getUsers = async () => {
+            const data = await getDocs(usersCollectionRef);
+            console.log("data");
+            console.log(
+                data.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+            );
+        };
 
-export default async function test() {
-    'use client'
- 
-     
-     
-      const router = useRouter()
-     
-      return (
-        <button type="button" onClick={() => router.push('/dashboard')}>
-          Dashboard
-        </button>
-      )
-    }
-  
+        getUsers();
+    }, []);
 
- 
+    return <>k.hhhjh</>;
+}

@@ -1,30 +1,22 @@
 "use client";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase-config";
+ 
 import React, { useRef } from "react";
 import { useRouter } from "next/navigation";
-
-
+import signIn from "@/firebase/auth/signIn";
 
 export default function login() {
     const emailRef = useRef();
     const passwordRef = useRef();
     const route = useRouter();
-    
-    const login = async () => {
-        console.log(emailRef.current.value, passwordRef.current.value);
 
-        try {
-            const response = await signInWithEmailAndPassword(
-                auth,
-                emailRef.current.value,
-                passwordRef.current.value
-            );
-            route.push("/employee");
-            console.log("response", response);
-        } catch (error) {
-            console.log("error in sign in ", error.message);
-        }
+    const login = async () => {
+
+        const email = emailRef.current.value;
+        const password = passwordRef.current.value;
+
+        const result = await signIn({ email, password });
+
+        route.push("/employee");
     };
     return (
         <>
