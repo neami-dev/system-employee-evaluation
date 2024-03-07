@@ -22,7 +22,9 @@ export default function login() {
         const result = await signIn({ email, password });
         console.log("result: ", result.result);
         console.log("error: ", result.error);
-
+        if (result.error == null) {
+            route.push("/employee/profile");
+        }
         
     };
     return (
