@@ -1,15 +1,32 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import signIn from "@/firebase/auth/signIn";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast"
+import { ToastAction } from "@/components/ui/toast"
 
 export default function login() {
     const emailRef = useRef();
     const passwordRef = useRef();
     const route = useRouter();
     const [errors, setErorrs] = useState(null);
+
+    const { toast } = useToast()
+
+    useEffect(() => {
+        if (errors) {
+            console.log("error : ",errors);
+            toast({
+                variant: "destructive",
+                title: "Uh oh! Something went wrong.",
+                description: errors,
+                action: <ToastAction altText="Try again">Try again</ToastAction>,
+            })      
+        }
+    }, [errors])
+    
 
     const login = async () => {
         const email = emailRef.current.value.trim();
@@ -37,7 +54,6 @@ export default function login() {
     };
     return (
         <>
-            {errors}
             <main className="flex relative">
                 <div className="w-[600px] h-[100vh] relative max-lg:hidden">
                     {" "}

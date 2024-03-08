@@ -1,8 +1,10 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import signUp from "@/firebase/auth/signUp";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast"
+import { ToastAction } from "@/components/ui/toast"
 
 export default function regsiter() {
     const fullNameRef = useRef();
@@ -10,6 +12,20 @@ export default function regsiter() {
     const passwordRef = useRef();
     const route = useRouter();
     const [errors, setErorrs] = useState("");
+    
+    const { toast } = useToast()
+
+    useEffect(() => {
+        if (errors) {
+            console.log("error : ",errors);
+            toast({
+                variant: "destructive",
+                title: "Uh oh! Something went wrong.",
+                description: errors,
+                action: <ToastAction altText="Try again">Try again</ToastAction>,
+            })      
+        }
+    }, [errors])
 
     const handleForm = async () => {
         const email = emailRef.current.value.trim();
@@ -42,7 +58,6 @@ export default function regsiter() {
     };
     return (
         <>
-            {errors}
             <main className="flex relative">
                 <div className="w-[600px] h-[100vh] relative max-lg:hidden">
                     {" "}
