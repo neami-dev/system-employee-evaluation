@@ -11,13 +11,12 @@ export default function login() {
     const emailRef = useRef();
     const passwordRef = useRef();
     const route = useRouter();
-    const [errors, setErorrs] = useState(null);
+    const [errors, setErorrs] = useState([]);
 
     const { toast } = useToast()
-
+    
     useEffect(() => {
-        if (errors) {
-            console.log("error : ",errors);
+        if (errors[0] !== undefined ) {
             toast({
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",
@@ -25,6 +24,7 @@ export default function login() {
                 action: <ToastAction altText="Try again">Try again</ToastAction>,
             })      
         }
+       
     }, [errors])
     
 

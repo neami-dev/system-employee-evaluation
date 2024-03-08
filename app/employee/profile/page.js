@@ -5,8 +5,6 @@ import { auth } from "../../../firebase/firebase-config";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
-import getDocuments from "@/firebase/firestore/getDocuments";
-
 
 export default function page() {
     const [userData, setUserData] = useState({});
@@ -22,11 +20,14 @@ export default function page() {
     // get info the user score department ...
     const getInfo = async () => {
         if (infoDoc.id !== undefined && infoDoc.collectionName !== undefined) {
-            const result = await getDocument(infoDoc);
+            const result = await getDocument(
+                infoDoc.collectionName,
+                infoDoc.id
+            );
             setUserData(result.result.data());
         }
     };
-    
+
     // const testGetDocuments  = async ()=>{
     //     const result2 = await getDocuments("task");
     //     result2.result.docs.map((doc)=>{
@@ -37,7 +38,7 @@ export default function page() {
     //     testGetDocuments()
     // },[])
     useEffect(() => {
-        // get info Auth 
+        // get info Auth
         auth.onAuthStateChanged((res) => {
             setData(res);
             if (data == null) {
