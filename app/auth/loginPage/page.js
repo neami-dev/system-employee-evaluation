@@ -6,8 +6,8 @@ import signIn from "@/firebase/auth/signIn";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
+import Loading from "@/components/loading";
 import { auth } from "@/firebase/firebase-config";
-import Loading from "./loading";
 
 export default function login() {
     const emailRef = useRef();
@@ -34,7 +34,9 @@ export default function login() {
     
 
 
-    const login = async () => {
+    const login = async (e) => {
+        e.preventDefault();
+
         setIsLoading(true); // Start loading
         const email = emailRef.current.value.trim();
         const password = passwordRef.current.value.trim();
@@ -52,11 +54,11 @@ export default function login() {
         const result = await signIn({ email, password });
         if (result.error) {
             setErrors([result.error?.code?.split("/")[1]]);
+            setIsLoading(false); // Stop loading after auth attempt
         } else {
             console.log("Authentication successful: ", auth);
             route.push("/employee/profile");
         }
-        setIsLoading(false); // Stop loading after auth attempt
     };
 
     return (
@@ -97,7 +99,7 @@ export default function login() {
                                 Login
                             </h2>
                         </div>
-                        {/* <form className="" onSubmit={login}> */}
+                        <form className="" onSubmit={login} >
                         <div className="mt-8 space-y-6">
                             {/* <input type="hidden" name="remember" defaultValue="true" /> */}
                             <div className="rounded-md shadow-sm -space-y-px">
@@ -143,7 +145,7 @@ export default function login() {
 
                             <div className="w-full flex justify-center">
                                 <Button
-                                    onClick={login}
+                                    // onClick={login}
                                     type="submit"
                                     className="group w-[120px] relative flex justify-center py-2 px-4 border border-transparent 
                                 text-sm font-medium rounded-md text-white bg-teal-500 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -163,7 +165,7 @@ export default function login() {
                                 </div>
                             </div>
                         </div>
-                        {/* </form> */}
+                        </form>
                     </div>
                     <div className="flex gap-5 absolute bottom-[15px] left-[20px] ">
                         <p className="text-[15px] text-gray-500 cursor-pointer">
