@@ -13,7 +13,7 @@ export default function regsiter() {
     const fullNameRef = useRef();
     const router = useRouter();
     const [errors, setErrors] = useState([]);
-    
+
     const [isLoading, setIsLoading] = useState(false);
 
     const { toast } = useToast();
@@ -39,9 +39,9 @@ export default function regsiter() {
         setErrors([]); // Clear previous errors
 
         let newErrors = [];
-        if (!fullName) newErrors.push("Full name required!");
-        if (!email) newErrors.push("Email required!");
         if (!password) newErrors.push("Password required!");
+        if (!email) newErrors.push("Email required!");
+        if (!fullName) newErrors.push("Full name required!");
 
         if (newErrors.length > 0) {
             setErrors(newErrors);
@@ -98,7 +98,7 @@ export default function regsiter() {
                                 Join us
                             </h2>
                         </div>
-                        <form className="" onSubmit={handleForm}>
+                        <form onSubmit={handleForm}>
                         <div className="mt-8 space-y-6">
                             {/* <input type="hidden" name="remember" defaultValue="true" /> */}
                             <div className="rounded-md shadow-sm -space-y-px">
@@ -112,7 +112,7 @@ export default function regsiter() {
                                     <input
                                         id="full-name"
                                         name="fullName"
-                                        type="text"
+                                        type="username"
                                         required
                                         className="rounded relative block w-full px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                         placeholder="Full Name"

@@ -20,17 +20,16 @@ export default function login() {
     const [isLoading, setIsLoading] = useState(false); // Add a loading state
     
     useEffect(() => { // lanch the alert toast if there is an error
-        if (errors[0] !== undefined) {
-            console.log("error : ",errors[0]);
+        errors.forEach((error) => {
             toast({
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",
-                description: errors,
+                description: error, // Now passing a single error message
                 action: <ToastAction altText="Try again">Try again</ToastAction>,
-            })      
-        }
+            });
+        });
        
-    }, [errors])
+    }, [errors,, toast])
     
 
 
@@ -41,14 +40,16 @@ export default function login() {
         const email = emailRef.current.value.trim();
         const password = passwordRef.current.value.trim();
         
-        setErrors([]); // Clear errors at the start
-        if (!email || !password) {
-            const errors = [];
-            if (!email) errors.push("  Email is required!");
-            if (!password) errors.push("  Password is required!");
-            setErrors(errors);
-            setIsLoading(false); // Stop loading if validation fails
-            return;
+        setErrors([]); // Clear previous errors
+
+        let newErrors = [];
+        if (!password) newErrors.push("Password required!");
+        if (!email) newErrors.push("Email required!");
+
+        if (newErrors.length > 0) {
+            setErrors(newErrors);
+            setIsLoading(false); // Stop loading if there are validation errors
+            return; // Stop the function if there are errors
         }
         
         const result = await signIn({ email, password });
@@ -99,7 +100,7 @@ export default function login() {
                                 Login
                             </h2>
                         </div>
-                        <form className="" onSubmit={login} >
+                        <form onSubmit={login} >
                         <div className="mt-8 space-y-6">
                             {/* <input type="hidden" name="remember" defaultValue="true" /> */}
                             <div className="rounded-md shadow-sm -space-y-px">
