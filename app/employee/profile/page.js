@@ -6,11 +6,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
 
-export default function page() {
+export default  function page() {
     const [userData, setUserData] = useState({});
     const [data, setData] = useState({});
     const [res, setres] = useState({});
-
+    
     const route = useRouter();
     const infoDoc = { collectionName: "userData", id: data?.uid };
 

@@ -12,7 +12,8 @@ export default async function signUp({ email, password, fullName }) {
         score: 0,
         skills:[],
         whoIAm : "",
-        projects :{name:"",desription:""}
+        projects :{name:"",desription:""},
+        role : "employee"
     };
 
     try {

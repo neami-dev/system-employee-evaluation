@@ -1,27 +1,34 @@
 "use client";
-import { db, usersCollectionRef } from "@/firebase/firebase-config";
-import {
-    getFirestore,
-    collection,
-    doc,
-    setDoc,
-    getDocs,
-} from "@firebase/firestore";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
-export default function test() {
-    useEffect(() => {
-        const getUsers = async () => {
-            const data = await getDocs(usersCollectionRef);
-            console.log("data");
-            console.log(
-                data.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-            );
-        };
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
-        getUsers();
-    }, []);
+export default function Links() {
+    const pathname = usePathname();
 
-    return <>k.hhhjh</>;
+    return (
+        <nav>
+            <ul>
+                <li>
+                    <Link
+                        className={`link ${pathname === "/" ? "active" : ""}`}
+                        href="/"
+                    >
+                        Home
+                    </Link>
+                </li>
+
+                <li>
+                    <Link
+                        className={`link ${
+                            pathname === "/about" ? "active" : ""
+                        }`}
+                        href="/about"
+                    >
+                        About
+                    </Link>
+                </li>
+            </ul>
+        </nav>
+    );
 }
