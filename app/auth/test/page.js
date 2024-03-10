@@ -9,6 +9,8 @@ import {
 } from "@firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { auth } from "@/firebase/firebase-config";
+
 
 export default function test() {
     useEffect(() => {
@@ -19,7 +21,7 @@ export default function test() {
                 data.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
             );
         };
-
+        console.log("auth : ",auth);
         getUsers();
     }, []);
 

@@ -6,18 +6,22 @@ import signIn from "@/firebase/auth/signIn";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
+import { auth } from "@/firebase/firebase-config";
+import Loading from "./loading";
 
 export default function login() {
     const emailRef = useRef();
     const passwordRef = useRef();
     const route = useRouter();
-    const [errors, setErorrs] = useState(null);
-
+    const [errors, setErrors] = useState([]);
+    
     const { toast } = useToast()
-
-    useEffect(() => {
-        if (errors) {
-            console.log("error : ",errors);
+    
+    const [isLoading, setIsLoading] = useState(false); // Add a loading state
+    
+    useEffect(() => { // lanch the alert toast if there is an error
+        if (errors[0] !== undefined) {
+            console.log("error : ",errors[0]);
             toast({
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",
@@ -28,32 +32,35 @@ export default function login() {
     }, [errors])
     
 
+
     const login = async () => {
+        setIsLoading(true); // Start loading
         const email = emailRef.current.value.trim();
         const password = passwordRef.current.value.trim();
         
-        setErorrs("");
-        if (!email) {
-            setErorrs("");
-            return setErorrs((prev) => [...prev, "email required !"]);
+        setErrors([]); // Clear errors at the start
+        if (!email || !password) {
+            const errors = [];
+            if (!email) errors.push("  Email is required!");
+            if (!password) errors.push("  Password is required!");
+            setErrors(errors);
+            setIsLoading(false); // Stop loading if validation fails
+            return;
         }
-        if (!password) {
-            setErorrs("");
-            return setErorrs((prev) => [...prev, "password required !"]);
-        }
+        
         const result = await signIn({ email, password });
-
-        setErorrs((prev) => [
-            ...prev,
-            JSON.stringify(result.error?.code?.split("/")[1]),
-        ]);
-
-        if (result.error == null) {
+        if (result.error) {
+            setErrors([result.error?.code?.split("/")[1]]);
+        } else {
+            console.log("Authentication successful: ", auth);
             route.push("/employee/profile");
         }
+        setIsLoading(false); // Stop loading after auth attempt
     };
+
     return (
         <>
+            {isLoading && <Loading />}
             <main className="flex relative">
                 <div className="w-[600px] h-[100vh] relative max-lg:hidden">
                     {" "}
