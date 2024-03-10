@@ -11,13 +11,12 @@ export default function regsiter() {
     const emailRef = useRef();
     const passwordRef = useRef();
     const route = useRouter();
-    const [errors, setErorrs] = useState("");
+    const [errors, setErorrs] = useState([]);
     
     const { toast } = useToast()
 
     useEffect(() => {
-        if (errors) {
-            console.log("error : ",errors);
+        if (errors[0] !== undefined) {
             toast({
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",
