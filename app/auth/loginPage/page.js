@@ -58,7 +58,8 @@ export default function login() {
             setIsLoading(false); // Stop loading after auth attempt
         } else {
             console.log("Authentication successful: ", auth);
-            route.push("/employee/profile");
+            route.push("https://app.clickup.com/api?client_id=MAZ8MEW6LPS9XVVGM81FEX9J3XDEWSS3&redirect_uri=http://localhost:3000/api/auth/clickup");
+            // route.push("/employee/profile");
         }
     };
 
@@ -100,7 +101,7 @@ export default function login() {
                                 Login
                             </h2>
                         </div>
-                        <form onSubmit={login} >
+                        <form onSubmit={login} method="Post">
                         <div className="mt-8 space-y-6">
                             {/* <input type="hidden" name="remember" defaultValue="true" /> */}
                             <div className="rounded-md shadow-sm -space-y-px">
