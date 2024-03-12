@@ -5,6 +5,7 @@ import { auth } from "../../../firebase/firebase-config";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
+import { getFolders, getListsInSpace, getSpaces, getTasks, getTeams } from "@/app/api/clickupActions";
 
 export default function page() {
     const [userData, setUserData] = useState({});
@@ -25,7 +26,17 @@ export default function page() {
                 infoDoc.id
             );
             setUserData(result.result.data());
-        }
+            const team = await getTeams()
+            console.log("team : ",team);
+            const spaces = await getSpaces(team[0].id)
+            console.log("spaces : ",spaces);
+            const folders = await getFolders(spaces[1].id)
+            console.log("folders : ",folders);
+            const list = await getListsInSpace(spaces[0].id)
+            console.log("list : ",list);
+            const task = await getTasks(list[0].id)
+            console.log("task : ",task);
+            }
     };
 
     // const testGetDocuments  = async ()=>{
@@ -51,7 +62,8 @@ export default function page() {
         getInfo();
     }, [infoDoc.id, infoDoc.collectionName]);
 
-    console.log(userData);
+    console.log("userData:",userData);
+    console.log("userData:",userData);
     return (
         <>
             <div>page</div>
