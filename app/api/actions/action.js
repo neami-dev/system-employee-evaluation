@@ -2,7 +2,7 @@
 import { cookies } from "next/headers";
 
 const auth = cookies().get("ClickupToken").value;
-
+ 
 export const teams = async () => {
     const resp = await fetch(`https://api.clickup.com/api/v2/team`, {
         method: "GET",

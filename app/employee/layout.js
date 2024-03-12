@@ -15,7 +15,10 @@ export default function RootLayout({ children }) {
     
     return (
         <>
-        <NavBarEmployee/>
-        {children}</>
+        <div>
+            <NavBarEmployee/>
+        {children}
+        </div>
+        </>
     );
 }
