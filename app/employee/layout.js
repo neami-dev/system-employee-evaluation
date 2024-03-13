@@ -1,6 +1,7 @@
+import NavBarEmployee from "@/components/navBarEmployee";
+import { auth } from "@/firebase/firebase-config";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
+ 
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -10,12 +11,14 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+    
+    
     return (
-        <html lang="en">
-            <body className={ `${inter.className} bg-[#F1F2F6]`}>
-                {children}
-                <Toaster />
-            </body>
-        </html>
+        <>
+        <div>
+            <NavBarEmployee/>
+        {children}
+        </div>
+        </>
     );
 }
