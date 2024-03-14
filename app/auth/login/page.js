@@ -6,54 +6,66 @@ import signIn from "@/firebase/auth/signIn";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
+import Loading from "@/components/loading";
+import { auth } from "@/firebase/firebase-config";
 
 export default function login() {
     const emailRef = useRef();
     const passwordRef = useRef();
     const route = useRouter();
-    const [errors, setErorrs] = useState([]);
-
+    const [errors, setErrors] = useState([]);
+    
     const { toast } = useToast()
     
-    useEffect(() => {
-        if (errors[0] !== undefined ) {
+    const [isLoading, setIsLoading] = useState(false); // Add a loading state
+    
+    useEffect(() => { // lanch the alert toast if there is an error
+        errors.forEach((error) => {
             toast({
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",
-                description: errors,
+                description: error, // Now passing a single error message
                 action: <ToastAction altText="Try again">Try again</ToastAction>,
-            })      
-        }
+            });
+        });
        
-    }, [errors])
+    }, [errors,, toast])
     
 
-    const login = async () => {
+
+    const login = async (e) => {
+        e.preventDefault();
+
+        setIsLoading(true); // Start loading
         const email = emailRef.current.value.trim();
         const password = passwordRef.current.value.trim();
         
-        setErorrs("");
-        if (!email) {
-            setErorrs("");
-            return setErorrs((prev) => [...prev, "email required !"]);
+        setErrors([]); // Clear previous errors
+
+        let newErrors = [];
+        if (!password) newErrors.push("Password required!");
+        if (!email) newErrors.push("Email required!");
+
+        if (newErrors.length > 0) {
+            setErrors(newErrors);
+            setIsLoading(false); // Stop loading if there are validation errors
+            return; // Stop the function if there are errors
         }
-        if (!password) {
-            setErorrs("");
-            return setErorrs((prev) => [...prev, "password required !"]);
-        }
+        
         const result = await signIn({ email, password });
-
-        setErorrs((prev) => [
-            ...prev,
-            JSON.stringify(result.error?.code?.split("/")[1]),
-        ]);
-
-        if (result.error == null) {
-            route.push("/employee/profile");
+        if (result.error) {
+            setErrors([result.error?.code?.split("/")[1]]);
+            setIsLoading(false); // Stop loading after auth attempt
+        } else {
+            console.log("Authentication successful: ", auth);
+            route.push("https://app.clickup.com/api?client_id=MAZ8MEW6LPS9XVVGM81FEX9J3XDEWSS3&redirect_uri=http://localhost:3000/api/auth/clickup");
+            // route.push("/employee/profile");
         }
     };
+
     return (
         <>
+            {isLoading && <Loading />}
             <main className="flex relative">
                 <div className="w-[600px] h-[100vh] relative max-lg:hidden">
                     {" "}
@@ -89,7 +101,7 @@ export default function login() {
                                 Login
                             </h2>
                         </div>
-                        {/* <form className="" onSubmit={login}> */}
+                        <form onSubmit={login} method="Post">
                         <div className="mt-8 space-y-6">
                             {/* <input type="hidden" name="remember" defaultValue="true" /> */}
                             <div className="rounded-md shadow-sm -space-y-px">
@@ -135,7 +147,7 @@ export default function login() {
 
                             <div className="w-full flex justify-center">
                                 <Button
-                                    onClick={login}
+                                    // onClick={login}
                                     type="submit"
                                     className="group w-[120px] relative flex justify-center py-2 px-4 border border-transparent 
                                 text-sm font-medium rounded-md text-white bg-teal-500 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -155,7 +167,7 @@ export default function login() {
                                 </div>
                             </div>
                         </div>
-                        {/* </form> */}
+                        </form>
                     </div>
                     <div className="flex gap-5 absolute bottom-[15px] left-[20px] ">
                         <p className="text-[15px] text-gray-500 cursor-pointer">
