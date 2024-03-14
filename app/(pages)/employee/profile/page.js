@@ -28,26 +28,26 @@ export default function page() {
             setUserData(result.result.data());
         }
         
-        const team = await getTeams();
-        console.log('team : ',team);
+    //     const team = await getTeams();
+    //     console.log('team : ',team);
 
-        const space = await getSpaces(team.id);
-        console.log('space : ',space);
+    //     const space = await getSpaces(team?.id);
+    //     console.log('space : ',space);
 
-        const folder = await getFolders(space[0].id);
-        console.log('folder : ',folder);
+    //     const folder = await getFolders(space[0]?.id);
+    //     console.log('folder : ',folder);
 
-        const list = await getListsInSpace(space[0].id);
-        console.log('list : ',list);
+    //     const list = await getListsInSpace(space[0]?.id);
+    //     console.log('list : ',list);
 
-        const task = await getTasks(list[0].id);
-        console.log('task : ',task);
+    //     const task = await getTasks(list[0]?.id);
+    //     console.log('task : ',task);
 
-        const userCickupDetails = await getAuthenticatedUserDetails();
-        console.log('userCickupDetails : ',userCickupDetails);
+    //     const userCickupDetails = await getAuthenticatedUserDetails();
+    //     console.log('userCickupDetails : ',userCickupDetails);
 
-        const tasksToDay = await getCompletedTasksByEmployeeToday(team.id,userCickupDetails.id);
-        console.log('tasksToDay : ',tasksToDay);
+    //     const tasksToDay = await getCompletedTasksByEmployeeToday(team.id,userCickupDetails.id);
+    //     console.log('tasksToDay : ',tasksToDay);
     };
 
 

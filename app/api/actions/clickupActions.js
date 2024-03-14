@@ -12,7 +12,7 @@ const API_TOKEN = cookies().get("tokenClickup"); // Replace with your API token
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Authorization': API_TOKEN.value,
+    'Authorization': API_TOKEN?.value,
     'Content-Type': 'application/json',
   },
 });
@@ -33,14 +33,14 @@ export const getAuthenticatedUserDetails = async () => {
 
 // Get user's teams (workspaces)
 export const getTeams = async () => {
-    console.log("token : ",API_TOKEN.value);
+    console.log("token : ",API_TOKEN?.value);
     console.log("i'm team");
         
     // const teamId = await getTeams()
     // cookies().set("teamIdClickup",teamId.id)
   try {
     const response = await api.get('/team');
-    return response.data.teams[0];
+    return response.data?.teams[0];
   } catch (error) {
     console.error('Error fetching teams:', error);
   }
@@ -52,7 +52,7 @@ export const getSpaces = async (teamId) => {
     console.log("hey i'm space");
     try {
       const response = await api.get(`/team/${teamId}/space`);
-      return response.data.spaces;
+      return response.data?.spaces;
     } catch (error) {
       console.error('Error fetching spaces:', error);
     }
@@ -65,7 +65,7 @@ export const getFolders = async (spaceId) => {
 
     try {
       const response = await api.get(`/space/${spaceId}/folder`);
-      return response.data.folders;
+      return response.data?.folders;
     } catch (error) {
       console.error('Error fetching folders:', error);
     }
@@ -89,7 +89,7 @@ export const getTasks = async (listId) => {
     console.log("hey i'm task");
     try {
       const response = await api.get(`/list/${listId}/task`);
-      return response.data.tasks;
+      return response.data?.tasks;
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
@@ -117,7 +117,7 @@ export const getTasks = async (listId) => {
           // 'date_updated_lt': endIso
         }
       });
-      return response.data.tasks;
+      return response.data?.tasks;
     } catch (error) {
       console.error('Error fetching completed tasks for today:', error);
       return [];

@@ -1,5 +1,4 @@
 import NavBar from "@/components/layout/navBar";
-import { auth } from "@/firebase/firebase-config";
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
