@@ -20,7 +20,7 @@ const api = axios.create({
 // Function to get the authenticated user's details
 export const getAuthenticatedUserDetails = async () => {
   console.log("i'm user func");
-  console.log("token : ",API_TOKEN?.value);
+  console.log("token : ",API_TOKEN.value);
   try {
     const response = await api.get('/user');
     return response.data.user; // Adjust according to the actual response structure
