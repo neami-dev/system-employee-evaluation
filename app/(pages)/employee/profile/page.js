@@ -1,11 +1,12 @@
 "use client";
 import { signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
-import { auth } from "../../../firebase/firebase-config";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
 import { getAuthenticatedUserDetails, getCompletedTasksByEmployeeToday, getFolders, getListsInSpace, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
+import { auth } from "@/firebase/firebase-config";
 
 
 
@@ -57,7 +58,7 @@ export default function page() {
                 setData(user);
             } else {
                 // Redirect if not authenticated
-                route.push("/auth/loginPage");
+                route.push("/loginPage");
             }
         });
 

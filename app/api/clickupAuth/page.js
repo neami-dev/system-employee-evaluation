@@ -1,8 +1,8 @@
 "use client"
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import ClickupTokenHandler from './ClickupTokenHandler/page';
-import Loading from '@/components/loading';
+import ClickupTokenHandler from './_ClickupTokenHandler/page';
+import Loading from '@/components/layout/Loading';
 
 export default function ClickupCallback() {
     const route = useRouter();
@@ -27,7 +27,7 @@ export default function ClickupCallback() {
         
     } else {
         console.error(dataToken);
-        route.push('/auth/login');
+        route.push('/login');
     }
   }
 
