@@ -1,7 +1,7 @@
 "use client"
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import ClickupTokenHandler from './_ClickupTokenHandler/page';
+import ClickupTokenHandler from './_ClickupTokenHandler/tokenHandler';
 import Loading from '@/components/layout/Loading';
 
 export default function ClickupCallback() {

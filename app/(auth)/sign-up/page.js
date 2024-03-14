@@ -57,7 +57,8 @@ export default function regsiter() {
         } else {
             console.log("Sign-up successful, redirecting...");
             // router.push("/employee/profile");
-            router.push("https://app.clickup.com/api?client_id=MAZ8MEW6LPS9XVVGM81FEX9J3XDEWSS3&redirect_uri=http://localhost:3000/api/clickupAuth");
+            router.push(`https://app.clickup.com/api?client_id=${process.env.CLICKUP_CLIENT_ID}&redirect_uri=http://localhost:3000/api/clickupAuth`);
+            
         }
     };
     return (
