@@ -27,7 +27,7 @@ export default function ClickupCallback() {
         
     } else {
         console.error(dataToken);
-        route.push('/login');
+        route.push('/sign-up');
     }
   }
 

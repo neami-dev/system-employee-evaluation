@@ -175,7 +175,7 @@ export default function regsiter() {
                             <div className="flex items-center justify-between">
                                 <div className="text-sm">
                                     <a
-                                        href="#"
+                                        href="/login"
                                         className="font-medium text-teal-600 hover:text-teal-500"
                                     >
                                         Already have account?

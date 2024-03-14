@@ -21,12 +21,6 @@ export default async function ClickupTokenHandler(code) {
         console.log("the token is here : ", tokenData.access_token);
         cookies().set("tokenClickup",tokenData.access_token)
         
-        // const userId = await getAuthenticatedUserDetails()
-        // cookies().set("userIdClickup",userId.id)
-        
-        // const teamId = await getTeams()
-        // cookies().set("teamIdClickup",teamId.id)
-
         return true
       } else {
         return "Token exchange failed"
