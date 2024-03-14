@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 const API_BASE_URL = 'https://api.clickup.com/api/v2';
 
 
-const API_TOKEN = cookies().get("ClickupToken"); // Replace with your API token
+const API_TOKEN = cookies().get("tokenClickup"); // Replace with your API token
 
 // Setup axios instance with default headers
 const api = axios.create({
