@@ -1,7 +1,6 @@
-import NavBar from "@/components/navBar";
+import NavBar from "@/components/layout/navBar";
 import { auth } from "@/firebase/firebase-config";
 import { Inter } from "next/font/google";
- 
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,14 +10,12 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-    
-    
     return (
         <>
-        <div>
-            <NavBar/>
-        {children}
-        </div>
+            <div>
+                <NavBar />
+                {children}
+            </div>
         </>
     );
 }

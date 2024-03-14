@@ -1,7 +1,8 @@
 "use client"
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import ClickupTokenHandler from './exchangeToken/page';
+import ClickupTokenHandler from './_ClickupTokenHandler/page';
+import Loading from '@/components/layout/Loading';
 
 export default function ClickupCallback() {
     const route = useRouter();
@@ -25,10 +26,12 @@ export default function ClickupCallback() {
         route.push('/employee/profile');
         
     } else {
-        console.error('Token exchange failed');
-        // route.push('/auth/loginPage');
+        console.error(dataToken);
+        route.push('/sign-up');
     }
   }
 
-  return <div>Authorizing...</div>;
+  return <>
+    <Loading />
+  </>;
 }

@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 const API_BASE_URL = 'https://api.clickup.com/api/v2';
 
 
-const API_TOKEN = cookies().get("ClickupToken"); // Replace with your API token
+const API_TOKEN = cookies().get("tokenClickup"); // Replace with your API token
 
 // Setup axios instance with default headers
 const api = axios.create({
@@ -19,6 +19,8 @@ const api = axios.create({
 
 // Function to get the authenticated user's details
 export const getAuthenticatedUserDetails = async () => {
+  // const userId = await getAuthenticatedUserDetails()
+      // cookies().set("userIdClickup",userId.id)
   try {
     const response = await api.get('/user');
     return response.data.user; // Adjust according to the actual response structure
@@ -33,6 +35,9 @@ export const getAuthenticatedUserDetails = async () => {
 export const getTeams = async () => {
     console.log("token : ",API_TOKEN.value);
     console.log("i'm team");
+        
+    // const teamId = await getTeams()
+    // cookies().set("teamIdClickup",teamId.id)
   try {
     const response = await api.get('/team');
     return response.data.teams[0];

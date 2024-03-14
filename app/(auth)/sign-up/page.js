@@ -1,25 +1,24 @@
 "use client";
-
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import signIn from "@/firebase/auth/signIn";
+import signUp from "@/firebase/auth/signUp";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
-import Loading from "@/components/loading";
-import { auth } from "@/firebase/firebase-config";
+import Loading from "@/components/layout/Loading";
 
-export default function login() {
+export default function regsiter() {
     const emailRef = useRef();
     const passwordRef = useRef();
-    const route = useRouter();
+    const fullNameRef = useRef();
+    const router = useRouter();
     const [errors, setErrors] = useState([]);
-    
-    const { toast } = useToast()
-    
-    const [isLoading, setIsLoading] = useState(false); // Add a loading state
-    
-    useEffect(() => { // lanch the alert toast if there is an error
+
+    const [isLoading, setIsLoading] = useState(false);
+
+    const { toast } = useToast();
+
+    useEffect(() => {
         errors.forEach((error) => {
             toast({
                 variant: "destructive",
@@ -28,41 +27,39 @@ export default function login() {
                 action: <ToastAction altText="Try again">Try again</ToastAction>,
             });
         });
-       
-    }, [errors,, toast])
-    
+    }, [errors, toast]);
 
-
-    const login = async (e) => {
-        e.preventDefault();
-
+    const handleForm = async (e) => {
+        e.preventDefault(); 
         setIsLoading(true); // Start loading
         const email = emailRef.current.value.trim();
         const password = passwordRef.current.value.trim();
-        
+        const fullName = fullNameRef.current.value.trim();
+
         setErrors([]); // Clear previous errors
 
         let newErrors = [];
         if (!password) newErrors.push("Password required!");
         if (!email) newErrors.push("Email required!");
+        if (!fullName) newErrors.push("Full name required!");
 
         if (newErrors.length > 0) {
             setErrors(newErrors);
             setIsLoading(false); // Stop loading if there are validation errors
             return; // Stop the function if there are errors
         }
-        
-        const result = await signIn({ email, password });
+
+        const result = await signUp({ email, password, fullName });
+
         if (result.error) {
-            setErrors([result.error?.code?.split("/")[1]]);
-            setIsLoading(false); // Stop loading after auth attempt
+            setErrors([...errors, `Error: ${result.error?.code?.split("/")[1]}`]);
+            setIsLoading(false); // Stop loading after handling the sign-up attempt
         } else {
-            console.log("Authentication successful: ", auth);
-            route.push("https://app.clickup.com/api?client_id=MAZ8MEW6LPS9XVVGM81FEX9J3XDEWSS3&redirect_uri=http://localhost:3000/api/auth/clickup");
-            // route.push("/employee/profile");
+            console.log("Sign-up successful, redirecting...");
+            // router.push("/employee/profile");
+            router.push("https://app.clickup.com/api?client_id=MAZ8MEW6LPS9XVVGM81FEX9J3XDEWSS3&redirect_uri=http://localhost:3000/api/clickupAuth");
         }
     };
-
     return (
         <>
             {isLoading && <Loading />}
@@ -94,17 +91,36 @@ export default function login() {
                         ENEAR
                     </p>
                 </div>
+
                 <div className="lg:relative rounded-lg w-full h-[100vh] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
                     <div className="w-[90%] lg:w-[40%] max-lg:w-[35%] max-md:w-[45%] max-sm:w-[65%] space-y-8">
                         <div>
                             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                                Login
+                                Join us
                             </h2>
                         </div>
-                        <form onSubmit={login} method="Post">
+                        <form onSubmit={handleForm} method="Post">
                         <div className="mt-8 space-y-6">
                             {/* <input type="hidden" name="remember" defaultValue="true" /> */}
                             <div className="rounded-md shadow-sm -space-y-px">
+                                <div>
+                                    <label
+                                        htmlFor="full-name"
+                                        className="sr-only"
+                                    >
+                                        Full Name
+                                    </label>
+                                    <input
+                                        id="full-name"
+                                        name="fullName"
+                                        type="username"
+                                        required
+                                        className="rounded relative block w-full px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                        placeholder="Full Name"
+                                        ref={fullNameRef}
+                                        // value={email}
+                                    />
+                                </div>
                                 <div>
                                     <label
                                         htmlFor="email-address"
@@ -118,7 +134,7 @@ export default function login() {
                                         type="email"
                                         autoComplete="email"
                                         required
-                                        className="rounded relative block w-full px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                        className=" rounded relative block w-full px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                         placeholder="Email address"
                                         ref={emailRef}
                                         // value={email}
@@ -147,7 +163,7 @@ export default function login() {
 
                             <div className="w-full flex justify-center">
                                 <Button
-                                    // onClick={login}
+                                    // onClick={handleForm}
                                     type="submit"
                                     className="group w-[120px] relative flex justify-center py-2 px-4 border border-transparent 
                                 text-sm font-medium rounded-md text-white bg-teal-500 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -159,10 +175,10 @@ export default function login() {
                             <div className="flex items-center justify-between">
                                 <div className="text-sm">
                                     <a
-                                        href="#"
+                                        href="/login"
                                         className="font-medium text-teal-600 hover:text-teal-500"
                                     >
-                                        Forgot your password?
+                                        Already have account?
                                     </a>
                                 </div>
                             </div>

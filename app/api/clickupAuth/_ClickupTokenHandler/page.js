@@ -1,5 +1,6 @@
 "use server"
 
+// import { getAuthenticatedUserDetails, getTeams } from "@/app/api/actions/clickupActions.js";
 import { cookies } from "next/headers";
 
 export default async function ClickupTokenHandler(code) {
@@ -18,14 +19,15 @@ export default async function ClickupTokenHandler(code) {
       if (tokenData.access_token) {
         
         console.log("the token is here : ", tokenData.access_token);
-        cookies().set("ClickupToken",tokenData.access_token)
+        cookies().set("tokenClickup",tokenData.access_token)
+        
         return true
       } else {
-        return false
+        return "Token exchange failed"
       }
     } catch (error) {
       
-      return false
+      return error.message
     }
   }
   

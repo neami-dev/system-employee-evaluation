@@ -1,20 +1,20 @@
 "use client";
 import { signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
-import { auth } from "../../../firebase/firebase-config";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
 import { getAuthenticatedUserDetails, getCompletedTasksByEmployeeToday, getFolders, getListsInSpace, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
-import Components from "@/components/component/components";
+import { auth } from "@/firebase/firebase-config";
 
 
 
-export default  function page() {
+export default function page() {
     const [userData, setUserData] = useState({});
     const [data, setData] = useState({});
     const [res, setres] = useState({});
-    
+
     const route = useRouter();
     const infoDoc = { collectionName: "userData", id: data?.uid };
 
@@ -58,7 +58,7 @@ export default  function page() {
                 setData(user);
             } else {
                 // Redirect if not authenticated
-                route.push("/auth/loginPage");
+                route.push("/loginPage");
             }
         });
 
@@ -75,7 +75,7 @@ export default  function page() {
     console.log("userData:",userData);
     return (
         <>
-            {/* <div className=" mt-10">
+            <div className=" mt-10">
                 <div>
                     page</div>
 
@@ -91,8 +91,7 @@ export default  function page() {
                         })}
                     </ul>
                 </ul>
-            </div> */}
-            <Components/>
+            </div>
         </>
     );
 }
