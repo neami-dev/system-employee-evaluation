@@ -58,7 +58,7 @@ export default function page() {
                 setData(user);
             } else {
                 // Redirect if not authenticated
-                route.push("/loginPage");
+                route.push("/login");
             }
         });
 
@@ -83,7 +83,7 @@ export default function page() {
                 <ul>
                     <li>department {userData?.department}</li>
                     <li>score {userData?.score}</li>
-                    <li>joiningDate {userData.joiningDate?.nanoseconds}</li>
+                    <li>joiningDate {userData?.joiningDate?.nanoseconds}</li>
                     <ul>
                         skills{" "}
                         {userData?.skills?.map((skill, index) => {

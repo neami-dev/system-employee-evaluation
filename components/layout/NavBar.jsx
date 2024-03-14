@@ -3,14 +3,59 @@ import { auth } from "@/firebase/firebase-config";
 import { signOut } from "firebase/auth";
 import Link from "next/link";
 import React, { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Input } from "../ui/input";
-import { GoBell } from "react-icons/go";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+
 import { LuCalendarRange } from "react-icons/lu";
 import { LuSearch } from "react-icons/lu";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Calendar } from "@/components/ui/calendar";
+import {
+    BellIcon,
+    CalendarDays,
+    Cloud,
+    CreditCard,
+    Github,
+    Keyboard,
+    LifeBuoy,
+    LogOut,
+    Mail,
+    MessageSquare,
+    Plus,
+    PlusCircle,
+    Search,
+    Settings,
+    User,
+    UserPlus,
+    Users,
+} from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuPortal,
+    DropdownMenuSeparator,
+    DropdownMenuShortcut,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "../ui/button";
 
+import { cn } from "@/lib/utils";
 export default function NavBar() {
     const [userData, setUserData] = useState("");
+    const [date, setDate] = useState(new Date());
+    console.log("date=", date);
+
     auth.onAuthStateChanged((res) => {
         // console.log(res);
         setUserData(res);
@@ -18,8 +63,10 @@ export default function NavBar() {
     async function logout() {
         await signOut(auth);
     }
+    console.log("nnn===",process.env.CLICKUP_CLIENT_ID);
     return (
         <>
+            {/* {date?.toDateString()} */}
             <nav className="flex flex-wrap items-center justify-between px-5  h-[83px]  bg-[#FFFFFF] rounded-[15px] m-auto mt-[33px]  w-[1229px]  shadow-[0_8px_28px_0px_#4859660D] ">
                 <h2 className="uppercase font-bold self-center text-2xl  ">
                     <span className=" text-[#3354F4]">Wenear</span>{" "}
@@ -28,9 +75,14 @@ export default function NavBar() {
 
                 <div>
                     <ul className="flex gap-2 items-center">
-                        <li className="relative mr-20">
+                        <li className="relative mr-20 cursor-pointer">
                             <span className="   absolute  after:absolute after:h-12 after:w-[3px] after:bg-[#e2e2e2] top-[-2px] right-[-25px]"></span>
-                            <LuSearch className="text-[#9295AB] absolute top-3 left-2" />
+
+                            <Search
+                                size={18}
+                                strokeWidth={1.8}
+                                className="text-[#9295AB] absolute top-3 left-2"
+                            />
                             <Input
                                 className=" rounded-[10px] w-[290px] border-none bg-[#F6F6F6] px-8 placeholder:text-[#b4b5ba] "
                                 placeholder="Quick Search..."
@@ -38,23 +90,147 @@ export default function NavBar() {
                             />
                         </li>
                         <ul className="flex gap-5">
-                            <li className="bg-[#CFD7FD] mt-[4px] rounded-[50%] w-[33px] h-[33px] p-[6px] ">
-                                <LuCalendarRange className="  text-[#7182B6] text-[20px]" />
-                            </li>
-                            <li className="bg-[#CFD7FD] mt-[4px] rounded-[50%] w-[33px] h-[33px] p-[6px]">
-                                <GoBell className="  text-[#7182B6] text-[20px]   " />
-                            </li>
-                            <li>
-                                
-                                <Avatar>
-                                    <AvatarImage
-                                        alt="User"
-                                        src="https://github.com/shadcn.png"
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <li className="bg-[#CFD7FD] mt-[4px] rounded-full w-[33px] h-[33px] p-[6px] relative cursor-pointer ">
+                                        <CalendarDays
+                                            size={20}
+                                            strokeWidth={1.8}
+                                            className="text-[#7182B6]"
+                                        />
+                                    </li>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={date}
+                                        onSelect={setDate}
+                                        initialFocus
                                     />
-                                    <AvatarFallback className="capitalize">
-                                        {userData?.displayName?.split("")[0]}
-                                    </AvatarFallback>
-                                </Avatar>
+                                </PopoverContent>
+                            </Popover>
+                            <li className="bg-[#CFD7FD] mt-[4px] rounded-full w-[33px] h-[33px] p-[6px] cursor-pointer">
+                                <BellIcon
+                                    size={20}
+                                    strokeWidth={1.8}
+                                    className="text-[#7182B6] "
+                                />
+                            </li>
+
+                            <li>
+                                {!userData ? (
+                                    <div className="flex items-center">
+                                        <Skeleton className="h-10 w-10 rounded-full mr-1" />
+                                        <div className="">
+                                            <Skeleton className="h-3 w-[60px] my-1 " />
+                                            <Skeleton className="h-3 w-[120px] mt-2" />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Avatar className="cursor-pointer">
+                                                        <AvatarImage
+                                                            alt="User"
+                                                            src="https://github.com/shadcn.png"
+                                                        />
+                                                        <AvatarFallback className="capitalize">
+                                                            {
+                                                                userData?.displayName?.split(
+                                                                    ""
+                                                                )[0]
+                                                            }
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent className="w-56">
+                                                    <DropdownMenuLabel>
+                                                        My Account
+                                                    </DropdownMenuLabel>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuGroup>
+                                                        <DropdownMenuItem>
+                                                            <User className="mr-2 h-4 w-4" />
+                                                            <span>Profile</span>
+                                                             
+                                                        </DropdownMenuItem>
+
+                                                        <DropdownMenuItem>
+                                                            <Settings className="mr-2 h-4 w-4" />
+                                                            <span>
+                                                                Settings
+                                                            </span>
+                                                             
+                                                        </DropdownMenuItem>
+                                                        
+                                                    </DropdownMenuGroup>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuGroup>
+                                                        <DropdownMenuItem>
+                                                            <Users className="mr-2 h-4 w-4" />
+                                                            <span>Team</span>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuSub>
+                                                             
+                                                            <DropdownMenuPortal>
+                                                                <DropdownMenuSubContent>
+                                                                    <DropdownMenuItem>
+                                                                        <Mail className="mr-2 h-4 w-4" />
+                                                                        <span>
+                                                                            Email
+                                                                        </span>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem>
+                                                                        <MessageSquare className="mr-2 h-4 w-4" />
+                                                                        <span>
+                                                                            Message
+                                                                        </span>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuSeparator />
+                                                                </DropdownMenuSubContent>
+                                                            </DropdownMenuPortal>
+                                                        </DropdownMenuSub>
+                                                        <DropdownMenuItem>
+                                                            <Plus className="mr-2 h-4 w-4" />
+                                                            <span>
+                                                                New Team
+                                                            </span>
+                                                            <DropdownMenuShortcut>
+                                                                ⌘+T
+                                                            </DropdownMenuShortcut>
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuGroup>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem>
+                                                        <Github className="mr-2 h-4 w-4" />
+                                                        <span>GitHub</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem>
+                                                        <LifeBuoy className="mr-2 h-4 w-4" />
+                                                        <span>Support</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem disabled>
+                                                        <Cloud className="mr-2 h-4 w-4" />
+                                                        <span>API</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem>
+                                                        <LogOut
+                                                            className="mr-2 h-4 w-4"
+                                                            onClick={logout}
+                                                        />
+                                                        <span>Log out</span>
+                                                        <DropdownMenuShortcut>
+                                                            ⇧⌘Q
+                                                        </DropdownMenuShortcut>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+                                    </>
+                                )}
                             </li>
                         </ul>
                         <li className="flex flex-col ">
@@ -65,30 +241,6 @@ export default function NavBar() {
                             <span className="text-sm">{userData?.email}</span>
                         </li>
                     </ul>
-                    {/* <button
-                            data-collapse-toggle="navbar-sticky"
-                            type="button"
-                            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-                            aria-controls="navbar-sticky"
-                            aria-expanded="false"
-                        >
-                            <span className="sr-only">Open main menu</span>
-                            <svg
-                                className="w-5 h-5"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 17 14"
-                            >
-                                <path
-                                    stroke="currentColor"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M1 1h15M1 7h15M1 13h15"
-                                />
-                            </svg>
-                        </button> */}
                 </div>
             </nav>
         </>
