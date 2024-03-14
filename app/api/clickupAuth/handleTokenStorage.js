@@ -7,12 +7,7 @@ export default async function handleTokenStorage(token) {
     cookies().set("tokenClickup", token);
 
     try {
-        // Fetch and store userId
-        // const userDetails = await getAuthenticatedUserDetails();
-        // if (userDetails && userDetails.id) {
-        //     cookies().set("userIdClickup", userDetails.id);
-        // }
-
+        
         // Fetch and store teamId
         const teams = await getTeams();
         console.log("all teams : ",teams);
@@ -22,6 +17,13 @@ export default async function handleTokenStorage(token) {
             console.log("teamId : ",teamId);
             cookies().set("teamIdClickup", teamId);
         }
+
+        // Fetch and store userId
+        // const userDetails = await getAuthenticatedUserDetails();
+        // console.log("user Details : ", userDetails);
+        // if (userDetails && userDetails.id) {
+        //     cookies().set("userIdClickup", userDetails.id);
+        // }
     } catch (error) {
         console.error('Error storing userId or teamId in cookies:', error);
     }

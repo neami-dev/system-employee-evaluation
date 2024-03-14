@@ -20,8 +20,8 @@ export default async function ClickupTokenHandler(code) {
       if (tokenData.access_token) {
         
         console.log("the token is here : ", tokenData.access_token);
-        await handleTokenStorage(tokenData.access_token)
         // cookies().set("tokenClickup",tokenData.access_token)
+        await handleTokenStorage(tokenData.access_token)
         
         return true
       } else {
