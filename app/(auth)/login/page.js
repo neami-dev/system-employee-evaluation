@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import Loading from "@/components/layout/Loading";
 import { auth } from "@/firebase/firebase-config";
+// import {} from "env"
 
 export default function login() {
     const emailRef = useRef();
@@ -35,17 +36,17 @@ export default function login() {
 
     const login = async (e) => {
         e.preventDefault();
-
+        
         setIsLoading(true); // Start loading
         const email = emailRef.current.value.trim();
         const password = passwordRef.current.value.trim();
         
         setErrors([]); // Clear previous errors
-
+        
         let newErrors = [];
         if (!password) newErrors.push("Password required!");
         if (!email) newErrors.push("Email required!");
-
+        
         if (newErrors.length > 0) {
             setErrors(newErrors);
             setIsLoading(false); // Stop loading if there are validation errors
@@ -58,11 +59,11 @@ export default function login() {
             setIsLoading(false); // Stop loading after auth attempt
         } else {
             console.log("Authentication successful: ", auth);
-            route.push(`https://app.clickup.com/api?client_id=${process.env.CLICKUP_CLIENT_ID}&redirect_uri=http://localhost:3000/api/clickupAuth`);
+            route.push(`https://app.clickup.com/api?client_id=${process.env.NEXT_PUBLIC_CLICKUP_CLIENT_ID}&redirect_uri=http://localhost:3000/api/clickupAuth`);
             // route.push("/employee/profile");
         }
     };
-
+    
     return (
         <>
             {isLoading && <Loading />}

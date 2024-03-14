@@ -28,8 +28,8 @@ export default function page() {
             setUserData(result.result.data());
         }
         
-    //     const team = await getTeams();
-    //     console.log('team : ',team);
+        const team = await getTeams();
+        console.log('team : ',team);
 
     //     const space = await getSpaces(team?.id);
     //     console.log('space : ',space);
