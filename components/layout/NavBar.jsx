@@ -45,6 +45,7 @@ export default function NavBar() {
                                 <GoBell className="  text-[#7182B6] text-[20px]   " />
                             </li>
                             <li>
+                                
                                 <Avatar>
                                     <AvatarImage
                                         alt="User"
