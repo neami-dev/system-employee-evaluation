@@ -37,10 +37,8 @@ import {
     DropdownMenuLabel,
     DropdownMenuPortal,
     DropdownMenuSeparator,
-    DropdownMenuShortcut,
     DropdownMenuSub,
     DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -54,16 +52,21 @@ import { cn } from "@/lib/utils";
 export default function NavBar() {
     const [userData, setUserData] = useState("");
     const [date, setDate] = useState(new Date());
-    console.log("date=", date);
 
     auth.onAuthStateChanged((res) => {
         // console.log(res);
         setUserData(res);
     });
     async function logout() {
-        await signOut(auth);
+        signOut(auth)
+            .then(() => {
+                console.log("logged out");
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     }
-    console.log("nnn===",process.env.CLICKUP_CLIENT_ID);
+
     return (
         <>
             {/* {date?.toDateString()} */}
@@ -128,7 +131,7 @@ export default function NavBar() {
                                     </div>
                                 ) : (
                                     <>
-                                        <div>
+                                        <div >
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Avatar className="cursor-pointer">
@@ -145,7 +148,7 @@ export default function NavBar() {
                                                         </AvatarFallback>
                                                     </Avatar>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent className="w-56">
+                                                <DropdownMenuContent className="w-48">
                                                     <DropdownMenuLabel>
                                                         My Account
                                                     </DropdownMenuLabel>
@@ -154,7 +157,6 @@ export default function NavBar() {
                                                         <DropdownMenuItem>
                                                             <User className="mr-2 h-4 w-4" />
                                                             <span>Profile</span>
-                                                             
                                                         </DropdownMenuItem>
 
                                                         <DropdownMenuItem>
@@ -162,9 +164,7 @@ export default function NavBar() {
                                                             <span>
                                                                 Settings
                                                             </span>
-                                                             
                                                         </DropdownMenuItem>
-                                                        
                                                     </DropdownMenuGroup>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuGroup>
@@ -173,7 +173,6 @@ export default function NavBar() {
                                                             <span>Team</span>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSub>
-                                                             
                                                             <DropdownMenuPortal>
                                                                 <DropdownMenuSubContent>
                                                                     <DropdownMenuItem>
@@ -182,49 +181,24 @@ export default function NavBar() {
                                                                             Email
                                                                         </span>
                                                                     </DropdownMenuItem>
-                                                                    <DropdownMenuItem>
-                                                                        <MessageSquare className="mr-2 h-4 w-4" />
-                                                                        <span>
-                                                                            Message
-                                                                        </span>
-                                                                    </DropdownMenuItem>
+
                                                                     <DropdownMenuSeparator />
                                                                 </DropdownMenuSubContent>
                                                             </DropdownMenuPortal>
                                                         </DropdownMenuSub>
-                                                        <DropdownMenuItem>
-                                                            <Plus className="mr-2 h-4 w-4" />
-                                                            <span>
-                                                                New Team
-                                                            </span>
-                                                            <DropdownMenuShortcut>
-                                                                ⌘+T
-                                                            </DropdownMenuShortcut>
-                                                        </DropdownMenuItem>
                                                     </DropdownMenuGroup>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem>
                                                         <Github className="mr-2 h-4 w-4" />
                                                         <span>GitHub</span>
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem>
-                                                        <LifeBuoy className="mr-2 h-4 w-4" />
-                                                        <span>Support</span>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem disabled>
-                                                        <Cloud className="mr-2 h-4 w-4" />
-                                                        <span>API</span>
-                                                    </DropdownMenuItem>
+
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem>
-                                                        <LogOut
-                                                            className="mr-2 h-4 w-4"
-                                                            onClick={logout}
-                                                        />
+                                                    <DropdownMenuItem
+                                                        onClick={logout}
+                                                    >
+                                                        <LogOut className="mr-2 h-4 w-4" />
                                                         <span>Log out</span>
-                                                        <DropdownMenuShortcut>
-                                                            ⇧⌘Q
-                                                        </DropdownMenuShortcut>
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
