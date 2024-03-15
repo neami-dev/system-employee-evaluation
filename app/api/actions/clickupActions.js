@@ -20,7 +20,7 @@ const api = axios.create({
 // Function to get the authenticated user's details
 export const getAuthenticatedUserDetails = async () => {
   console.log("i'm user func");
-  console.log("token : ",API_TOKEN.value);
+  // console.log("token : ",API_TOKEN.value);
   try {
     const response = await api.get('/user');
     return response.data.user; // Adjust according to the actual response structure
@@ -34,11 +34,11 @@ export const getAuthenticatedUserDetails = async () => {
 // Get user's teams (workspaces)
 export const getTeams = async () => {
   console.log("i'm team");
-  console.log("token : ",API_TOKEN.value);
+  // console.log("token : ",API_TOKEN?.value);
     try {
         const response = await api.get('/team');
         // Ensure you correctly access the teams in the response
-        return response.data.teams; // Adjust this based on the actual response structure
+        return response.data.teams[0]; // Adjust this based on the actual response structure
     } catch (error) {
         console.error('Error fetching teams:', error);
         return [];
@@ -94,34 +94,62 @@ export const getSpaces = async (teamId) => {
     }
   };
   
-  export const getCompletedTasksByEmployeeToday = async (teamId, userId) => {
-    // Generate today's date in ISO format (YYYY-MM-DD)
-    const today = new Date().toISOString().split('T')[0];
-    const startDate = new Date(today);
-    const endDate = new Date(today);
-    
-    // Adjust endDate to the end of the day by setting hours, minutes, seconds
-    endDate.setHours(23, 59, 59, 999);
-    
-    // Convert dates back to ISO strings for the API call
-    const startIso = startDate.toISOString();
-    const endIso = endDate.toISOString();
+  export const getCompletedTasksByEmployee = async (teamId, userId) => {
+    console.log("completed tasks ");
   
     try {
       const response = await api.get(`/team/${teamId}/task`, {
         params: {
           assignees: [userId],
-          // statuses: ['completed'], 
+          statuses: ['completed'], 
           // 'date_updated_gt': startIso,
           // 'date_updated_lt': endIso
         }
       });
       return response?.data?.tasks;
     } catch (error) {
-      console.error('Error fetching completed tasks for today:', error);
+      console.error('Error fetching completed tasks  :', error);
       return [];
     }
   };
   
+  
+  export const getInProgressTasksByEmployee = async (teamId, userId) => {
+    console.log("in progress tasks ");
+  
+    try {
+      const response = await api.get(`/team/${teamId}/task`, {
+        params: {
+          assignees: [userId],
+          statuses: ['in progress'], 
+          // 'date_updated_gt': startIso,
+          // 'date_updated_lt': endIso
+        }
+      });
+      return response?.data?.tasks;
+    } catch (error) {
+      console.error('Error fetching in progress tasks  :', error);
+      return [];
+    }
+  };
+
+  export const getPendingTasksByEmployee = async (teamId, userId) => {
+    console.log("in pending tasks ");
+  
+    try {
+      const response = await api.get(`/team/${teamId}/task`, {
+        params: {
+          assignees: [userId],
+          statuses: ['pending'], 
+          // 'date_updated_gt': startIso,
+          // 'date_updated_lt': endIso
+        }
+      });
+      return response?.data?.tasks;
+    } catch (error) {
+      console.error('Error fetching pending tasks  :', error);
+      return [];
+    }
+  };
 
 
