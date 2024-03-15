@@ -44,17 +44,17 @@ export default function page() {
         //     const task = await getTasks(list[0]?.id);
         //     console.log('task : ',task);
 
-    const userCickupDetails = await getAuthenticatedUserDetails();
-    console.log('userCickupDetails : ',userCickupDetails);
+    // const userCickupDetails = await getAuthenticatedUserDetails();
+    // console.log('userCickupDetails : ',userCickupDetails);
 
-    const tasksCompleted = await getCompletedTasksByEmployee(team.id,userCickupDetails.id);
-    console.log('tasksCompleted : ',tasksCompleted);
+    // const tasksCompleted = await getCompletedTasksByEmployee(team.id,userCickupDetails.id);
+    // console.log('tasksCompleted : ',tasksCompleted);
 
-    const tasksProgress = await getInProgressTasksByEmployee(team.id,userCickupDetails.id);
-    console.log('tasksProgress : ',tasksProgress);
+    // const tasksProgress = await getInProgressTasksByEmployee(team.id,userCickupDetails.id);
+    // console.log('tasksProgress : ',tasksProgress);
 
-    const tasksPending = await getPendingTasksByEmployee(team.id,userCickupDetails.id);
-    console.log('tasksPending : ',tasksPending);
+    // const tasksPending = await getPendingTasksByEmployee(team.id,userCickupDetails.id);
+    // console.log('tasksPending : ',tasksPending);
     };
 
     useEffect(() => {

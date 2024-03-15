@@ -20,7 +20,7 @@ export default function ClickupCallback() {
         const dataToken = await ClickupTokenHandler(code);
 
         if (dataToken) {
-            // console.log("accessToken good: ");
+            console.log("accessToken good ");
             route.push("/employee/profile");
         } else {
             console.error(dataToken);

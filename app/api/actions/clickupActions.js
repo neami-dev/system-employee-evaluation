@@ -40,7 +40,7 @@ export const getTeams = async () => {
         // Ensure you correctly access the teams in the response
         return response.data.teams[0]; // Adjust this based on the actual response structure
     } catch (error) {
-        console.error('Error fetching teams:', error);
+        console.error('Error fetching teams:', error.message);
         return [];
     }
 };

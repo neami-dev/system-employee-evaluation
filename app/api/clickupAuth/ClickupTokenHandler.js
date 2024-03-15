@@ -16,19 +16,21 @@ export default async function ClickupTokenHandler(code) {
           code,
         }),
       });
+      console.log("fetched");
       const tokenData = await tokenResponse.json();
       if (tokenData.access_token) {
         
         console.log("the token is here : ", tokenData.access_token);
-        cookies().set("tokenClickup",tokenData.access_token)
+        cookies().set("tokenClickup", tokenData.access_token)
         // await handleTokenStorage(tokenData.access_token)
         
         return true
       } else {
+        console.log("token exchange failed");
         return "Token exchange failed"
       }
     } catch (error) {
-      
+      console.log(error.message);
       return error.message
     }
   }
