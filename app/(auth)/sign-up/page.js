@@ -3,9 +3,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import signUp from "@/firebase/auth/signUp";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast"
-import { ToastAction } from "@/components/ui/toast"
-import Loading from "@/components/layout/Loading";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+import Loading from "@/components/component/Loading";
 
 export default function regsiter() {
     const emailRef = useRef();
@@ -24,13 +24,15 @@ export default function regsiter() {
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",
                 description: error, // Now passing a single error message
-                action: <ToastAction altText="Try again">Try again</ToastAction>,
+                action: (
+                    <ToastAction altText="Try again">Try again</ToastAction>
+                ),
             });
         });
     }, [errors, toast]);
 
     const handleForm = async (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         setIsLoading(true); // Start loading
         const email = emailRef.current.value.trim();
         const password = passwordRef.current.value.trim();
@@ -52,13 +54,17 @@ export default function regsiter() {
         const result = await signUp({ email, password, fullName });
 
         if (result.error) {
-            setErrors([...errors, `Error: ${result.error?.code?.split("/")[1]}`]);
+            setErrors([
+                ...errors,
+                `Error: ${result.error?.code?.split("/")[1]}`,
+            ]);
             setIsLoading(false); // Stop loading after handling the sign-up attempt
         } else {
             console.log("Sign-up successful, redirecting...");
             // router.push("/employee/profile");
-            router.push(`https://app.clickup.com/api?client_id=${process.env.NEXT_PUBLIC_CLICKUP_CLIENT_ID}&redirect_uri=http://localhost:3000/api/clickupAuth`);
-            
+            router.push(
+                `https://app.clickup.com/api?client_id=${process.env.NEXT_PUBLIC_CLICKUP_CLIENT_ID}&redirect_uri=http://localhost:3000/api/clickupAuth`
+            );
         }
     };
     return (
@@ -101,89 +107,89 @@ export default function regsiter() {
                             </h2>
                         </div>
                         <form onSubmit={handleForm} method="Post">
-                        <div className="mt-8 space-y-6">
-                            {/* <input type="hidden" name="remember" defaultValue="true" /> */}
-                            <div className="rounded-md shadow-sm -space-y-px">
-                                <div>
-                                    <label
-                                        htmlFor="full-name"
-                                        className="sr-only"
-                                    >
-                                        Full Name
-                                    </label>
-                                    <input
-                                        id="full-name"
-                                        name="fullName"
-                                        type="username"
-                                        required
-                                        className="rounded relative block w-full px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                        placeholder="Full Name"
-                                        ref={fullNameRef}
-                                        // value={email}
-                                    />
+                            <div className="mt-8 space-y-6">
+                                {/* <input type="hidden" name="remember" defaultValue="true" /> */}
+                                <div className="rounded-md shadow-sm -space-y-px">
+                                    <div>
+                                        <label
+                                            htmlFor="full-name"
+                                            className="sr-only"
+                                        >
+                                            Full Name
+                                        </label>
+                                        <input
+                                            id="full-name"
+                                            name="fullName"
+                                            type="username"
+                                            required
+                                            className="rounded relative block w-full px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                            placeholder="Full Name"
+                                            ref={fullNameRef}
+                                            // value={email}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label
+                                            htmlFor="email-address"
+                                            className="sr-only"
+                                        >
+                                            Email address
+                                        </label>
+                                        <input
+                                            id="email-address"
+                                            name="email"
+                                            type="email"
+                                            autoComplete="email"
+                                            required
+                                            className=" rounded relative block w-full px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                            placeholder="Email address"
+                                            ref={emailRef}
+                                            // value={email}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label
+                                            htmlFor="password"
+                                            className="sr-only"
+                                        >
+                                            Password
+                                        </label>
+                                        <input
+                                            id="password"
+                                            name="password"
+                                            type="password"
+                                            autoComplete="current-password"
+                                            required
+                                            className="rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                            placeholder="Password"
+                                            ref={passwordRef}
+                                            // value={password}
+                                        />
+                                    </div>
                                 </div>
-                                <div>
-                                    <label
-                                        htmlFor="email-address"
-                                        className="sr-only"
-                                    >
-                                        Email address
-                                    </label>
-                                    <input
-                                        id="email-address"
-                                        name="email"
-                                        type="email"
-                                        autoComplete="email"
-                                        required
-                                        className=" rounded relative block w-full px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                        placeholder="Email address"
-                                        ref={emailRef}
-                                        // value={email}
-                                    />
-                                </div>
-                                <div>
-                                    <label
-                                        htmlFor="password"
-                                        className="sr-only"
-                                    >
-                                        Password
-                                    </label>
-                                    <input
-                                        id="password"
-                                        name="password"
-                                        type="password"
-                                        autoComplete="current-password"
-                                        required
-                                        className="rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                        placeholder="Password"
-                                        ref={passwordRef}
-                                        // value={password}
-                                    />
-                                </div>
-                            </div>
 
-                            <div className="w-full flex justify-center">
-                                <Button
-                                    // onClick={handleForm}
-                                    type="submit"
-                                    className="group w-[120px] relative flex justify-center py-2 px-4 border border-transparent 
+                                <div className="w-full flex justify-center">
+                                    <Button
+                                        // onClick={handleForm}
+                                        type="submit"
+                                        className="group w-[120px] relative flex justify-center py-2 px-4 border border-transparent 
                                 text-sm font-medium rounded-md text-white bg-teal-500 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                >
-                                    {" "}
-                                    Enter
-                                </Button>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div className="text-sm">
-                                    <a
-                                        href="/login"
-                                        className="font-medium text-teal-600 hover:text-teal-500"
                                     >
-                                        Already have account?
-                                    </a>
+                                        {" "}
+                                        Enter
+                                    </Button>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div className="text-sm">
+                                        <a
+                                            href="/login"
+                                            className="font-medium text-teal-600 hover:text-teal-500"
+                                        >
+                                            Already have account?
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         </form>
                     </div>
                     <div className="flex gap-5 absolute bottom-[15px] left-[20px] ">

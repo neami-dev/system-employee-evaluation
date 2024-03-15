@@ -5,10 +5,19 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
-import { getAuthenticatedUserDetails, getCompletedTasksByEmployeeToday, getFolders, getListsInSpace, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
+import {
+    getAuthenticatedUserDetails,
+    getCompletedTasksByEmployeeToday,
+    getFolders,
+    getListsInSpace,
+    getSpaces,
+    getTasks,
+    getTeams,
+} from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
-
-
+import NavBar from "@/components/component/NavBar";
+import Menu from "@/components/component/menu";
+import { Footer } from "react-day-picker";
 
 export default function page() {
     const [userData, setUserData] = useState({});
@@ -27,29 +36,28 @@ export default function page() {
             );
             setUserData(result.result.data());
         }
-        
-        const team = await getTeams();
-        console.log('team : ',team);
 
-    //     const space = await getSpaces(team?.id);
-    //     console.log('space : ',space);
+        // const team = await getTeams();
+        // console.log('team : ',team);
 
-    //     const folder = await getFolders(space[0]?.id);
-    //     console.log('folder : ',folder);
+        //     const space = await getSpaces(team?.id);
+        //     console.log('space : ',space);
 
-    //     const list = await getListsInSpace(space[0]?.id);
-    //     console.log('list : ',list);
+        //     const folder = await getFolders(space[0]?.id);
+        //     console.log('folder : ',folder);
 
-    //     const task = await getTasks(list[0]?.id);
-    //     console.log('task : ',task);
+        //     const list = await getListsInSpace(space[0]?.id);
+        //     console.log('list : ',list);
 
-    //     const userCickupDetails = await getAuthenticatedUserDetails();
-    //     console.log('userCickupDetails : ',userCickupDetails);
+        //     const task = await getTasks(list[0]?.id);
+        //     console.log('task : ',task);
 
-    //     const tasksToDay = await getCompletedTasksByEmployeeToday(team.id,userCickupDetails.id);
-    //     console.log('tasksToDay : ',tasksToDay);
+        //     const userCickupDetails = await getAuthenticatedUserDetails();
+        //     console.log('userCickupDetails : ',userCickupDetails);
+
+        //     const tasksToDay = await getCompletedTasksByEmployeeToday(team.id,userCickupDetails.id);
+        //     console.log('tasksToDay : ',tasksToDay);
     };
-
 
     useEffect(() => {
         // Listen for auth state changes
@@ -72,13 +80,13 @@ export default function page() {
         }
     }, [infoDoc.id, infoDoc.collectionName]);
 
-    console.log("userData:",userData);
+    console.log("userData:", userData);
     return (
         <>
-            <div className=" mt-10">
-                <div>
-                    page</div>
 
+            <div className=" mt-10">
+                {/* <Menu /> */}
+                <div>page</div>
                 <h4>{data?.email}</h4>
                 <ul>
                     <li>department {userData?.department}</li>
