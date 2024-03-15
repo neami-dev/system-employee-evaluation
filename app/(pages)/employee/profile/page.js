@@ -7,8 +7,9 @@ import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
 import { getAuthenticatedUserDetails, getCompletedTasksByEmployee, getCompletedTasksByEmployeeToday, getFolders, getInProgressTasksByEmployee, getListsInSpace, getPendingTasksByEmployee, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
-
-
+import NavBar from "@/components/component/NavBar";
+import Menu from "@/components/component/menu";
+import { Footer } from "react-day-picker";
 
 export default function page() {
     const [userData, setUserData] = useState({});
@@ -27,21 +28,21 @@ export default function page() {
             );
             setUserData(result.result.data());
         }
-        
-        const team = await getTeams();
-        console.log('team : ',team);
 
-    //     const space = await getSpaces(team?.id);
-    //     console.log('space : ',space);
+        // const team = await getTeams();
+        // console.log('team : ',team);
 
-    //     const folder = await getFolders(space[0]?.id);
-    //     console.log('folder : ',folder);
+        //     const space = await getSpaces(team?.id);
+        //     console.log('space : ',space);
 
-    //     const list = await getListsInSpace(space[0]?.id);
-    //     console.log('list : ',list);
+        //     const folder = await getFolders(space[0]?.id);
+        //     console.log('folder : ',folder);
 
-    //     const task = await getTasks(list[0]?.id);
-    //     console.log('task : ',task);
+        //     const list = await getListsInSpace(space[0]?.id);
+        //     console.log('list : ',list);
+
+        //     const task = await getTasks(list[0]?.id);
+        //     console.log('task : ',task);
 
     const userCickupDetails = await getAuthenticatedUserDetails();
     console.log('userCickupDetails : ',userCickupDetails);
@@ -56,7 +57,6 @@ export default function page() {
     console.log('tasksPending : ',tasksPending);
     };
 
-
     useEffect(() => {
         // Listen for auth state changes
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -64,7 +64,7 @@ export default function page() {
                 setData(user);
             } else {
                 // Redirect if not authenticated
-                route.push("/loginPage");
+                route.push("/login");
             }
         });
 
@@ -78,18 +78,18 @@ export default function page() {
         }
     }, [infoDoc.id, infoDoc.collectionName]);
 
-    console.log("userData:",userData);
+    console.log("userData:", userData);
     return (
         <>
-            <div className=" mt-10">
-                <div>
-                    page</div>
 
+            <div className=" mt-10">
+                {/* <Menu /> */}
+                <div>page</div>
                 <h4>{data?.email}</h4>
                 <ul>
                     <li>department {userData?.department}</li>
                     <li>score {userData?.score}</li>
-                    <li>joiningDate {userData.joiningDate?.nanoseconds}</li>
+                    <li>joiningDate {userData?.joiningDate?.nanoseconds}</li>
                     <ul>
                         skills{" "}
                         {userData?.skills?.map((skill, index) => {
