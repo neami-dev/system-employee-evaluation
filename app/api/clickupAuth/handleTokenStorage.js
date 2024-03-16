@@ -9,14 +9,14 @@ export default async function handleTokenStorage(token) {
     try {
         
         // Fetch and store teamId
-        const teams = await getTeams();
-        console.log("all teams : ",teams);
-        if (teams && teams.length > 0) {
-            // Assuming you're interested in the first team
-            const teamId = teams[0].id;
-            console.log("teamId : ",teamId);
-            cookies().set("teamIdClickup", teamId);
-        }
+        // const teams = await getTeams();
+        // console.log("all teams : ",teams);
+        // if (teams) {
+        //     // Assuming you're interested in the first team
+        //     const teamId = teams.id;
+        //     console.log("teamId : ",teamId);
+        //     cookies().set("teamIdClickup", teamId);
+        // }
 
         // Fetch and store userId
         // const userDetails = await getAuthenticatedUserDetails();
@@ -25,6 +25,6 @@ export default async function handleTokenStorage(token) {
         //     cookies().set("userIdClickup", userDetails.id);
         // }
     } catch (error) {
-        console.error('Error storing userId or teamId in cookies:', error);
+        console.error('Error storing userId or teamId in cookies:', error.message);
     }
 }

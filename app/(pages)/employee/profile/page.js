@@ -5,15 +5,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
-import {
-    getAuthenticatedUserDetails,
-    getCompletedTasksByEmployeeToday,
-    getFolders,
-    getListsInSpace,
-    getSpaces,
-    getTasks,
-    getTeams,
-} from "@/app/api/actions/clickupActions";
+import { getAuthenticatedUserDetails, getCompletedTasksByEmployee, getCompletedTasksByEmployeeToday, getFolders, getInProgressTasksByEmployee, getListsInSpace, getPendingTasksByEmployee, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
@@ -60,11 +52,17 @@ export default function page() {
         //     const task = await getTasks(list[0]?.id);
         //     console.log('task : ',task);
 
-        //     const userCickupDetails = await getAuthenticatedUserDetails();
-        //     console.log('userCickupDetails : ',userCickupDetails);
+    // const userCickupDetails = await getAuthenticatedUserDetails();
+    // console.log('userCickupDetails : ',userCickupDetails);
 
-        //     const tasksToDay = await getCompletedTasksByEmployeeToday(team.id,userCickupDetails.id);
-        //     console.log('tasksToDay : ',tasksToDay);
+    // const tasksCompleted = await getCompletedTasksByEmployee(team.id,userCickupDetails.id);
+    // console.log('tasksCompleted : ',tasksCompleted);
+
+    // const tasksProgress = await getInProgressTasksByEmployee(team.id,userCickupDetails.id);
+    // console.log('tasksProgress : ',tasksProgress);
+
+    // const tasksPending = await getPendingTasksByEmployee(team.id,userCickupDetails.id);
+    // console.log('tasksPending : ',tasksPending);
     };
 
     useEffect(() => {
