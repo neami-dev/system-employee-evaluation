@@ -47,8 +47,8 @@ export default function NavBar() {
     return (
         <>
             {/* {date?.toDateString()} */}
-            <nav className="flex items-center justify-between px-5 mt-5 h-[80px]  max-[425px]:h-[70px]  bg-[#FFFFFF] rounded-[15px] m-auto  w-[92%] max-[425px]:w-[94%] shadow-[0_8px_28px_0px_#4859660D] ">
-                <h2 className="uppercase font-bold self-center text-2xl">
+            <nav className="flex items-center justify-between px-5 mt-5 h-[75px]  max-[425px]:h-[70px]  bg-[#FFFFFF] rounded-[15px] m-auto  w-[92%] max-[425px]:w-[94%] shadow-[0_8px_28px_0px_#4859660D] ">
+                <h2 className="uppercase font-bold self-center text-3xl">
                     <span className=" text-[#3354F4] max-[770px]:text-xl max-[425px]:text-base">
                         Wenear
                     </span>{" "}
@@ -71,8 +71,8 @@ export default function NavBar() {
                             <div className="flex items-center">
                                 <Skeleton className="h-10 w-10 rounded-full mr-1" />
                                 <div className="">
-                                    <Skeleton className="h-3 w-[60px] my-1 " />
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
+                                    <Skeleton className="h-3 w-[60px] my-1 max-[550px]:hidden" />
+                                    <Skeleton className="h-3 w-[120px] mt-2 max-[550px]:hidden" />
                                 </div>
                             </div>
                         ) : (
@@ -93,7 +93,7 @@ export default function NavBar() {
                                             </AvatarFallback>
                                         </Avatar>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-44">
+                                    <DropdownMenuContent className=" w-[110px]">
                                         <DropdownMenuLabel>
                                             My Account
                                         </DropdownMenuLabel>

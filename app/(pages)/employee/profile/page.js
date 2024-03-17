@@ -11,9 +11,16 @@ import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
 import { Footer } from "react-day-picker";
 import { getClockifyUserData, getClockifyWorkSpaces, getTimeTrackedByEmployeeToday } from "@/app/api/actions/clockifyActions";
+import {
+    Blocks,
+    History,
+    MessageSquareText,
+    UserPlus,
+    Users,
+} from "lucide-react";
 
 export default function page() {
-    const [userData, setUserData] = useState({});
+    const [userData, setUserData] = useState();
     const [data, setData] = useState({});
     const [res, setres] = useState({});
 
@@ -28,6 +35,7 @@ export default function page() {
                 infoDoc.id
             );
             setUserData(result.result.data());
+            console.log(result.result.data());
         }
 
         const team = await getTeams();
@@ -91,9 +99,10 @@ export default function page() {
     console.log("userData:", userData);
     return (
         <>
+            
 
-            <div className=" mt-10">
-                {/* <Menu /> */}
+            {/* <div className=" mt-10">
+               
                 <div>page</div>
                 <h4>{data?.email}</h4>
                 <ul>
@@ -107,7 +116,7 @@ export default function page() {
                         })}
                     </ul>
                 </ul>
-            </div>
+            </div>  */}
         </>
     );
 }

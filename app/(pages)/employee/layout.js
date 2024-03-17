@@ -13,6 +13,7 @@ export default function DashbordLayout({ children }) {
     return (
         <>
             <NavBar />
+            <Menu />
             {children}
         </>
     );
