@@ -10,6 +10,7 @@ import { auth } from "@/firebase/firebase-config";
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
 import { Footer } from "react-day-picker";
+import { getClockifyUserData, getClockifyWorkSpaces, getTimeTrackedByEmployeeToday } from "@/app/api/actions/clockifyActions";
 
 export default function page() {
     const [userData, setUserData] = useState({});
@@ -29,8 +30,8 @@ export default function page() {
             setUserData(result.result.data());
         }
 
-        // const team = await getTeams();
-        // console.log('team : ',team);
+        const team = await getTeams();
+        console.log('team : ',team);
 
         //     const space = await getSpaces(team?.id);
         //     console.log('space : ',space);
@@ -44,17 +45,26 @@ export default function page() {
         //     const task = await getTasks(list[0]?.id);
         //     console.log('task : ',task);
 
-    // const userCickupDetails = await getAuthenticatedUserDetails();
-    // console.log('userCickupDetails : ',userCickupDetails);
+    const userCickupDetails = await getAuthenticatedUserDetails();
+    console.log('userCickupDetails : ',userCickupDetails);
 
-    // const tasksCompleted = await getCompletedTasksByEmployee(team.id,userCickupDetails.id);
-    // console.log('tasksCompleted : ',tasksCompleted);
+    const tasksCompleted = await getCompletedTasksByEmployee(team.id,userCickupDetails.id);
+    console.log('tasksCompleted : ',tasksCompleted);
 
-    // const tasksProgress = await getInProgressTasksByEmployee(team.id,userCickupDetails.id);
-    // console.log('tasksProgress : ',tasksProgress);
+    const tasksProgress = await getInProgressTasksByEmployee(team.id,userCickupDetails.id);
+    console.log('tasksProgress : ',tasksProgress);
 
-    // const tasksPending = await getPendingTasksByEmployee(team.id,userCickupDetails.id);
-    // console.log('tasksPending : ',tasksPending);
+    const tasksPending = await getPendingTasksByEmployee(team.id,userCickupDetails.id);
+    console.log('tasksPending : ',tasksPending);
+
+    const ClockifyUserData = await getClockifyUserData();
+    console.log('ClockifyUserData : ',ClockifyUserData);
+
+    const ClockifyWorkSpaces = await getClockifyWorkSpaces();
+    console.log('ClockifyWorkSpaces : ',ClockifyWorkSpaces);
+
+    const TimeTrackedByEmployeeToday = await getTimeTrackedByEmployeeToday(ClockifyUserData.id,ClockifyWorkSpaces.id);
+    console.log('TimeTrackedByEmployeeToday : ',TimeTrackedByEmployeeToday);
     };
 
     useEffect(() => {

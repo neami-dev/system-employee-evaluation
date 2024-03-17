@@ -2,7 +2,6 @@
 
 // import { getAuthenticatedUserDetails, getTeams } from "@/app/api/actions/clickupActions.js";
 import { cookies } from "next/headers";
-import handleTokenStorage from "./handleTokenStorage";
 
 export default async function ClickupTokenHandler(code) {
     console.log("code : ",code);
@@ -22,7 +21,6 @@ export default async function ClickupTokenHandler(code) {
         
         console.log("the token is here : ", tokenData.access_token);
         cookies().set("tokenClickup", tokenData.access_token)
-        // await handleTokenStorage(tokenData.access_token)
         
         return true
       } else {
