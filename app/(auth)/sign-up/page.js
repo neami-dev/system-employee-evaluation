@@ -69,8 +69,8 @@ export default function regsiter() {
     };
     return (
         <>
-            {isLoading && <Loading />}
-            <main className="flex relative">
+            
+            {isLoading ?<Loading />:<main className="flex relative">
                 <div className="w-[600px] h-[100vh] relative max-lg:hidden">
                     {" "}
                     {/* desktop size */}
@@ -202,6 +202,7 @@ export default function regsiter() {
                     </div>
                 </div>
             </main>
+            }
         </>
     );
 }

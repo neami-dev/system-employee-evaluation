@@ -10,7 +10,7 @@ import { auth } from "@/firebase/firebase-config";
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
 import { Footer } from "react-day-picker";
-import { getClockifyUserData, getClockifyWorkSpaces, getTimeTrackedByEmployeeToday } from "@/app/api/actions/clockifyActions";
+import { getAllUserIds, getClockifyUserData, getClockifyWorkSpaces, getTimeTrackedByEmployeeToday } from "@/app/api/actions/clockifyActions";
 import {
     Blocks,
     History,
@@ -73,6 +73,9 @@ export default function page() {
 
     const TimeTrackedByEmployeeToday = await getTimeTrackedByEmployeeToday(ClockifyUserData.id,ClockifyWorkSpaces.id);
     console.log('TimeTrackedByEmployeeToday : ',TimeTrackedByEmployeeToday);
+
+    const AllUserIds = await getAllUserIds(ClockifyWorkSpaces.id);
+    console.log('AllUserIds : ',AllUserIds);
     };
 
     useEffect(() => {

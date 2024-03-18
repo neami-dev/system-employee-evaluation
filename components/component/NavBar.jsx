@@ -49,7 +49,7 @@ export default function NavBar() {
             {/* {date?.toDateString()} */}
             <nav className="flex items-center justify-between px-5 mt-5 h-[75px]  max-[425px]:h-[70px]  bg-[#FFFFFF] rounded-[15px] m-auto  w-[92%] max-[425px]:w-[94%] shadow-[0_8px_28px_0px_#4859660D] ">
                 <h2 className="uppercase font-bold self-center text-3xl">
-                    <span className=" text-[#3354F4] max-[770px]:text-xl max-[425px]:text-base">
+                    <span className=" text-[#3354F4] max-[770px]:text-[30px] ">
                         Wenear
                     </span>{" "}
                     <span className=" text-[#b2b6cdb1] max-[770px]:text-sm max-[425px]:text-xs">

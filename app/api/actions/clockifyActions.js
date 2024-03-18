@@ -67,3 +67,15 @@ const isoDurationToSeconds = (isoDuration) => {
       return '0h 0m 0s';
     }
   };
+
+export const getAllUserIds = async (clockifyWorkspaceId) => {
+    try {
+        const response = await api.get(`/workspaces/${clockifyWorkspaceId}/users`);
+        const users = response.data;
+        const userIds = users.map(user => user.id); // Extracting the user IDs
+        return userIds;
+    } catch (error) {
+        console.error('Error fetching user IDs:', error);
+        return [];
+    }
+};
