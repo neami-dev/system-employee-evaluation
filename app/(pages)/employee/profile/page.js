@@ -5,7 +5,18 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
-import { getAuthenticatedUserDetails, getCompletedTasksByEmployee, getCompletedTasksByEmployeeToday, getFolders, getInProgressTasksByEmployee, getListsInSpace, getPendingTasksByEmployee, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
+import {
+    getAuthenticatedUserDetails,
+    getCompletedTasksByEmployee,
+    getCompletedTasksByEmployeeToday,
+    getFolders,
+    getInProgressTasksByEmployee,
+    getListsInSpace,
+    getPendingTasksByEmployee,
+    getSpaces,
+    getTasks,
+    getTeams,
+} from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
@@ -17,6 +28,8 @@ import {
     UserPlus,
     Users,
 } from "lucide-react";
+import Components from "@/components/component/components";
+import Weather from "@/components/component/weather";
 
 export default function page() {
     const [userData, setUserData] = useState();
@@ -52,17 +65,17 @@ export default function page() {
         //     const task = await getTasks(list[0]?.id);
         //     console.log('task : ',task);
 
-    // const userCickupDetails = await getAuthenticatedUserDetails();
-    // console.log('userCickupDetails : ',userCickupDetails);
+        // const userCickupDetails = await getAuthenticatedUserDetails();
+        // console.log('userCickupDetails : ',userCickupDetails);
 
-    // const tasksCompleted = await getCompletedTasksByEmployee(team.id,userCickupDetails.id);
-    // console.log('tasksCompleted : ',tasksCompleted);
+        // const tasksCompleted = await getCompletedTasksByEmployee(team.id,userCickupDetails.id);
+        // console.log('tasksCompleted : ',tasksCompleted);
 
-    // const tasksProgress = await getInProgressTasksByEmployee(team.id,userCickupDetails.id);
-    // console.log('tasksProgress : ',tasksProgress);
+        // const tasksProgress = await getInProgressTasksByEmployee(team.id,userCickupDetails.id);
+        // console.log('tasksProgress : ',tasksProgress);
 
-    // const tasksPending = await getPendingTasksByEmployee(team.id,userCickupDetails.id);
-    // console.log('tasksPending : ',tasksPending);
+        // const tasksPending = await getPendingTasksByEmployee(team.id,userCickupDetails.id);
+        // console.log('tasksPending : ',tasksPending);
     };
 
     useEffect(() => {
@@ -89,24 +102,32 @@ export default function page() {
     console.log("userData:", userData);
     return (
         <>
-            
-
-            {/* <div className=" mt-10">
-               
-                <div>page</div>
-                <h4>{data?.email}</h4>
-                <ul>
-                    <li>department {userData?.department}</li>
-                    <li>score {userData?.score}</li>
-                    <li>joiningDate {userData?.joiningDate?.nanoseconds}</li>
-                    <ul>
-                        skills{" "}
-                        {userData?.skills?.map((skill, index) => {
-                            return <li key={index}>{skill}</li>;
-                        })}
-                    </ul>
+            <section className=" grid justify-center w-full   mx-auto bg-slate-700   pt-32">
+                <ul className=" grid xl:grid-cols-4 gap-7 max-[550px]:gap-3 md:grid-cols-3 max-sm:grid-cols-2 sm:grid-cols-2 ">
+                    <li className="xl:row-span-2 w-[230px] md:row-span-3 max-sm:row-span-2 sm:row-span-2  max-[910px]:w-[210px] max-[500px]:w-[165px]">
+                        {" "}
+                        <Weather />
+                    </li>
+                    <li className="bg-red-500 rounded-lg w-[230px] h-[120px] max-[910px]:w-[210px] max-[500px]:w-[170px]">
+                        Tasks Completed
+                    </li>
+                    <li className="bg-red-500 rounded-lg w-[230px] h-[120px] max-[910px]:w-[210px] max-[500px]:w-[170px]">
+                        Tasks in Progress
+                    </li>
+                    <li className="bg-red-500 rounded-lg w-[230px] h-[120px] max-[910px]:w-[210px] max-[500px]:w-[170px]">
+                        Tasks On Hold
+                    </li>
+                    <li className="bg-red-500 rounded-lg w-[230px] h-[120px] max-[910px]:w-[210px] max-[500px]:w-[170px]">
+                        Work Time
+                    </li>
+                    <li className="bg-red-500 rounded-lg w-[230px] h-[120px] max-[910px]:w-[210px] max-[500px]:w-[170px]">
+                        Work Time
+                    </li>
+                    <li className="bg-red-500 rounded-lg w-[230px] h-[120px] max-[910px]:w-[210px] max-[500px]:w-[170px]">
+                        Work Time
+                    </li>
                 </ul>
-            </div>  */}
+            </section>
         </>
     );
 }

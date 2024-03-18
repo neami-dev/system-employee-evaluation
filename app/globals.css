@@ -74,7 +74,7 @@
         @apply bg-background text-foreground;
     }
 }
-@media (max-width: 425px) {
+@media (max-width: 550px) {
     .menu-line {
         display: none;
     }

@@ -14,7 +14,9 @@ export default function DashbordLayout({ children }) {
         <>
             <NavBar />
             <Menu />
-            {children}
+            <div className="w-[87%] h-[100vh] ml-28 max-[865px]:ml-16 max-[550px]:m-auto">
+                {children}
+            </div>
         </>
     );
 }
