@@ -7,7 +7,7 @@ export default function Weather() {
     return (
         <>
             <div>
-                <ul className=" bg-white flex flex-col gap-8 py-8 rounded-lg justify-center items-center">
+                <ul className=" bg-white w-full h-[100%] flex flex-col gap-8 py-8 rounded-lg justify-center items-center">
                     <li className="flex  justify-center items-center text-[#C8CAD5]">
                         <Sun size={52} strokeWidth={1.8} />
 
@@ -23,9 +23,9 @@ export default function Weather() {
                         <span>{new Date().toDateString()}</span>
                     </li>
                     <li>
-                        {/* <Button className="bg-[#3353f4c6] font-normal text-lg hover:bg-[#3354F4]">
+                        <Button className="bg-[#3353f4c6] font-normal text-lg hover:bg-[#3354F4]">
                             view attendance
-                        </Button> */}
+                        </Button>
                     </li>
                 </ul>
             </div>

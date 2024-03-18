@@ -1,6 +1,9 @@
 "use client";
 import { signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+import { ResponsiveAreaBump, ResponsiveBump } from "@nivo/bump";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,6 +25,12 @@ import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
 import { Footer } from "react-day-picker";
 import {
+    getAllUserIds,
+    getClockifyUserData,
+    getClockifyWorkSpaces,
+    getTimeTrackedByEmployeeToday,
+} from "@/app/api/actions/clockifyActions";
+import {
     Blocks,
     History,
     MessageSquareText,
@@ -30,6 +39,9 @@ import {
 } from "lucide-react";
 import Components from "@/components/component/components";
 import Weather from "@/components/component/weather";
+import ChangingProgressProvider from "@/components/component/ChangingProgressProvider";
+import { ResponsiveLine } from "@nivo/line";
+import { ResponsiveBar } from "@nivo/bar";
 
 export default function page() {
     const [userData, setUserData] = useState();
@@ -50,8 +62,8 @@ export default function page() {
             console.log(result.result.data());
         }
 
-        // const team = await getTeams();
-        // console.log('team : ',team);
+        const team = await getTeams();
+        console.log("team : ", team);
 
         //     const space = await getSpaces(team?.id);
         //     console.log('space : ',space);
@@ -65,17 +77,44 @@ export default function page() {
         //     const task = await getTasks(list[0]?.id);
         //     console.log('task : ',task);
 
-        // const userCickupDetails = await getAuthenticatedUserDetails();
-        // console.log('userCickupDetails : ',userCickupDetails);
+        const userCickupDetails = await getAuthenticatedUserDetails();
+        console.log("userCickupDetails : ", userCickupDetails);
 
-        // const tasksCompleted = await getCompletedTasksByEmployee(team.id,userCickupDetails.id);
-        // console.log('tasksCompleted : ',tasksCompleted);
+        const tasksCompleted = await getCompletedTasksByEmployee(
+            team.id,
+            userCickupDetails.id
+        );
+        console.log("tasksCompleted : ", tasksCompleted);
 
-        // const tasksProgress = await getInProgressTasksByEmployee(team.id,userCickupDetails.id);
-        // console.log('tasksProgress : ',tasksProgress);
+        const tasksProgress = await getInProgressTasksByEmployee(
+            team.id,
+            userCickupDetails.id
+        );
+        console.log("tasksProgress : ", tasksProgress);
 
-        // const tasksPending = await getPendingTasksByEmployee(team.id,userCickupDetails.id);
-        // console.log('tasksPending : ',tasksPending);
+        const tasksPending = await getPendingTasksByEmployee(
+            team.id,
+            userCickupDetails.id
+        );
+        console.log("tasksPending : ", tasksPending);
+
+        const ClockifyUserData = await getClockifyUserData();
+        console.log("ClockifyUserData : ", ClockifyUserData);
+
+        const ClockifyWorkSpaces = await getClockifyWorkSpaces();
+        console.log("ClockifyWorkSpaces : ", ClockifyWorkSpaces);
+
+        const TimeTrackedByEmployeeToday = await getTimeTrackedByEmployeeToday(
+            ClockifyUserData.id,
+            ClockifyWorkSpaces.id
+        );
+        console.log(
+            "TimeTrackedByEmployeeToday : ",
+            TimeTrackedByEmployeeToday
+        );
+
+        const AllUserIds = await getAllUserIds(ClockifyWorkSpaces.id);
+        console.log("AllUserIds : ", AllUserIds);
     };
 
     useEffect(() => {
@@ -98,36 +137,376 @@ export default function page() {
             getInfo();
         }
     }, [infoDoc.id, infoDoc.collectionName]);
-
     console.log("userData:", userData);
+    const itemStyle =
+        "bg-white rounded-lg w-[230px] h-[115px] flex items-center justify-evenly ";
+    const dataChart = [
+        {
+            id: "Desktop",
+            data: [
+                { x: "Jan", y: 49 },
+                { x: "Feb", y: 137 },
+                { x: "Mar", y: 61 },
+                { x: "Apr", y: 145 },
+                { x: "May", y: 26 },
+                { x: "Jun", y: 154 },
+            ],
+        },
+    ];
+    const chartBarData = [
+        { name: "Jan", count: 111 },
+        { name: "Feb", count: 157 },
+        { name: "Mar", count: 129 },
+        { name: "Apr", count: 150 },
+        { name: "May", count: 119 },
+        { name: "Jun", count: 72 },
+    ];
     return (
         <>
-            <section className=" grid justify-center w-full   mx-auto bg-slate-700   pt-32">
-                <ul className=" grid xl:grid-cols-4 gap-7 max-[550px]:gap-3 md:grid-cols-3 max-sm:grid-cols-2 sm:grid-cols-2 ">
-                    <li className="xl:row-span-2 w-[230px] md:row-span-3 max-sm:row-span-2 sm:row-span-2  max-[910px]:w-[210px] max-[500px]:w-[165px]">
-                        {" "}
+            <section className=" grid justify-center w-full mx-auto  pt-32">
+                <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ">
+                    <li className="w-[230px] md:row-span-2 lg:row-span-3 xl:row-span-2">
                         <Weather />
                     </li>
-                    <li className="bg-red-500 rounded-lg w-[230px] h-[120px] max-[910px]:w-[210px] max-[500px]:w-[170px]">
-                        Tasks Completed
+                    <li className={`${itemStyle} `}>
+                        <div className="w-[65px]">
+                            <ChangingProgressProvider values={[0, 90]}>
+                                {(percentage) => (
+                                    <CircularProgressbar
+                                        value={percentage}
+                                        text={`04/07`}
+                                        styles={buildStyles({
+                                            pathTransition:
+                                                percentage === 0
+                                                    ? "none"
+                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                            pathColor: "#3354F4",
+                                        })}
+                                    />
+                                )}
+                            </ChangingProgressProvider>
+                        </div>
+                        <p>Tasks Completed</p>
                     </li>
-                    <li className="bg-red-500 rounded-lg w-[230px] h-[120px] max-[910px]:w-[210px] max-[500px]:w-[170px]">
-                        Tasks in Progress
+                    <li className={`${itemStyle}`}>
+                        <div className="w-[65px]">
+                            <ChangingProgressProvider values={[0, 80]}>
+                                {(percentage) => (
+                                    <CircularProgressbar
+                                        value={percentage}
+                                        text={`04/07`}
+                                        styles={buildStyles({
+                                            pathTransition:
+                                                percentage === 0
+                                                    ? "none"
+                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                            pathColor: "#3354F4",
+                                        })}
+                                    />
+                                )}
+                            </ChangingProgressProvider>
+                        </div>
+                        <p> Tasks in Progress</p>
                     </li>
-                    <li className="bg-red-500 rounded-lg w-[230px] h-[120px] max-[910px]:w-[210px] max-[500px]:w-[170px]">
-                        Tasks On Hold
+                    <li className={`${itemStyle}`}>
+                        <div className="w-[65px]">
+                            <ChangingProgressProvider values={[0, 50]}>
+                                {(percentage) => (
+                                    <CircularProgressbar
+                                        value={percentage}
+                                        text={`04/07`}
+                                        styles={buildStyles({
+                                            pathTransition:
+                                                percentage === 0
+                                                    ? "none"
+                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                            pathColor: "#3354F4",
+                                        })}
+                                    />
+                                )}
+                            </ChangingProgressProvider>
+                        </div>
+                        <p> Tasks On Hold</p>
                     </li>
-                    <li className="bg-red-500 rounded-lg w-[230px] h-[120px] max-[910px]:w-[210px] max-[500px]:w-[170px]">
-                        Work Time
+                    <li className={`${itemStyle}`}>
+                        <div className="w-[65px]">
+                            <ChangingProgressProvider values={[0, 30]}>
+                                {(percentage) => (
+                                    <CircularProgressbar
+                                        value={percentage}
+                                        text={`04/07`}
+                                        styles={buildStyles({
+                                            pathTransition:
+                                                percentage === 0
+                                                    ? "none"
+                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                            pathColor: "#3354F4",
+                                        })}
+                                    />
+                                )}
+                            </ChangingProgressProvider>
+                        </div>
+                        <p> Work Time</p>
                     </li>
-                    <li className="bg-red-500 rounded-lg w-[230px] h-[120px] max-[910px]:w-[210px] max-[500px]:w-[170px]">
-                        Work Time
+                    <li className={`${itemStyle}`}>
+                        <div className="w-[65px]">
+                            <ChangingProgressProvider values={[0, 20]}>
+                                {(percentage) => (
+                                    <CircularProgressbar
+                                        value={percentage}
+                                        text={`04/07`}
+                                        styles={buildStyles({
+                                            pathTransition:
+                                                percentage === 0
+                                                    ? "none"
+                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                            pathColor: "#3354F4",
+                                        })}
+                                    />
+                                )}
+                            </ChangingProgressProvider>
+                        </div>
+                        <p> Work Time</p>
                     </li>
-                    <li className="bg-red-500 rounded-lg w-[230px] h-[120px] max-[910px]:w-[210px] max-[500px]:w-[170px]">
-                        Work Time
+                    <li className={`${itemStyle}`}>
+                        <div className="w-[65px]">
+                            <ChangingProgressProvider values={[0, 36]}>
+                                {(percentage) => (
+                                    <CircularProgressbar
+                                        value={percentage}
+                                        text={`04/07`}
+                                        styles={buildStyles({
+                                            pathTransition:
+                                                percentage === 0
+                                                    ? "none"
+                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                            pathColor: "#3354F4",
+                                        })}
+                                    />
+                                )}
+                            </ChangingProgressProvider>
+                        </div>
+                        <p>Work Time</p>
                     </li>
                 </ul>
+                <div className="flex flex-wrap gap-6 mt-4">
+                    <CurvedlineChart
+                        data={dataChart}
+                        className="w-[57%] h-[300px] bg-white rounded-lg"
+                    />
+
+                    <BarChart
+                        className="w-[40%] h-[300px] bg-white rounded-lg"
+                        data={chartBarData}
+                    />
+                    {/* <ResponsiveBump
+                        data={dataChart}
+                        colors={{ scheme: "spectral" }}
+                        lineWidth={3}
+                        activeLineWidth={6}
+                        inactiveLineWidth={3}
+                        inactiveOpacity={0.15}
+                        pointSize={10}
+                        activePointSize={16}
+                        inactivePointSize={0}
+                        pointColor={{ theme: "background" }}
+                        pointBorderWidth={3}
+                        activePointBorderWidth={3}
+                        pointBorderColor={{ from: "serie.color" }}
+                        axisTop={{
+                            tickSize: 5,
+                            tickPadding: 5,
+                            tickRotation: 0,
+                            legend: "",
+                            legendPosition: "middle",
+                            legendOffset: -36,
+                            truncateTickAt: 0,
+                        }}
+                        axisBottom={{
+                            tickSize: 5,
+                            tickPadding: 5,
+                            tickRotation: 0,
+                            legend: "",
+                            legendPosition: "middle",
+                            legendOffset: 32,
+                            truncateTickAt: 0,
+                        }}
+                        axisLeft={{
+                            tickSize: 5,
+                            tickPadding: 5,
+                            tickRotation: 0,
+                            legend: "ranking",
+                            legendPosition: "middle",
+                            legendOffset: -40,
+                            truncateTickAt: 0,
+                        }}
+                        margin={{ top: 40, right: 100, bottom: 40, left: 60 }}
+                        axisRight={null}
+                    /> */}
+                </div>
             </section>
         </>
+    );
+}
+function CurvedlineChart(props) {
+    return (
+        <div {...props}>
+            <ResponsiveBump
+                data={props.data}
+                xScale={{
+                    type: "point",
+                }}
+                yScale={{
+                    type: "linear",
+                    min: 0,
+                    max: "auto",
+                }}
+                curve="monotoneX"
+                colors={["#2563eb"]}
+                lineWidth={3}
+                activeLineWidth={6}
+                inactiveLineWidth={3}
+                inactiveOpacity={0.15}
+                pointSize={10}
+                activePointSize={16}
+                inactivePointSize={0}
+                pointColor={{ theme: "background" }}
+                pointBorderWidth={3}
+                activePointBorderWidth={3}
+                pointBorderColor={{ from: "serie.color" }}
+                axisTop={{
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: 0,
+                    legend: "",
+                    legendPosition: "middle",
+                    legendOffset: -36,
+                    truncateTickAt: 0,
+                }}
+                axisBottom={{
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: 0,
+                    legend: "",
+                    legendPosition: "middle",
+                    legendOffset: 32,
+                    truncateTickAt: 0,
+                }}
+                axisLeft={{
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: 0,
+                    legend: "ranking",
+                    legendPosition: "middle",
+                    legendOffset: -40,
+                    truncateTickAt: 0,
+                }}
+                margin={{ top: 40, right: 100, bottom: 40, left: 60 }}
+                axisRight={null}
+            />
+            {/* <ResponsiveLine
+                data={[
+                    {
+                        id: "Desktop",
+                        data: [
+                            { x: "Jan", y: 43 },
+                            { x: "Feb", y: 137 },
+                            { x: "Mar", y: 61 },
+                            { x: "Apr", y: 145 },
+                            { x: "May", y: 26 },
+                            { x: "Jun", y: 154 },
+                        ],
+                    },
+                ]}
+                margin={{ top: 10, right: 10, bottom: 40, left: 40 }}
+                xScale={{
+                    type: "point",
+                }}
+                yScale={{
+                    type: "linear",
+                    min: 0,
+                    max: "auto",
+                }}
+                curve="monotoneX"
+                axisTop={null}
+                axisRight={null}
+                axisBottom={{
+                    tickSize: 0,
+                    tickPadding: 16,
+                }}
+                axisLeft={{
+                    tickSize: 0,
+                    tickValues: 5,
+                    tickPadding: 16,
+                }}
+                colors={["#2563eb", "#e11d48"]}
+                pointSize={6}
+                useMesh={true}
+                gridYValues={6}
+                theme={{
+                    tooltip: {
+                        chip: {
+                            borderRadius: "9999px",
+                        },
+                        container: {
+                            fontSize: "12px",
+                            textTransform: "capitalize",
+                            borderRadius: "6px",
+                        },
+                    },
+                    grid: {
+                        line: {
+                            stroke: "#f3f4f6",
+                        },
+                    },
+                }}
+                role="application"
+            /> */}
+        </div>
+    );
+}
+function BarChart(props) {
+    return (
+        <div {...props}>
+            <ResponsiveBar
+                data={props.data}
+                keys={["count"]}
+                indexBy="name"
+                margin={{ top: 0, right: 0, bottom: 40, left: 40 }}
+                padding={0.3}
+                colors={["#2563eb"]}
+                axisBottom={{
+                    tickSize: 0,
+                    tickPadding: 16,
+                }}
+                axisLeft={{
+                    tickSize: 0,
+                    tickValues: 4,
+                    tickPadding: 16,
+                }}
+                gridYValues={4}
+                theme={{
+                    tooltip: {
+                        chip: {
+                            borderRadius: "999px",
+                        },
+                        container: {
+                            fontSize: "12px",
+                            textTransform: "capitalize",
+                            borderRadius: "6px",
+                        },
+                    },
+                    grid: {
+                        line: {
+                            stroke: "#f3f4f6",
+                        },
+                    },
+                }}
+                tooltipLabel={({ id }) => `${id}`}
+                enableLabel={false}
+                role="application"
+                ariaLabel="A bar chart showing data"
+            />
+        </div>
     );
 }

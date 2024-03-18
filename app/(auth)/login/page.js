@@ -66,10 +66,9 @@ export default function login() {
         }
     };
 
-    return (
+    return (    
         <>
-            {isLoading && <Loading />}
-            <main className="flex relative">
+            {isLoading ?<Loading />:<main className="flex relative">
                 <div className="w-[600px] h-[100vh] relative max-lg:hidden">
                     {" "}
                     {/* desktop size */}
@@ -182,7 +181,7 @@ export default function login() {
                         </p>
                     </div>
                 </div>
-            </main>
+            </main>}
         </>
     );
 }
