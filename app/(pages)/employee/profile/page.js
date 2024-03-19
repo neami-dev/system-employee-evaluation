@@ -1,6 +1,9 @@
 "use client";
 import { signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+import { ResponsiveAreaBump, ResponsiveBump } from "@nivo/bump";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,7 +13,12 @@ import { auth } from "@/firebase/firebase-config";
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
 import { Footer } from "react-day-picker";
-import { getAllUserIds, getClockifyUserData, getClockifyWorkSpaces, getTimeTrackedByEmployeeToday } from "@/app/api/actions/clockifyActions";
+import {
+    getAllUserIds,
+    getClockifyUserData,
+    getClockifyWorkSpaces,
+    getTimeTrackedByEmployeeToday,
+} from "@/app/api/actions/clockifyActions";
 import {
     Blocks,
     History,
@@ -18,11 +26,20 @@ import {
     UserPlus,
     Users,
 } from "lucide-react";
+import Components from "@/components/component/components";
+import Weather from "@/components/component/weather";
+import ChangingProgressProvider from "@/components/component/ChangingProgressProvider";
+import { ResponsiveLine } from "@nivo/line";
+import { ResponsiveBar } from "@nivo/bar";
+import CurvedlineChart from "@/components/component/curvedLineChart";
+import BarChart from "@/components/component/barChart";
 
 export default function page() {
     const [userData, setUserData] = useState();
     const [data, setData] = useState({});
-    const [res, setres] = useState({});
+    const [tasksCompleted, setTasksCompleted] = useState([]);
+    const [tasksInProgress, setTasksInProgress] = useState([]);
+    const [tasksPending, setTasksPending] = useState([]);
 
     const route = useRouter();
     const infoDoc = { collectionName: "userData", id: data?.uid };
@@ -39,7 +56,7 @@ export default function page() {
         }
 
         const team = await getTeams();
-        console.log('team : ',team);
+        console.log("team : ", team);
 
         //     const space = await getSpaces(team?.id);
         //     console.log('space : ',space);
@@ -59,26 +76,44 @@ export default function page() {
     const allTasks = await getAllTasksByEmployee(team.id,userCickupDetails.id);
     console.log('allTasks : ',allTasks);
 
-    const tasksCompleted = await getCompletedTasksByEmployee(team.id,userCickupDetails.id);
-    console.log('tasksCompleted : ',tasksCompleted);
+        const responseTasksCompleted = await getCompletedTasksByEmployee(
+            team?.id,
+            userCickupDetails?.id
+        );
+        setTasksCompleted(responseTasksCompleted);
+        console.log("tasksCompleted : ", responseTasksCompleted);
 
-    const tasksProgress = await getInProgressTasksByEmployee(team.id,userCickupDetails.id);
-    console.log('tasksProgress : ',tasksProgress);
+        const responseTasksProgress = await getInProgressTasksByEmployee(
+            team?.id,
+            userCickupDetails?.id
+        );
+        setTasksInProgress(responseTasksProgress);
+        console.log("tasksProgress : ", responseTasksProgress);
 
-    const tasksPending = await getPendingTasksByEmployee(team.id,userCickupDetails.id);
-    console.log('tasksPending : ',tasksPending);
+        const responseTasksPending = await getPendingTasksByEmployee(
+            team?.id,
+            userCickupDetails?.id
+        );
+        setTasksPending(responseTasksPending);
+        console.log("tasksPending : ", responseTasksPending);
 
-    const ClockifyUserData = await getClockifyUserData();
-    console.log('ClockifyUserData : ',ClockifyUserData);
+        const ClockifyUserData = await getClockifyUserData();
+        console.log("ClockifyUserData : ", ClockifyUserData);
 
-    const ClockifyWorkSpaces = await getClockifyWorkSpaces();
-    console.log('ClockifyWorkSpaces : ',ClockifyWorkSpaces);
+        const ClockifyWorkSpaces = await getClockifyWorkSpaces();
+        console.log("ClockifyWorkSpaces : ", ClockifyWorkSpaces);
 
-    const TimeTrackedByEmployeeToday = await getTimeTrackedByEmployeeToday(ClockifyUserData.id,ClockifyWorkSpaces.id);
-    console.log('TimeTrackedByEmployeeToday : ',TimeTrackedByEmployeeToday);
+        const TimeTrackedByEmployeeToday = await getTimeTrackedByEmployeeToday(
+            ClockifyUserData?.id,
+            ClockifyWorkSpaces?.id
+        );
+        console.log(
+            "TimeTrackedByEmployeeToday : ",
+            TimeTrackedByEmployeeToday
+        );
 
-    const AllUserIds = await getAllUserIds(ClockifyWorkSpaces.id);
-    console.log('AllUserIds : ',AllUserIds);
+        const AllUserIds = await getAllUserIds(ClockifyWorkSpaces?.id);
+        console.log("AllUserIds : ", AllUserIds);
     };
 
     useEffect(() => {
@@ -101,28 +136,172 @@ export default function page() {
             getInfo();
         }
     }, [infoDoc.id, infoDoc.collectionName]);
-
     console.log("userData:", userData);
+    const itemStyle =
+        "bg-white rounded-lg w-[230px] h-[115px] flex items-center justify-evenly ";
+    const dataChart = [
+        {
+            id: "",
+            data: [
+                { x: "Jan", y: 49 },
+                { x: "Feb", y: 137 },
+                { x: "Mar", y: 61 },
+                { x: "Apr", y: 145 },
+                { x: "May", y: 26 },
+                { x: "Jun", y: 154 },
+            ],
+        },
+    ];
+    const chartBarData = [
+        { name: "Jan", count: 111 },
+        { name: "Feb", count: 157 },
+        { name: "Mar", count: 129 },
+        { name: "Apr", count: 150 },
+        { name: "May", count: 119 },
+        { name: "Jun", count: 72 },
+    ];
     return (
         <>
-            
-
-            {/* <div className=" mt-10">
-               
-                <div>page</div>
-                <h4>{data?.email}</h4>
-                <ul>
-                    <li>department {userData?.department}</li>
-                    <li>score {userData?.score}</li>
-                    <li>joiningDate {userData?.joiningDate?.nanoseconds}</li>
-                    <ul>
-                        skills{" "}
-                        {userData?.skills?.map((skill, index) => {
-                            return <li key={index}>{skill}</li>;
-                        })}
-                    </ul>
+            <section className=" grid justify-center w-full mx-auto  pt-32">
+                <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ">
+                    <li className="w-[230px] md:row-span-2 lg:row-span-3 xl:row-span-2">
+                        <Weather />
+                    </li>
+                    <li className={`${itemStyle} `}>
+                        <div className="w-[65px]">
+                            <ChangingProgressProvider values={[0, 90]}>
+                                {(percentage) => (
+                                    <CircularProgressbar
+                                        value={percentage}
+                                        text={`${tasksCompleted?.length} TASK`}
+                                        styles={buildStyles({
+                                            pathTransition:
+                                                percentage === 0
+                                                    ? "none"
+                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                            pathColor: "#3354F4",
+                                        })}
+                                    />
+                                )}
+                            </ChangingProgressProvider>
+                        </div>
+                        <p>Tasks Completed</p>
+                    </li>
+                    <li className={`${itemStyle}`}>
+                        <div className="w-[65px]">
+                            <ChangingProgressProvider values={[0, 80]}>
+                                {(percentage) => (
+                                    <CircularProgressbar
+                                        value={percentage}
+                                        text={"kkk"}
+                                        styles={buildStyles({
+                                            pathTransition:
+                                                percentage === 0
+                                                    ? "none"
+                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                            pathColor: "#3354F4",
+                                        })}
+                                    />
+                                )}
+                            </ChangingProgressProvider>
+                        </div>
+                        <p> Tasks in Progress</p>
+                    </li>
+                    <li className={`${itemStyle}`}>
+                        <div className="w-[65px]">
+                            <ChangingProgressProvider values={[0, 50]}>
+                                {(percentage) => (
+                                    <CircularProgressbar
+                                        value={percentage}
+                                        text={`04/07`}
+                                        styles={buildStyles({
+                                            pathTransition:
+                                                percentage === 0
+                                                    ? "none"
+                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                            pathColor: "#3354F4",
+                                        })}
+                                    />
+                                )}
+                            </ChangingProgressProvider>
+                        </div>
+                        <p> Tasks On Hold</p>
+                    </li>
+                    <li className={`${itemStyle}`}>
+                        <div className="w-[65px]">
+                            <ChangingProgressProvider values={[0, 30]}>
+                                {(percentage) => (
+                                    <CircularProgressbar
+                                        value={percentage}
+                                        text={`04/07`}
+                                        styles={buildStyles({
+                                            pathTransition:
+                                                percentage === 0
+                                                    ? "none"
+                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                            pathColor: "#3354F4",
+                                        })}
+                                    />
+                                )}
+                            </ChangingProgressProvider>
+                        </div>
+                        <p> Work Time</p>
+                    </li>
+                    <li className={`${itemStyle}`}>
+                        <div className="w-[65px]">
+                            <ChangingProgressProvider values={[0, 20]}>
+                                {(percentage) => (
+                                    <CircularProgressbar
+                                        value={percentage}
+                                        text={`04/07`}
+                                        styles={buildStyles({
+                                            pathTransition:
+                                                percentage === 0
+                                                    ? "none"
+                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                            pathColor: "#3354F4",
+                                        })}
+                                    />
+                                )}
+                            </ChangingProgressProvider>
+                        </div>
+                        <p> Work Time</p>
+                    </li>
+                    <li className={`${itemStyle}`}>
+                        <div className="w-[65px]">
+                            <ChangingProgressProvider values={[0, 36]}>
+                                {(percentage) => (
+                                    <CircularProgressbar
+                                        value={percentage}
+                                        text={`04/07`}
+                                        styles={buildStyles({
+                                            pathTransition:
+                                                percentage === 0
+                                                    ? "none"
+                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                            pathColor: "#3354F4",
+                                        })}
+                                    />
+                                )}
+                            </ChangingProgressProvider>
+                        </div>
+                        <p>Work Time</p>
+                    </li>
                 </ul>
-            </div>  */}
+            </section>
+            <section>
+                <div className="flex w-full flex-wrap gap-6 mt-4 xl:px-8">
+                    <CurvedlineChart
+                        data={dataChart}
+                        className="w-full sm:w-[70%] lg:w-[46%]  xl:w-[56%] mx-auto  h-[300px] bg-white rounded-lg"
+                    />
+
+                    <BarChart
+                        className="w-full sm:w-[70%] lg:w-[46%]   mx-auto xl:w-[40%]  h-[300px] bg-white rounded-lg"
+                        data={chartBarData}
+                    />
+                </div>
+            </section>
         </>
     );
 }
