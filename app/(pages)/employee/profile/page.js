@@ -8,7 +8,7 @@ import { ResponsiveAreaBump, ResponsiveBump } from "@nivo/bump";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
-import { getAllTasksByEmployee, getAuthenticatedUserDetails, getCompletedTasksByEmployee, getCompletedTasksByEmployeeToday, getFolders, getInProgressTasksByEmployee, getListsInSpace, getOnHoldTasksByEmployee, getPendingTasksByEmployee, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
+import { getAllTasksByEmployee, getAuthenticatedUserDetails, getCompletedTasksByEmployee, getCompletedTasksByEmployeeToday, getFolders, getInProgressTasksByEmployee, getListsInSpace, getOnHoldTasksByEmployee, getOpenTasksByEmployee, getPendingTasksByEmployee, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
@@ -34,7 +34,7 @@ import { ResponsiveLine } from "@nivo/line";
 import { ResponsiveBar } from "@nivo/bar";
 import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
-import { getGitHubUserRepos, getGitHubUsername } from "@/app/api/actions/githubActions";
+import { getGitHubUserRepos, getGitHubUsername, getGithubCommitsForToday, getTotalCommitsForToday } from "@/app/api/actions/githubActions";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function page() {
@@ -75,21 +75,25 @@ export default function page() {
         //     const task = await getTasks(list[0]?.id);
         //     console.log('task : ',task);
 
-    const GithubUsername = await getGitHubUsername()
-    console.log('GitHub Username:', GithubUsername);
+    // const GithubUsername = await getGitHubUsername()
+    // console.log('GitHub Username:', GithubUsername);
     
-    const GithubRepos = await getGitHubUserRepos()
-    console.log('User Repositories:', GithubRepos);
+    // const GithubRepos = await getGitHubUserRepos()
+    // console.log('User Repositories:', GithubRepos);
+
+    const GithubTotalCommits = await getTotalCommitsForToday()
+    console.log('total of Commits made today:', GithubTotalCommits);
+
 
     const userCickupDetails = await getAuthenticatedUserDetails();
     console.log('userCickupDetails : ',userCickupDetails);
 
-        const responseAllTasks = await getAllTasksByEmployee(
+    const responseAllTasks = await getAllTasksByEmployee(
             team.id,
             userCickupDetails.id
         );
-        console.log("allTasks : ", allTasks);
-        setAllTasks(responseAllTasks);
+    console.log("allTasks : ", responseAllTasks);
+    setAllTasks(responseAllTasks);
 
         const responseTasksCompleted = await getCompletedTasksByEmployee(
             team?.id,
@@ -105,24 +109,24 @@ export default function page() {
         setTasksInProgress(responseTasksProgress);
         console.log("tasksProgress : ", responseTasksProgress);
 
-        const responseTasksOnHold = await getOnHoldTasksByEmployee(
+        const responseTasksOpen = await getOpenTasksByEmployee(
             team?.id,
             userCickupDetails?.id
         );
-        setTasksOnHold(responseTasksOnHold);
-        console.log("tasksOnHold : ", responseTasksOnHold);
+        setTasksOnHold(responseTasksOpen);
+        console.log("tasksOpen : ", responseTasksOpen);
 
         const responseTasksPending = await getPendingTasksByEmployee(
             team?.id,
             userCickupDetails?.id
         );
         setTasksPending(responseTasksPending);
-        // console.log("tasksPending : ", responseTasksPending);
-        const responseAllTasksByEmployee = await getAllTasksByEmployee(
-            userCickupDetails?.id,
-            team?.id
-        );
-        console.log("all", responseAllTasksByEmployee);
+        console.log("tasksPending : ", responseTasksPending);
+        // const responseAllTasksByEmployee = await getAllTasksByEmployee(
+        //     userCickupDetails?.id,
+        //     team?.id
+        // );
+        // console.log("all", responseAllTasksByEmployee);
 
         const ClockifyUserData = await getClockifyUserData();
         // console.log("ClockifyUserData : ", ClockifyUserData);

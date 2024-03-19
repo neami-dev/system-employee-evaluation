@@ -108,7 +108,7 @@ export const getSpaces = async (teamId) => {
       });
       return response?.data?.tasks;
     } catch (error) {
-      console.error('Error fetching completed tasks  :', error);
+      console.error('Error fetching completed tasks  :', error.message);
       return [];
     }
   };
@@ -128,26 +128,26 @@ export const getSpaces = async (teamId) => {
       });
       return response?.data?.tasks;
     } catch (error) {
-      console.error('Error fetching in progress tasks  :', error);
+      console.error('Error fetching in progress tasks  :', error.message);
       return [];
     }
   };
 
-  export const getOnHoldTasksByEmployee = async (teamId, userId) => {
-    console.log("in progress tasks ");
+  export const getOpenTasksByEmployee = async (teamId, userId) => {
+    console.log("open tasks ");
   
     try {
       const response = await api.get(`/team/${teamId}/task`, {
         params: {
           assignees: [userId],
-          statuses: ['on hold'], 
+          statuses: ['open'], 
           // 'date_updated_gt': startIso,
           // 'date_updated_lt': endIso
         }
       });
       return response?.data?.tasks;
     } catch (error) {
-      console.error('Error fetching in progress tasks  :', error);
+      console.error('Error fetching in progress tasks  :', error.message);
       return [];
     }
   };
@@ -166,18 +166,18 @@ export const getSpaces = async (teamId) => {
       });
       return response?.data?.tasks;
     } catch (error) {
-      console.error('Error fetching pending tasks  :', error);
+      console.error('Error fetching pending tasks  :', error.message);
       return [];
     }
   };
    
   export const getAllTasksByEmployee = async (teamId, userId) => {
-    console.log("in pending tasks ");
+    console.log("all tasks ");
   
     try {
       const response = await api.get(`/team/${teamId}/task`, {
         params: {
-          assignees: [userId],
+          assignees: [userId]
           // statuses: ['pending'], 
           // 'date_updated_gt': startIso,
           // 'date_updated_lt': endIso
@@ -185,7 +185,7 @@ export const getSpaces = async (teamId) => {
       });
       return response?.data?.tasks;
     } catch (error) {
-      console.error('Error fetching pending tasks  :', error);
+      console.error('Error fetching pending tasks  :', error.message);
       return [];
     }
   };
