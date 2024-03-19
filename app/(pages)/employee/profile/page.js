@@ -33,6 +33,7 @@ import { ResponsiveLine } from "@nivo/line";
 import { ResponsiveBar } from "@nivo/bar";
 import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
+import { getGitHubUserRepos, getGitHubUsername } from "@/app/api/actions/githubActions";
 
 export default function page() {
     const [userData, setUserData] = useState();
@@ -69,6 +70,12 @@ export default function page() {
 
         //     const task = await getTasks(list[0]?.id);
         //     console.log('task : ',task);
+
+    const GithubUsername = await getGitHubUsername()
+    console.log('GitHub Username:', GithubUsername);
+    
+    const GithubRepos = await getGitHubUserRepos()
+    console.log('User Repositories:', GithubRepos);
 
     const userCickupDetails = await getAuthenticatedUserDetails();
     console.log('userCickupDetails : ',userCickupDetails);
