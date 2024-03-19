@@ -8,19 +8,7 @@ import { ResponsiveAreaBump, ResponsiveBump } from "@nivo/bump";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
-import {
-    getAllTasksByEmployee,
-    getAuthenticatedUserDetails,
-    getCompletedTasksByEmployee,
-    getCompletedTasksByEmployeeToday,
-    getFolders,
-    getInProgressTasksByEmployee,
-    getListsInSpace,
-    getPendingTasksByEmployee,
-    getSpaces,
-    getTasks,
-    getTeams,
-} from "@/app/api/actions/clickupActions";
+import { getAllTasksByEmployee, getAuthenticatedUserDetails, getCompletedTasksByEmployee, getCompletedTasksByEmployeeToday, getFolders, getInProgressTasksByEmployee, getListsInSpace, getOnHoldTasksByEmployee, getPendingTasksByEmployee, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
@@ -46,8 +34,7 @@ import { ResponsiveLine } from "@nivo/line";
 import { ResponsiveBar } from "@nivo/bar";
 import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { getGitHubUserRepos, getGitHubUsername } from "@/app/api/actions/githubActions";
 
 export default function page() {
     const [userData, setUserData] = useState();
@@ -86,8 +73,14 @@ export default function page() {
         //     const task = await getTasks(list[0]?.id);
         //     console.log('task : ',task);
 
-        const userCickupDetails = await getAuthenticatedUserDetails();
-        console.log("userCickupDetails : ", userCickupDetails);
+    const GithubUsername = await getGitHubUsername()
+    console.log('GitHub Username:', GithubUsername);
+    
+    const GithubRepos = await getGitHubUserRepos()
+    console.log('User Repositories:', GithubRepos);
+
+    const userCickupDetails = await getAuthenticatedUserDetails();
+    console.log('userCickupDetails : ',userCickupDetails);
 
         const responseAllTasks = await getAllTasksByEmployee(
             team.id,
@@ -108,7 +101,14 @@ export default function page() {
             userCickupDetails?.id
         );
         setTasksInProgress(responseTasksProgress);
-        // console.log("tasksProgress : ", responseTasksProgress);
+        console.log("tasksProgress : ", responseTasksProgress);
+
+        const responseTasksOnHold = await getOnHoldTasksByEmployee(
+            team?.id,
+            userCickupDetails?.id
+        );
+        setTasksInProgress(responseTasksOnHold);
+        console.log("tasksOnHold : ", responseTasksOnHold);
 
         const responseTasksPending = await getPendingTasksByEmployee(
             team?.id,
