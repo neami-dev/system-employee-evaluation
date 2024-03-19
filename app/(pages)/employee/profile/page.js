@@ -35,6 +35,7 @@ import { ResponsiveBar } from "@nivo/bar";
 import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
 import { getGitHubUserRepos, getGitHubUsername } from "@/app/api/actions/githubActions";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function page() {
     const [userData, setUserData] = useState();
@@ -43,6 +44,7 @@ export default function page() {
     const [tasksInProgress, setTasksInProgress] = useState([]);
     const [tasksPending, setTasksPending] = useState([]);
     const [allTasks, setAllTasks] = useState([]);
+    const [tasksOnHold, setTasksOnHold] = useState([]);
 
     const route = useRouter();
     const infoDoc = { collectionName: "userData", id: data?.uid };
@@ -107,7 +109,7 @@ export default function page() {
             team?.id,
             userCickupDetails?.id
         );
-        setTasksInProgress(responseTasksOnHold);
+        setTasksOnHold(responseTasksOnHold);
         console.log("tasksOnHold : ", responseTasksOnHold);
 
         const responseTasksPending = await getPendingTasksByEmployee(
@@ -198,6 +200,10 @@ export default function page() {
                 tasksCompleted: Math.round(
                     (tasksCompleted?.length * 100) / allTasks?.length
                 ),
+                
+                tasksOnHold: Math.round(
+                    (tasksOnHold?.length * 100) / allTasks?.length
+                )
             };
         }
     };
@@ -287,13 +293,14 @@ export default function page() {
                                     <ChangingProgressProvider
                                         values={[
                                             0,
-                                            70
+                                            progressPercentage().tasksOnHold
                                         ]}
                                     >
                                         {(percentage) => (
                                             <CircularProgressbar
                                                 value={percentage}
-                                                text={`04/${allTasks?.length}`}
+                                                responseTasksOnHold
+                                                text={`${tasksOnHold?.length}/${allTasks?.length}`}
                                                 styles={buildStyles({
                                                     pathTransition:
                                                         percentage === 0
