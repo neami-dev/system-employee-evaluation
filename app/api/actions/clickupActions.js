@@ -133,6 +133,25 @@ export const getSpaces = async (teamId) => {
     }
   };
 
+  export const getOnHoldTasksByEmployee = async (teamId, userId) => {
+    console.log("in progress tasks ");
+  
+    try {
+      const response = await api.get(`/team/${teamId}/task`, {
+        params: {
+          assignees: [userId],
+          statuses: ['on hold'], 
+          // 'date_updated_gt': startIso,
+          // 'date_updated_lt': endIso
+        }
+      });
+      return response?.data?.tasks;
+    } catch (error) {
+      console.error('Error fetching in progress tasks  :', error);
+      return [];
+    }
+  };
+
   export const getPendingTasksByEmployee = async (teamId, userId) => {
     console.log("in pending tasks ");
   
@@ -151,7 +170,9 @@ export const getSpaces = async (teamId) => {
       return [];
     }
   };
+   
   export const getAllTasksByEmployee = async (teamId, userId) => {
+    console.log("in pending tasks ");
   
     try {
       const response = await api.get(`/team/${teamId}/task`, {
@@ -164,7 +185,7 @@ export const getSpaces = async (teamId) => {
       });
       return response?.data?.tasks;
     } catch (error) {
-      console.error('Error fetching All tasks  :', error);
+      console.error('Error fetching pending tasks  :', error);
       return [];
     }
   };

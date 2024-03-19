@@ -8,19 +8,7 @@ import { ResponsiveAreaBump, ResponsiveBump } from "@nivo/bump";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
-import {
-    getAllTasksByEmployee,
-    getAuthenticatedUserDetails,
-    getCompletedTasksByEmployee,
-    getCompletedTasksByEmployeeToday,
-    getFolders,
-    getInProgressTasksByEmployee,
-    getListsInSpace,
-    getPendingTasksByEmployee,
-    getSpaces,
-    getTasks,
-    getTeams,
-} from "@/app/api/actions/clickupActions";
+import { getAllTasksByEmployee, getAuthenticatedUserDetails, getCompletedTasksByEmployee, getCompletedTasksByEmployeeToday, getFolders, getInProgressTasksByEmployee, getListsInSpace, getPendingTasksByEmployee, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
@@ -84,8 +72,11 @@ export default function page() {
         //     const task = await getTasks(list[0]?.id);
         //     console.log('task : ',task);
 
-        const userCickupDetails = await getAuthenticatedUserDetails();
-        // console.log("userCickupDetails : ", userCickupDetails);
+    const userCickupDetails = await getAuthenticatedUserDetails();
+    console.log('userCickupDetails : ',userCickupDetails);
+
+    const allTasks = await getAllTasksByEmployee(team.id,userCickupDetails.id);
+    console.log('allTasks : ',allTasks);
 
         const responseTasksCompleted = await getCompletedTasksByEmployee(
             team?.id,
