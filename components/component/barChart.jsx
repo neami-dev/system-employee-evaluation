@@ -3,7 +3,7 @@ import React from "react";
 
 export default function BarChart(props) {
     return (
-        <div {...props}>
+        <>
             <ResponsiveBar
                 data={props.data}
                 keys={["count"]}
@@ -43,6 +43,6 @@ export default function BarChart(props) {
                 role="application"
                 ariaLabel="A bar chart showing data"
             />
-        </div>
+        </>
     );
 }

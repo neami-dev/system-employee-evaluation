@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
 import {
+    getAllTasksByEmployee,
     getAuthenticatedUserDetails,
     getCompletedTasksByEmployee,
     getCompletedTasksByEmployeeToday,
@@ -31,6 +32,7 @@ import {
     getTimeTrackedByEmployeeToday,
 } from "@/app/api/actions/clockifyActions";
 import {
+    AlignCenter,
     Blocks,
     History,
     MessageSquareText,
@@ -44,6 +46,7 @@ import { ResponsiveLine } from "@nivo/line";
 import { ResponsiveBar } from "@nivo/bar";
 import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
+import { Button } from "@/components/ui/button";
 
 export default function page() {
     const [userData, setUserData] = useState();
@@ -82,46 +85,51 @@ export default function page() {
         //     console.log('task : ',task);
 
         const userCickupDetails = await getAuthenticatedUserDetails();
-        console.log("userCickupDetails : ", userCickupDetails);
+        // console.log("userCickupDetails : ", userCickupDetails);
 
         const responseTasksCompleted = await getCompletedTasksByEmployee(
             team?.id,
             userCickupDetails?.id
         );
         setTasksCompleted(responseTasksCompleted);
-        console.log("tasksCompleted : ", responseTasksCompleted);
+        // console.log("tasksCompleted : ", responseTasksCompleted);
 
         const responseTasksProgress = await getInProgressTasksByEmployee(
             team?.id,
             userCickupDetails?.id
         );
         setTasksInProgress(responseTasksProgress);
-        console.log("tasksProgress : ", responseTasksProgress);
+        // console.log("tasksProgress : ", responseTasksProgress);
 
         const responseTasksPending = await getPendingTasksByEmployee(
             team?.id,
             userCickupDetails?.id
         );
         setTasksPending(responseTasksPending);
-        console.log("tasksPending : ", responseTasksPending);
+        // console.log("tasksPending : ", responseTasksPending);
+        const responseAllTasksByEmployee = await getAllTasksByEmployee(
+            userCickupDetails?.id,
+            team?.id
+        );
+        console.log("all", responseAllTasksByEmployee);
 
         const ClockifyUserData = await getClockifyUserData();
-        console.log("ClockifyUserData : ", ClockifyUserData);
+        // console.log("ClockifyUserData : ", ClockifyUserData);
 
         const ClockifyWorkSpaces = await getClockifyWorkSpaces();
-        console.log("ClockifyWorkSpaces : ", ClockifyWorkSpaces);
+        // console.log("ClockifyWorkSpaces : ", ClockifyWorkSpaces);
 
         const TimeTrackedByEmployeeToday = await getTimeTrackedByEmployeeToday(
             ClockifyUserData?.id,
             ClockifyWorkSpaces?.id
         );
-        console.log(
-            "TimeTrackedByEmployeeToday : ",
-            TimeTrackedByEmployeeToday
-        );
+        // console.log(
+        //     "TimeTrackedByEmployeeToday : ",
+        //     TimeTrackedByEmployeeToday
+        // );
 
         const AllUserIds = await getAllUserIds(ClockifyWorkSpaces?.id);
-        console.log("AllUserIds : ", AllUserIds);
+        // console.log("AllUserIds : ", AllUserIds);
     };
 
     useEffect(() => {
@@ -144,7 +152,7 @@ export default function page() {
             getInfo();
         }
     }, [infoDoc.id, infoDoc.collectionName]);
-    console.log("userData:", userData);
+    // console.log("userData:", userData);
     const itemStyle =
         "bg-white rounded-lg w-[230px] h-[115px] flex items-center justify-evenly ";
     const dataChart = [
@@ -181,7 +189,7 @@ export default function page() {
                                 {(percentage) => (
                                     <CircularProgressbar
                                         value={percentage}
-                                        text={`${tasksCompleted?.length} TASK`}
+                                        text={`${tasksCompleted?.length}`}
                                         styles={buildStyles({
                                             pathTransition:
                                                 percentage === 0
@@ -201,7 +209,7 @@ export default function page() {
                                 {(percentage) => (
                                     <CircularProgressbar
                                         value={percentage}
-                                        text={"kkk"}
+                                        text={`${tasksInProgress?.length}`}
                                         styles={buildStyles({
                                             pathTransition:
                                                 percentage === 0
@@ -298,16 +306,30 @@ export default function page() {
                 </ul>
             </section>
             <section>
-                <div className="flex w-full flex-wrap gap-6 mt-4 xl:px-8">
-                    <CurvedlineChart
-                        data={dataChart}
-                        className="w-full sm:w-[70%] lg:w-[46%]  xl:w-[56%] mx-auto  h-[300px] bg-white rounded-lg"
-                    />
+                <div className="flex w-full flex-wrap gap-4 mt-4 xl:px-8">
+                    <div className="w-full sm:w-[70%] lg:w-[52%]  xl:w-[56%] mx-auto h-[350px] p-3  bg-white rounded-lg">
+                        <ul className="flex justify-between items-center ">
+                            <li>General performance</li>
+                            <li></li>
+                            <li> </li>
 
-                    <BarChart
-                        className="w-full sm:w-[70%] lg:w-[46%]   mx-auto xl:w-[40%]  h-[300px] bg-white rounded-lg"
-                        data={chartBarData}
-                    />
+                            <li>
+                                <AlignCenter className=" cursor-pointer text-slate-700" />
+                            </li>
+                        </ul>
+
+                        <CurvedlineChart data={dataChart} />
+                    </div>
+
+                    <div className="w-full sm:w-[70%] lg:w-[42%]   mx-auto xl:w-[40%] h-[350px] p-3 bg-white rounded-lg">
+                        <ul className="flex justify-between items-center">
+                            <li>Statistics</li>
+                            <li>
+                                <AlignCenter className=" cursor-pointer text-slate-700" />
+                            </li>
+                        </ul>
+                        <BarChart data={chartBarData} />
+                    </div>
                 </div>
             </section>
         </>

@@ -2,6 +2,7 @@
 import { Sun } from "lucide-react";
 import CurrentTime from "./currentTime";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 export default function Weather() {
     return (
@@ -23,9 +24,11 @@ export default function Weather() {
                         <span>{new Date().toDateString()}</span>
                     </li>
                     <li>
-                        <Button className="bg-[#3353f4c6] font-normal text-lg hover:bg-[#3354F4]">
-                            view attendance
-                        </Button>
+                        <Link href="/employee/attendance">
+                            <Button className="bg-[#3353f4c6] font-normal text-lg hover:bg-[#3354F4]">
+                                view attendance
+                            </Button>
+                        </Link>
                     </li>
                 </ul>
             </div>

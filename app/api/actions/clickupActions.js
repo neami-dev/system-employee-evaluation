@@ -151,5 +151,22 @@ export const getSpaces = async (teamId) => {
       return [];
     }
   };
+  export const getAllTasksByEmployee = async (teamId, userId) => {
+  
+    try {
+      const response = await api.get(`/team/${teamId}/task`, {
+        params: {
+          assignees: [userId],
+          // statuses: ['pending'], 
+          // 'date_updated_gt': startIso,
+          // 'date_updated_lt': endIso
+        }
+      });
+      return response?.data?.tasks;
+    } catch (error) {
+      console.error('Error fetching All tasks  :', error);
+      return [];
+    }
+  };
 
 

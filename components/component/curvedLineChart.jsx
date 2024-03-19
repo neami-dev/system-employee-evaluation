@@ -1,9 +1,10 @@
 import { ResponsiveBump } from "@nivo/bump";
 import React from "react";
 
+
 export default function CurvedlineChart(props) {
     return (
-        <div {...props}>
+        <>
             <ResponsiveBump
                 data={props.data}
                 xScale={{
@@ -57,6 +58,6 @@ export default function CurvedlineChart(props) {
                 margin={{ top: 40, right: 25, bottom: 40, left: 30 }}
                 axisRight={null}
             />
-        </div>
+        </>
     );
 }

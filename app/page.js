@@ -70,7 +70,7 @@ export default function Home() {
                     <div key={i}>
                         {" "}
                         <h1>Name: {user.name}</h1>
-                        <h1>Age: {user.age}</h1>
+                        <h1>Age: {user.age}</h1> 
                         <button
                             onClick={() => {
                                 updateUser(user.id, user.age);
