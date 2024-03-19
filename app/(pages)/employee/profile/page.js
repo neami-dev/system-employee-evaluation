@@ -8,7 +8,7 @@ import { ResponsiveAreaBump, ResponsiveBump } from "@nivo/bump";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
-import { getAllTasksByEmployee, getAuthenticatedUserDetails, getCompletedTasksByEmployee, getCompletedTasksByEmployeeToday, getFolders, getInProgressTasksByEmployee, getListsInSpace, getPendingTasksByEmployee, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
+import { getAllTasksByEmployee, getAuthenticatedUserDetails, getCompletedTasksByEmployee, getCompletedTasksByEmployeeToday, getFolders, getInProgressTasksByEmployee, getListsInSpace, getOnHoldTasksByEmployee, getPendingTasksByEmployee, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
@@ -96,6 +96,13 @@ export default function page() {
         );
         setTasksInProgress(responseTasksProgress);
         console.log("tasksProgress : ", responseTasksProgress);
+
+        const responseTasksOnHold = await getOnHoldTasksByEmployee(
+            team?.id,
+            userCickupDetails?.id
+        );
+        setTasksInProgress(responseTasksOnHold);
+        console.log("tasksOnHold : ", responseTasksOnHold);
 
         const responseTasksPending = await getPendingTasksByEmployee(
             team?.id,
