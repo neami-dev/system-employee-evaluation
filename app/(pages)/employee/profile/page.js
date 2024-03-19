@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
-import { getAuthenticatedUserDetails, getCompletedTasksByEmployee, getCompletedTasksByEmployeeToday, getFolders, getInProgressTasksByEmployee, getListsInSpace, getPendingTasksByEmployee, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
+import { getAllTasksByEmployee, getAuthenticatedUserDetails, getCompletedTasksByEmployee, getCompletedTasksByEmployeeToday, getFolders, getInProgressTasksByEmployee, getListsInSpace, getPendingTasksByEmployee, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
@@ -55,6 +55,9 @@ export default function page() {
 
     const userCickupDetails = await getAuthenticatedUserDetails();
     console.log('userCickupDetails : ',userCickupDetails);
+
+    const allTasks = await getAllTasksByEmployee(team.id,userCickupDetails.id);
+    console.log('allTasks : ',allTasks);
 
     const tasksCompleted = await getCompletedTasksByEmployee(team.id,userCickupDetails.id);
     console.log('tasksCompleted : ',tasksCompleted);

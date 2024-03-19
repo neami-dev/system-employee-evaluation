@@ -59,9 +59,7 @@ export default function login() {
             setIsLoading(false); // Stop loading after auth attempt
         } else {
             console.log("Authentication successful: ", auth);
-            route.push(
-                `https://app.clickup.com/api?client_id=${process.env.NEXT_PUBLIC_CLICKUP_CLIENT_ID}&redirect_uri=http://localhost:3000/api/clickupAuth`
-            );
+            route.push("http://localhost:3000/auth-process");
             // route.push("/employee/profile");
         }
     };
