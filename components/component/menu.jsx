@@ -26,7 +26,7 @@ export default function Menu() {
                 infoDoc.collectionName,
                 infoDoc.id
             );
-            setUserData(result.result.data());
+            setUserData(result?.result?.data());
         }
     };
     useEffect(() => {

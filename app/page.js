@@ -10,10 +10,11 @@ import {
     doc,
 } from "firebase/firestore";
 import { usersCollectionRef } from "../firebase/firebase-config";
+import { redirect } from "next/navigation";
 export default function Home() {
     const [newName, setNewName] = useState("");
     const [newAge, setNewAge] = useState(0);
-
+redirect("/login");
     const [users, setUsers] = useState([]);
     // const usersCollectionRef = collection(db, "users");
 
