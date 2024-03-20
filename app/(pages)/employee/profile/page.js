@@ -4,19 +4,15 @@ import React, { useEffect, useState } from "react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
- 
 import { useRouter } from "next/navigation";
 
 import {
     getAllTasksByEmployee,
     getAuthenticatedUserDetails,
     getCompletedTasksByEmployee,
-     
     getInProgressTasksByEmployee,
-    
     getOpenTasksByEmployee,
     getPendingTasksByEmployee,
-     
     getTeams,
 } from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
@@ -61,6 +57,8 @@ export default function page() {
     const [allTasks, setAllTasks] = useState([]);
     const [tasksOnHold, setTasksOnHold] = useState([]);
     const [commits, setCommits] = useState(undefined);
+    const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
+        useState({});
 
     const route = useRouter();
     const infoDoc = { collectionName: "userData", id: data?.uid };
@@ -77,7 +75,7 @@ export default function page() {
         // }
 
         const team = await getTeams();
-        console.log("team : ", team);
+        // console.log("team : ", team);
 
         //     const space = await getSpaces(team?.id);
         //     console.log('space : ',space);
@@ -98,7 +96,7 @@ export default function page() {
         // console.log('User Repositories:', GithubRepos);
 
         const userCickupDetails = await getAuthenticatedUserDetails();
-        console.log("userCickupDetails : ", userCickupDetails);
+        // console.log("userCickupDetails : ", userCickupDetails);
 
         const responseAllTasks = await getAllTasksByEmployee(
             team.id,
@@ -119,21 +117,21 @@ export default function page() {
             userCickupDetails?.id
         );
         setTasksInProgress(responseTasksProgress);
-        console.log("tasksProgress : ", responseTasksProgress);
+        // console.log("tasksProgress : ", responseTasksProgress);
 
         const responseTasksOpen = await getOpenTasksByEmployee(
             team?.id,
             userCickupDetails?.id
         );
         setTasksOnHold(responseTasksOpen);
-        console.log("tasksOpen : ", responseTasksOpen);
+        // console.log("tasksOpen : ", responseTasksOpen);
 
         const responseTasksPending = await getPendingTasksByEmployee(
             team?.id,
             userCickupDetails?.id
         );
         setTasksPending(responseTasksPending);
-        console.log("tasksPending : ", responseTasksPending);
+        // console.log("tasksPending : ", responseTasksPending);
         // const responseAllTasksByEmployee = await getAllTasksByEmployee(
         //     userCickupDetails?.id,
         //     team?.id
@@ -146,20 +144,22 @@ export default function page() {
         const ClockifyWorkSpaces = await getClockifyWorkSpaces();
         // console.log("ClockifyWorkSpaces : ", ClockifyWorkSpaces);
 
-        const TimeTrackedByEmployeeToday = await getTimeTrackedByEmployeeToday(
-            ClockifyUserData?.id,
-            ClockifyWorkSpaces?.id
-        );
+        const resTimeTrackedByEmployeeToday =
+            await getTimeTrackedByEmployeeToday(
+                ClockifyUserData?.id,
+                ClockifyWorkSpaces?.id
+            );
+        setTimeTrackedByEmployeeToday(resTimeTrackedByEmployeeToday);
         // console.log(
         //     "TimeTrackedByEmployeeToday : ",
-        //     TimeTrackedByEmployeeToday
+        //     resTimeTrackedByEmployeeToday
         // );
 
-        const AllUserIds = await getAllUserIds(ClockifyWorkSpaces?.id);
+        // const AllUserIds = await getAllUserIds(ClockifyWorkSpaces?.id);
         // console.log("AllUserIds : ", AllUserIds);
         const GithubTotalCommits = await getTotalCommitsForToday();
         setCommits(GithubTotalCommits);
-        console.log("total of Commits made today:", GithubTotalCommits);
+        // console.log("total of Commits made today:", GithubTotalCommits);
     };
 
     useEffect(() => {
@@ -182,9 +182,9 @@ export default function page() {
         getInfo();
         // }
     }, []);
+
     // console.log("userData:", userData);
-    const itemStyle =
-        "bg-white rounded-lg w-[230px] h-[115px] flex items-center justify-evenly ";
+
     const dataChart = [
         {
             id: "",
@@ -228,17 +228,21 @@ export default function page() {
     };
     const progressPercentageCommits = () => {
         if (commits !== undefined) {
-            return {
-                commits: Math.round((commits * 100) / 3),
-            };
+            return Math.round((commits * 100) / 3);
         }
     };
-    console.log("commits", progressPercentageCommits()?.commits);
+    const progressPercentageTimeWork = () => {
+        if (timeTrackedByEmployeeToday !== undefined) {
+            return Math.round((timeTrackedByEmployeeToday?.hours * 100) / 8);
+        }
+    };
+    const itemStyle =
+        "bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ";
     return (
         <>
             <section className=" grid justify-center w-full mx-auto  pt-32">
                 <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ">
-                    <li className="w-[230px] md:row-span-2 lg:row-span-3 xl:row-span-2">
+                    <li className="w-[260px] md:row-span-2 lg:row-span-3 xl:row-span-2">
                         <Weather />
                     </li>
                     <li className={`${itemStyle} `}>
@@ -391,14 +395,19 @@ export default function page() {
                         )}
                     </li>
                     <li className={`${itemStyle}`}>
-                        {true ? (
+                        {timeTrackedByEmployeeToday?.hours !== undefined ? (
                             <>
                                 <div className="w-[65px]">
-                                    <ChangingProgressProvider values={[0, 20]}>
+                                    <ChangingProgressProvider
+                                        values={[
+                                            0,
+                                            progressPercentageTimeWork(),
+                                        ]}
+                                    >
                                         {(percentage) => (
                                             <CircularProgressbar
                                                 value={percentage}
-                                                text={`04/${allTasks?.length}`}
+                                                text={`${timeTrackedByEmployeeToday?.hours}/8H`}
                                                 styles={buildStyles({
                                                     pathTransition:
                                                         percentage === 0
@@ -422,14 +431,19 @@ export default function page() {
                         )}
                     </li>
                     <li className={`${itemStyle}`}>
-                        {true ? (
+                        {commits !== undefined ? (
                             <>
                                 <div className="w-[65px]">
-                                    <ChangingProgressProvider values={[0, 36]}>
+                                    <ChangingProgressProvider
+                                        values={[
+                                            0,
+                                            progressPercentageCommits(),
+                                        ]}
+                                    >
                                         {(percentage) => (
                                             <CircularProgressbar
                                                 value={percentage}
-                                                text={`04/${allTasks?.length}`}
+                                                text={`${commits}/3`}
                                                 styles={buildStyles({
                                                     pathTransition:
                                                         percentage === 0
@@ -441,7 +455,7 @@ export default function page() {
                                         )}
                                     </ChangingProgressProvider>
                                 </div>
-                                <p>Work Time</p>
+                                <p>Commits</p>
                             </>
                         ) : (
                             <div className="flex items-center">
@@ -455,7 +469,7 @@ export default function page() {
                 </ul>
             </section>
             <section>
-                <div className="flex w-full flex-wrap gap-4 mt-4 xl:px-8">
+                <div className="flex w-full flex-wrap gap-4 mt-8 xl:px-8">
                     <div className="w-full sm:w-[70%] lg:w-[52%]  xl:w-[56%] mx-auto h-[350px] p-3  bg-white rounded-lg">
                         <ul className="flex justify-between items-center ">
                             <li>General performance</li>

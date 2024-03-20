@@ -61,10 +61,10 @@ const isoDurationToSeconds = (isoDuration) => {
       const minutes = Math.floor((totalTimeWorkedInSeconds % 3600) / 60);
       const seconds = totalTimeWorkedInSeconds % 60;
   
-      return `${hours}h ${minutes}m ${seconds}s`;
+      return {hours,minutes,seconds};
     } catch (error) {
       console.error('Error fetching time entries:', error);
-      return '0h 0m 0s';
+      return null;
     }
   };
 
