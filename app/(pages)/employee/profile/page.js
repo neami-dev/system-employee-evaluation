@@ -8,7 +8,21 @@ import { ResponsiveAreaBump, ResponsiveBump } from "@nivo/bump";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import getDocument from "@/firebase/firestore/getDocument";
-import { getAllTasksByEmployee, getAuthenticatedUserDetails, getCompletedTasksByEmployee, getCompletedTasksByEmployeeToday, getFolders, getInProgressTasksByEmployee, getListsInSpace, getOnHoldTasksByEmployee, getOpenTasksByEmployee, getPendingTasksByEmployee, getSpaces, getTasks, getTeams } from "@/app/api/actions/clickupActions";
+import {
+    getAllTasksByEmployee,
+    getAuthenticatedUserDetails,
+    getCompletedTasksByEmployee,
+    getCompletedTasksByEmployeeToday,
+    getFolders,
+    getInProgressTasksByEmployee,
+    getListsInSpace,
+    getOnHoldTasksByEmployee,
+    getOpenTasksByEmployee,
+    getPendingTasksByEmployee,
+    getSpaces,
+    getTasks,
+    getTeams,
+} from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
@@ -34,7 +48,12 @@ import { ResponsiveLine } from "@nivo/line";
 import { ResponsiveBar } from "@nivo/bar";
 import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
-import { getGitHubUserRepos, getGitHubUsername, getGithubCommitsForToday, getTotalCommitsForToday } from "@/app/api/actions/githubActions";
+import {
+    getGitHubUserRepos,
+    getGitHubUsername,
+    getGithubCommitsForToday,
+    getTotalCommitsForToday,
+} from "@/app/api/actions/githubActions";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function page() {
@@ -45,9 +64,22 @@ export default function page() {
     const [tasksPending, setTasksPending] = useState([]);
     const [allTasks, setAllTasks] = useState([]);
     const [tasksOnHold, setTasksOnHold] = useState([]);
+    const [githubTotalCommits, setGithubTotalCommits] = useState(null);
 
     const route = useRouter();
     const infoDoc = { collectionName: "userData", id: data?.uid };
+
+    const getInfoOfGithub = async () => {
+        // const GithubUsername = await getGitHubUsername()
+        // console.log('GitHub Username:', GithubUsername);
+
+        // const GithubRepos = await getGitHubUserRepos()
+        // console.log('User Repositories:', GithubRepos);
+
+        const responseGithubTotalCommits = await getTotalCommitsForToday();
+        console.log("total of Commits made today:", responseGithubTotalCommits);
+        setGithubTotalCommits(responseGithubTotalCommits);
+    };
 
     // get info the user score department ...
     const getInfo = async () => {
@@ -75,25 +107,15 @@ export default function page() {
         //     const task = await getTasks(list[0]?.id);
         //     console.log('task : ',task);
 
-    // const GithubUsername = await getGitHubUsername()
-    // console.log('GitHub Username:', GithubUsername);
-    
-    // const GithubRepos = await getGitHubUserRepos()
-    // console.log('User Repositories:', GithubRepos);
+        const userCickupDetails = await getAuthenticatedUserDetails();
+        console.log("userCickupDetails : ", userCickupDetails);
 
-    const GithubTotalCommits = await getTotalCommitsForToday()
-    console.log('total of Commits made today:', GithubTotalCommits);
-
-
-    const userCickupDetails = await getAuthenticatedUserDetails();
-    console.log('userCickupDetails : ',userCickupDetails);
-
-    const responseAllTasks = await getAllTasksByEmployee(
+        const responseAllTasks = await getAllTasksByEmployee(
             team.id,
             userCickupDetails.id
         );
-    console.log("allTasks : ", responseAllTasks);
-    setAllTasks(responseAllTasks);
+        console.log("allTasks : ", responseAllTasks);
+        setAllTasks(responseAllTasks);
 
         const responseTasksCompleted = await getCompletedTasksByEmployee(
             team?.id,
@@ -146,7 +168,9 @@ export default function page() {
         const AllUserIds = await getAllUserIds(ClockifyWorkSpaces?.id);
         // console.log("AllUserIds : ", AllUserIds);
     };
-
+    useEffect(() => {
+        getInfoOfGithub();
+    }, []);
     useEffect(() => {
         // Listen for auth state changes
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -204,13 +228,15 @@ export default function page() {
                 tasksCompleted: Math.round(
                     (tasksCompleted?.length * 100) / allTasks?.length
                 ),
-                
+
                 tasksOnHold: Math.round(
                     (tasksOnHold?.length * 100) / allTasks?.length
-                )
+                ),
+                githubTotalCommits: Math.round((githubTotalCommits * 100) / 3),
             };
         }
     };
+    console.log(progressPercentage()?.githubTotalCommits);
     return (
         <>
             <section className=" grid justify-center w-full mx-auto  pt-32">
@@ -261,7 +287,8 @@ export default function page() {
                                     <ChangingProgressProvider
                                         values={[
                                             0,
-                                            progressPercentage().tasksInProgress,
+                                            progressPercentage()
+                                                .tasksInProgress,
                                         ]}
                                     >
                                         {(percentage) => (
@@ -297,7 +324,7 @@ export default function page() {
                                     <ChangingProgressProvider
                                         values={[
                                             0,
-                                            progressPercentage().tasksOnHold
+                                            progressPercentage().tasksOnHold,
                                         ]}
                                     >
                                         {(percentage) => (
@@ -331,7 +358,12 @@ export default function page() {
                         {allTasks?.length > 0 ? (
                             <>
                                 <div className="w-[65px]">
-                                    <ChangingProgressProvider values={[0,progressPercentage().tasksPending]}>
+                                    <ChangingProgressProvider
+                                        values={[
+                                            0,
+                                            progressPercentage().tasksPending,
+                                        ]}
+                                    >
                                         {(percentage) => (
                                             <CircularProgressbar
                                                 value={percentage}
@@ -390,14 +422,20 @@ export default function page() {
                         )}
                     </li>
                     <li className={`${itemStyle}`}>
-                        {true ? (
+                        {githubTotalCommits !== null ? (
                             <>
                                 <div className="w-[65px]">
-                                    <ChangingProgressProvider values={[0, 36]}>
+                                    <ChangingProgressProvider
+                                        values={[
+                                            0,
+                                            progressPercentage()
+                                                ?.githubTotalCommits,
+                                        ]}
+                                    >
                                         {(percentage) => (
                                             <CircularProgressbar
                                                 value={percentage}
-                                                text={`04/${allTasks?.length}`}
+                                                text={`${githubTotalCommits}/03`}
                                                 styles={buildStyles({
                                                     pathTransition:
                                                         percentage === 0
@@ -409,7 +447,7 @@ export default function page() {
                                         )}
                                     </ChangingProgressProvider>
                                 </div>
-                                <p>Work Time</p>
+                                <p>Commits</p>
                             </>
                         ) : (
                             <div className="flex items-center">
