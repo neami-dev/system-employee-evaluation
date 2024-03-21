@@ -1,7 +1,12 @@
 "use client";
 import ChangingProgressProvider from "@/components/component/ChangingProgressProvider";
+import Link from "next/link";
 import React, { useState } from "react";
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import {
+    CircularProgressbar,
+    CircularProgressbarWithChildren,
+    buildStyles,
+} from "react-circular-progressbar";
 
 export default function Profile() {
     const [currentComp, setCurrentComp] = useState("whoIam");
@@ -13,7 +18,7 @@ export default function Profile() {
     return (
         <>
             <section>
-                <div className="bg-white w-full mt-32 min-[425px]:w-[86%] text min-[425px]:ml-[52px] lg:ml-[26px]  lg:w-[56%] lg:p-2  rounded-lg ">
+                <div className="bg-white w-full mt-32 min-[424px]:w-[86%] text min-[424px]:ml-[52px] lg:ml-[26px]  lg:w-[56%] lg:p-2  rounded-lg ">
                     <h2 className="text-xl p-3 text-[#3354F4] ">About me</h2>
                     <ul className="flex justify-center md:justify-start md:pl-4 gap-x-4 text-[#828690]">
                         <li
@@ -56,7 +61,7 @@ export default function Profile() {
                         {currentComp == "sastProjects" && <LastProjects />}
                     </div>
                 </div>
-                <div className=" bg-white rounded-lg w-full h-[500px] py-6 mt-9">
+                <div className=" bg-white rounded-lg w-full h-[600px] py-6 mt-9">
                     <ul className="flex flex-col gap-2 items-center">
                         <li>
                             <img
@@ -75,37 +80,55 @@ export default function Profile() {
                         </li>
                     </ul>
                     <ul className="grid grid-cols-2 mt-5 mr-2 items-center p-1 ">
-                        <li className="row-span-3 m-auto">
-                            <div className="w-[80px]">
-                                <ChangingProgressProvider values={[0, 70]}>
-                                    {(percentage) => (
-                                        <CircularProgressbar
-                                            value={percentage}
-                                            text={`70%`}
-                                            styles={buildStyles({
-                                                pathTransition:
-                                                    percentage === 0
-                                                        ? "none"
-                                                        : "stroke-dashoffset 0.5s ease 0s",
-                                                pathColor: "#39B5A6",
-                                            })}
-                                        />
-                                    )}
-                                </ChangingProgressProvider>
-                            </div>
+                        <li className="row-span-3 m-auto w-[80px]">
+                            <CircularProgressbar
+                                value={80}
+                                text={`89`}
+                                styles={buildStyles({
+                                    pathTransition:
+                                        "stroke-dashoffset 0.5s ease 0s",
+                                    pathColor: "#3354F4",
+                                })}
+                            />
                         </li>
-                        <li className="">
+                        <li className="relative">
+                            <span className="before:absolute before:w-[18px]  before:h-[18px] before:rounded-full  before:bg-[#6E29FF] before:left-[-24px]  before:top-[0px]   "></span>
+
                             <h3 className="text-[12px]">
                                 Methodologie de travail
                             </h3>
                         </li>
-                        <li className="">
+                        <li className="relative">
+                            <span className="before:absolute before:w-[18px]  before:h-[18px] before:rounded-full  before:bg-[#FC8E8E] before:left-[-24px]  before:top-[0px]   "></span>
+
                             <h3 className="text-[12px]">Attributs</h3>
                         </li>
-                        <li className="">
+                        <li className="relative">
+                            <span className="before:absolute before:w-[18px]  before:h-[18px] before:rounded-full  before:bg-[#07D2FF] before:left-[-24px]  before:top-[0px]   "></span>
+
                             <h3 className="text-[12px]">
                                 Apprentissage Continu
                             </h3>
+                        </li>
+                    </ul>
+                    <ul className="flex flex-col items-center gap-3 mt-6 ">
+                        <li className="flex justify-around items-center w-full">
+                            <h3 className="font-bold">Last Activites</h3>
+                            <Link href="/" className="text-[#3354F4]">
+                                See all
+                            </Link>
+                        </li>
+                        <li className=" border-2 rounded-lg m-2 ">
+                            <p className="text-sm p-1 pl-8 relative">
+                                <span className="before:absolute before:w-[22px]  before:h-[22px] before:rounded-full  before:bg-[#AEEDE2] before:left-[3px]  before:top-[2px]   "></span>
+                                Your task has been accepted by the manager
+                            </p>
+                        </li>
+                        <li className=" border-2 rounded-lg m-2">
+                            <p className="text-sm p-1 pl-8 relative">
+                                <span className="before:absolute before:w-[22px]  before:h-[22px] before:rounded-full  before:bg-[#FFC48E] before:left-[3px]  before:top-[2px]   "></span>
+                                Your Application has accept 3 Companies
+                            </p>
                         </li>
                     </ul>
                 </div>

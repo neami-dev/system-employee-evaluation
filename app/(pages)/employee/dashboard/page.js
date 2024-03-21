@@ -8,45 +8,30 @@ import { useRouter } from "next/navigation";
 
 import {
     getAllTasksByEmployee,
-    getAuthenticatedUserDetails,
     getCompletedTasksByEmployee,
     getInProgressTasksByEmployee,
     getOpenTasksByEmployee,
     getPendingTasksByEmployee,
-    getTeams,
 } from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
-import NavBar from "@/components/component/NavBar";
-import Menu from "@/components/component/menu";
-import { Footer } from "react-day-picker";
+
 import {
-    getAllUserIds,
     getClockifyUserData,
     getClockifyWorkSpaces,
     getTimeTrackedByEmployeeToday,
 } from "@/app/api/actions/clockifyActions";
-import {
-    AlignCenter,
-    Blocks,
-    History,
-    MessageSquareText,
-    UserPlus,
-    Users,
-} from "lucide-react";
-import Components from "@/components/component/components";
+import { AlignCenter } from "lucide-react";
+ 
 import Weather from "@/components/component/weather";
 import ChangingProgressProvider from "@/components/component/ChangingProgressProvider";
-import { ResponsiveLine } from "@nivo/line";
-import { ResponsiveBar } from "@nivo/bar";
+
 import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
-import {
-    getGitHubUserRepos,
-    getGitHubUsername,
-    getGithubCommitsForToday,
-    getTotalCommitsForToday,
-} from "@/app/api/actions/githubActions";
+import { getTotalCommitsForToday } from "@/app/api/actions/githubActions";
 import { Skeleton } from "@/components/ui/skeleton";
+import { firebaseWithGithub } from "@/dataManagement/firebaseWithGithub";
+// import { firebaseWithGithub } from "@/dataManagement/firebaseWithGithub";
+ 
 
 export default function page() {
     const [userData, setUserData] = useState();
@@ -65,101 +50,52 @@ export default function page() {
 
     // get info the user score department ...
     const getInfo = async () => {
-        // if (infoDoc.id !== undefined && infoDoc.collectionName !== undefined) {
-        //     const result = await getDocument(
-        //         infoDoc.collectionName,
-        //         infoDoc.id
-        //     );
-        //     setUserData(result.result.data());
-        //     console.log(result.result.data());
-        // }
+        // const [team, userCickupDetails] = await Promise.all([
+        //     getTeams(),
+        //     getAuthenticatedUserDetails(),
+        // ]);
+        // console.log("=====1", userCickupDetails?.id);
+        const teamId = "9015373700";
+        const userId = "62619802";
 
-        const team = await getTeams();
-        // console.log("team : ", team);
+        const [
+            responseAllTasks,
+            responseTasksCompleted,
+            responseTasksProgress,
+            responseTasksOpen,
+            responseTasksPending,
+        ] = await Promise.all([
+            getAllTasksByEmployee(teamId, userId),
+            getCompletedTasksByEmployee(teamId, userId),
+            getInProgressTasksByEmployee(teamId, userId),
+            getOpenTasksByEmployee(teamId, userId),
+            getPendingTasksByEmployee(teamId, userId),
+        ]);
+        console.log("====2", responseAllTasks, responseTasksCompleted);
 
-        //     const space = await getSpaces(team?.id);
-        //     console.log('space : ',space);
-
-        //     const folder = await getFolders(space[0]?.id);
-        //     console.log('folder : ',folder);
-
-        //     const list = await getListsInSpace(space[0]?.id);
-        //     console.log('list : ',list);
-
-        //     const task = await getTasks(list[0]?.id);
-        //     console.log('task : ',task);
-
-        // const GithubUsername = await getGitHubUsername()
-        // console.log('GitHub Username:', GithubUsername);
-
-        // const GithubRepos = await getGitHubUserRepos()
-        // console.log('User Repositories:', GithubRepos);
-
-        const userCickupDetails = await getAuthenticatedUserDetails();
-        // console.log("userCickupDetails : ", userCickupDetails);
-
-        const responseAllTasks = await getAllTasksByEmployee(
-            team.id,
-            userCickupDetails.id
-        );
-        console.log("allTasks : ", responseAllTasks);
         setAllTasks(responseAllTasks);
-
-        const responseTasksCompleted = await getCompletedTasksByEmployee(
-            team?.id,
-            userCickupDetails?.id
-        );
         setTasksCompleted(responseTasksCompleted);
-        // console.log("tasksCompleted : ", responseTasksCompleted);
 
-        const responseTasksProgress = await getInProgressTasksByEmployee(
-            team?.id,
-            userCickupDetails?.id
-        );
         setTasksInProgress(responseTasksProgress);
-        // console.log("tasksProgress : ", responseTasksProgress);
 
-        const responseTasksOpen = await getOpenTasksByEmployee(
-            team?.id,
-            userCickupDetails?.id
-        );
         setTasksOnHold(responseTasksOpen);
-        // console.log("tasksOpen : ", responseTasksOpen);
 
-        const responseTasksPending = await getPendingTasksByEmployee(
-            team?.id,
-            userCickupDetails?.id
-        );
         setTasksPending(responseTasksPending);
-        // console.log("tasksPending : ", responseTasksPending);
-        // const responseAllTasksByEmployee = await getAllTasksByEmployee(
-        //     userCickupDetails?.id,
-        //     team?.id
-        // );
-        // console.log("all", responseAllTasksByEmployee);
+        console.log("2");
 
-        const ClockifyUserData = await getClockifyUserData();
-        // console.log("ClockifyUserData : ", ClockifyUserData);
-
-        const ClockifyWorkSpaces = await getClockifyWorkSpaces();
-        // console.log("ClockifyWorkSpaces : ", ClockifyWorkSpaces);
-
+        const [ClockifyUserData, ClockifyWorkSpaces] = await Promise.all([
+            getClockifyUserData(),
+            getClockifyWorkSpaces(),
+        ]);
         const resTimeTrackedByEmployeeToday =
             await getTimeTrackedByEmployeeToday(
                 ClockifyUserData?.id,
                 ClockifyWorkSpaces?.id
             );
         setTimeTrackedByEmployeeToday(resTimeTrackedByEmployeeToday);
-        // console.log(
-        //     "TimeTrackedByEmployeeToday : ",
-        //     resTimeTrackedByEmployeeToday
-        // );
 
-        // const AllUserIds = await getAllUserIds(ClockifyWorkSpaces?.id);
-        // console.log("AllUserIds : ", AllUserIds);
         const GithubTotalCommits = await getTotalCommitsForToday();
         setCommits(GithubTotalCommits);
-        // console.log("total of Commits made today:", GithubTotalCommits);
     };
 
     useEffect(() => {
@@ -178,13 +114,12 @@ export default function page() {
     }, []); // Removed data from dependencies to avoid re-triggering
 
     useEffect(() => {
-        // if (infoDoc.id && infoDoc.collectionName) {
         getInfo();
-        // }
+
     }, []);
-
-    // console.log("userData:", userData);
-
+useEffect(()=>{
+    firebaseWithGithub()
+})
     const dataChart = [
         {
             id: "",
