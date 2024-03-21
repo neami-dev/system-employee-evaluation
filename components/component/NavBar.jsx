@@ -25,6 +25,7 @@ import {
     DropdownMenuSubContent,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 export default function NavBar() {
     const [userData, setUserData] = useState("");
 
@@ -99,10 +100,12 @@ export default function NavBar() {
                                         </DropdownMenuLabel>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuGroup>
+                                            <Link href="/employee/profile">
                                             <DropdownMenuItem>
                                                 <User className="mr-2 h-4 w-4" />
                                                 <span>Profile </span>
                                             </DropdownMenuItem>
+                                            </Link>
 
                                             <DropdownMenuItem>
                                                 <Settings className="mr-2 h-4 w-4" />

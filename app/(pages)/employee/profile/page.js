@@ -1,500 +1,172 @@
 "use client";
-
-import React, { useEffect, useState } from "react";
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
-
-import { useRouter } from "next/navigation";
-
-import {
-    getAllTasksByEmployee,
-    getAuthenticatedUserDetails,
-    getCompletedTasksByEmployee,
-    getInProgressTasksByEmployee,
-    getOpenTasksByEmployee,
-    getPendingTasksByEmployee,
-    getTeams,
-} from "@/app/api/actions/clickupActions";
-import { auth } from "@/firebase/firebase-config";
-import NavBar from "@/components/component/NavBar";
-import Menu from "@/components/component/menu";
-import { Footer } from "react-day-picker";
-import {
-    getAllUserIds,
-    getClockifyUserData,
-    getClockifyWorkSpaces,
-    getTimeTrackedByEmployeeToday,
-} from "@/app/api/actions/clockifyActions";
-import {
-    AlignCenter,
-    Blocks,
-    History,
-    MessageSquareText,
-    UserPlus,
-    Users,
-} from "lucide-react";
-import Components from "@/components/component/components";
-import Weather from "@/components/component/weather";
 import ChangingProgressProvider from "@/components/component/ChangingProgressProvider";
-import { ResponsiveLine } from "@nivo/line";
-import { ResponsiveBar } from "@nivo/bar";
-import CurvedlineChart from "@/components/component/curvedLineChart";
-import BarChart from "@/components/component/barChart";
-import {
-    getGitHubUserRepos,
-    getGitHubUsername,
-    getGithubCommitsForToday,
-    getTotalCommitsForToday,
-} from "@/app/api/actions/githubActions";
-import { Skeleton } from "@/components/ui/skeleton";
+import React, { useState } from "react";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 
-export default function page() {
-    const [userData, setUserData] = useState();
-    const [data, setData] = useState({});
-    const [tasksCompleted, setTasksCompleted] = useState([]);
-    const [tasksInProgress, setTasksInProgress] = useState([]);
-    const [tasksPending, setTasksPending] = useState([]);
-    const [allTasks, setAllTasks] = useState([]);
-    const [tasksOnHold, setTasksOnHold] = useState([]);
-    const [commits, setCommits] = useState(undefined);
-    const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
-        useState({});
-
-    const route = useRouter();
-    const infoDoc = { collectionName: "userData", id: data?.uid };
-
-    // get info the user score department ...
-    const getInfo = async () => {
-        // if (infoDoc.id !== undefined && infoDoc.collectionName !== undefined) {
-        //     const result = await getDocument(
-        //         infoDoc.collectionName,
-        //         infoDoc.id
-        //     );
-        //     setUserData(result.result.data());
-        //     console.log(result.result.data());
-        // }
-
-        const team = await getTeams();
-        // console.log("team : ", team);
-
-        //     const space = await getSpaces(team?.id);
-        //     console.log('space : ',space);
-
-        //     const folder = await getFolders(space[0]?.id);
-        //     console.log('folder : ',folder);
-
-        //     const list = await getListsInSpace(space[0]?.id);
-        //     console.log('list : ',list);
-
-        //     const task = await getTasks(list[0]?.id);
-        //     console.log('task : ',task);
-
-        // const GithubUsername = await getGitHubUsername()
-        // console.log('GitHub Username:', GithubUsername);
-
-        // const GithubRepos = await getGitHubUserRepos()
-        // console.log('User Repositories:', GithubRepos);
-
-        const userCickupDetails = await getAuthenticatedUserDetails();
-        // console.log("userCickupDetails : ", userCickupDetails);
-
-        const responseAllTasks = await getAllTasksByEmployee(
-            team.id,
-            userCickupDetails.id
-        );
-        console.log("allTasks : ", responseAllTasks);
-        setAllTasks(responseAllTasks);
-
-        const responseTasksCompleted = await getCompletedTasksByEmployee(
-            team?.id,
-            userCickupDetails?.id
-        );
-        setTasksCompleted(responseTasksCompleted);
-        // console.log("tasksCompleted : ", responseTasksCompleted);
-
-        const responseTasksProgress = await getInProgressTasksByEmployee(
-            team?.id,
-            userCickupDetails?.id
-        );
-        setTasksInProgress(responseTasksProgress);
-        // console.log("tasksProgress : ", responseTasksProgress);
-
-        const responseTasksOpen = await getOpenTasksByEmployee(
-            team?.id,
-            userCickupDetails?.id
-        );
-        setTasksOnHold(responseTasksOpen);
-        // console.log("tasksOpen : ", responseTasksOpen);
-
-        const responseTasksPending = await getPendingTasksByEmployee(
-            team?.id,
-            userCickupDetails?.id
-        );
-        setTasksPending(responseTasksPending);
-        // console.log("tasksPending : ", responseTasksPending);
-        // const responseAllTasksByEmployee = await getAllTasksByEmployee(
-        //     userCickupDetails?.id,
-        //     team?.id
-        // );
-        // console.log("all", responseAllTasksByEmployee);
-
-        const ClockifyUserData = await getClockifyUserData();
-        // console.log("ClockifyUserData : ", ClockifyUserData);
-
-        const ClockifyWorkSpaces = await getClockifyWorkSpaces();
-        // console.log("ClockifyWorkSpaces : ", ClockifyWorkSpaces);
-
-        const resTimeTrackedByEmployeeToday =
-            await getTimeTrackedByEmployeeToday(
-                ClockifyUserData?.id,
-                ClockifyWorkSpaces?.id
-            );
-        setTimeTrackedByEmployeeToday(resTimeTrackedByEmployeeToday);
-        // console.log(
-        //     "TimeTrackedByEmployeeToday : ",
-        //     resTimeTrackedByEmployeeToday
-        // );
-
-        // const AllUserIds = await getAllUserIds(ClockifyWorkSpaces?.id);
-        // console.log("AllUserIds : ", AllUserIds);
-        const GithubTotalCommits = await getTotalCommitsForToday();
-        setCommits(GithubTotalCommits);
-        // console.log("total of Commits made today:", GithubTotalCommits);
-    };
-
-    useEffect(() => {
-        // Listen for auth state changes
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            if (user) {
-                setData(user);
-            } else {
-                // Redirect if not authenticated
-                route.push("/login");
-            }
-        });
-
-        // Cleanup subscription on component unmount
-        return () => unsubscribe();
-    }, []); // Removed data from dependencies to avoid re-triggering
-
-    useEffect(() => {
-        // if (infoDoc.id && infoDoc.collectionName) {
-        getInfo();
-        // }
-    }, []);
-
-    // console.log("userData:", userData);
-
-    const dataChart = [
-        {
-            id: "",
-            data: [
-                { x: "Jan", y: 49 },
-                { x: "Feb", y: 137 },
-                { x: "Mar", y: 61 },
-                { x: "Apr", y: 145 },
-                { x: "May", y: 26 },
-                { x: "Jun", y: 154 },
-            ],
-        },
-    ];
-    const chartBarData = [
-        { name: "Jan", count: 111 },
-        { name: "Feb", count: 157 },
-        { name: "Mar", count: 129 },
-        { name: "Apr", count: 150 },
-        { name: "May", count: 119 },
-        { name: "Jun", count: 72 },
-    ];
-
-    const progressPercentageTask = () => {
-        if (allTasks?.length > 0) {
-            return {
-                tasksInProgress: Math.round(
-                    (tasksInProgress?.length * 100) / allTasks?.length
-                ),
-                tasksPending: Math.round(
-                    (tasksPending?.length * 100) / allTasks?.length
-                ),
-                tasksCompleted: Math.round(
-                    (tasksCompleted?.length * 100) / allTasks?.length
-                ),
-
-                tasksOnHold: Math.round(
-                    (tasksOnHold?.length * 100) / allTasks?.length
-                ),
-            };
-        }
-    };
-    const progressPercentageCommits = () => {
-        if (commits !== undefined) {
-            return Math.round((commits * 100) / 3);
-        }
-    };
-    const progressPercentageTimeWork = () => {
-        if (timeTrackedByEmployeeToday !== undefined) {
-            return Math.round((timeTrackedByEmployeeToday?.hours * 100) / 8);
-        }
-    };
+export default function Profile() {
+    const [currentComp, setCurrentComp] = useState("whoIam");
     const itemStyle =
-        "bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ";
+        "cursor-pointer  relative    text-center   text-sm md:text-base hover:text-[#3354F4]   ";
+    const JSXspan = (
+        <span className="before:absolute before:w-full  before:h-[2px]  before:bg-[#3354F4] before:left-[-0px] md:before:top-[28px]  before:top-[24px]  "></span>
+    );
     return (
         <>
-            <section className=" grid justify-center w-full mx-auto  pt-32">
-                <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ">
-                    <li className="w-[260px] md:row-span-2 lg:row-span-3 xl:row-span-2">
-                        <Weather />
-                    </li>
-                    <li className={`${itemStyle} `}>
-                        {allTasks?.length > 0 ? (
-                            <>
-                                <div className="w-[65px]">
-                                    <ChangingProgressProvider
-                                        values={[
-                                            0,
-                                            progressPercentageTask()
-                                                .tasksCompleted,
-                                        ]}
-                                    >
-                                        {(percentage) => (
-                                            <CircularProgressbar
-                                                value={percentage}
-                                                text={`${tasksCompleted?.length}/${allTasks?.length}`}
-                                                styles={buildStyles({
-                                                    pathTransition:
-                                                        percentage === 0
-                                                            ? "none"
-                                                            : "stroke-dashoffset 0.5s ease 0s",
-                                                    pathColor: "#3354F4",
-                                                })}
-                                            />
-                                        )}
-                                    </ChangingProgressProvider>
-                                </div>
-                                <p>Tasks Completed</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center">
-                                <Skeleton className="h-16 w-16 rounded-full mr-1" />
-                                <div className="">
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
-                                </div>
-                            </div>
-                        )}
-                    </li>
-                    <li className={`${itemStyle}`}>
-                        {allTasks?.length > 0 ? (
-                            <>
-                                <div className="w-[65px]">
-                                    <ChangingProgressProvider
-                                        values={[
-                                            0,
-                                            progressPercentageTask()
-                                                .tasksInProgress,
-                                        ]}
-                                    >
-                                        {(percentage) => (
-                                            <CircularProgressbar
-                                                value={percentage}
-                                                text={`${tasksInProgress?.length}/${allTasks?.length}`}
-                                                styles={buildStyles({
-                                                    pathTransition:
-                                                        percentage === 0
-                                                            ? "none"
-                                                            : "stroke-dashoffset 0.5s ease 0s",
-                                                    pathColor: "#3354F4",
-                                                })}
-                                            />
-                                        )}
-                                    </ChangingProgressProvider>
-                                </div>
-                                <p> Tasks in Progress</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center">
-                                <Skeleton className="h-16 w-16 rounded-full mr-1" />
-                                <div className="">
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
-                                </div>
-                            </div>
-                        )}
-                    </li>
-                    <li className={`${itemStyle}`}>
-                        {allTasks?.length > 0 ? (
-                            <>
-                                <div className="w-[65px]">
-                                    <ChangingProgressProvider
-                                        values={[
-                                            0,
-                                            progressPercentageTask()
-                                                .tasksOnHold,
-                                        ]}
-                                    >
-                                        {(percentage) => (
-                                            <CircularProgressbar
-                                                value={percentage}
-                                                responseTasksOnHold
-                                                text={`${tasksOnHold?.length}/${allTasks?.length}`}
-                                                styles={buildStyles({
-                                                    pathTransition:
-                                                        percentage === 0
-                                                            ? "none"
-                                                            : "stroke-dashoffset 0.5s ease 0s",
-                                                    pathColor: "#3354F4",
-                                                })}
-                                            />
-                                        )}
-                                    </ChangingProgressProvider>
-                                </div>
-                                <p> Tasks On Hold</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center">
-                                <Skeleton className="h-16 w-16 rounded-full mr-1" />
-                                <div className="">
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
-                                </div>
-                            </div>
-                        )}
-                    </li>
-                    <li className={`${itemStyle}`}>
-                        {allTasks?.length > 0 ? (
-                            <>
-                                <div className="w-[65px]">
-                                    <ChangingProgressProvider
-                                        values={[
-                                            0,
-                                            progressPercentageTask()
-                                                .tasksPending,
-                                        ]}
-                                    >
-                                        {(percentage) => (
-                                            <CircularProgressbar
-                                                value={percentage}
-                                                text={`${tasksPending.length}/${allTasks?.length}`}
-                                                styles={buildStyles({
-                                                    pathTransition:
-                                                        percentage === 0
-                                                            ? "none"
-                                                            : "stroke-dashoffset 0.5s ease 0s",
-                                                    pathColor: "#3354F4",
-                                                })}
-                                            />
-                                        )}
-                                    </ChangingProgressProvider>
-                                </div>
-                                <p> tasks Pending</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center">
-                                <Skeleton className="h-16 w-16 rounded-full mr-1" />
-                                <div className="">
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
-                                </div>
-                            </div>
-                        )}
-                    </li>
-                    <li className={`${itemStyle}`}>
-                        {timeTrackedByEmployeeToday?.hours !== undefined ? (
-                            <>
-                                <div className="w-[65px]">
-                                    <ChangingProgressProvider
-                                        values={[
-                                            0,
-                                            progressPercentageTimeWork(),
-                                        ]}
-                                    >
-                                        {(percentage) => (
-                                            <CircularProgressbar
-                                                value={percentage}
-                                                text={`${timeTrackedByEmployeeToday?.hours}/8H`}
-                                                styles={buildStyles({
-                                                    pathTransition:
-                                                        percentage === 0
-                                                            ? "none"
-                                                            : "stroke-dashoffset 0.5s ease 0s",
-                                                    pathColor: "#3354F4",
-                                                })}
-                                            />
-                                        )}
-                                    </ChangingProgressProvider>
-                                </div>
-                                <p> Work Time</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center">
-                                <Skeleton className="h-16 w-16 rounded-full mr-1" />
-                                <div className="">
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
-                                </div>
-                            </div>
-                        )}
-                    </li>
-                    <li className={`${itemStyle}`}>
-                        {commits !== undefined ? (
-                            <>
-                                <div className="w-[65px]">
-                                    <ChangingProgressProvider
-                                        values={[
-                                            0,
-                                            progressPercentageCommits(),
-                                        ]}
-                                    >
-                                        {(percentage) => (
-                                            <CircularProgressbar
-                                                value={percentage}
-                                                text={`${commits}/3`}
-                                                styles={buildStyles({
-                                                    pathTransition:
-                                                        percentage === 0
-                                                            ? "none"
-                                                            : "stroke-dashoffset 0.5s ease 0s",
-                                                    pathColor: "#3354F4",
-                                                })}
-                                            />
-                                        )}
-                                    </ChangingProgressProvider>
-                                </div>
-                                <p>Commits</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center">
-                                <Skeleton className="h-16 w-16 rounded-full mr-1" />
-                                <div className="">
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
-                                </div>
-                            </div>
-                        )}
-                    </li>
-                </ul>
-            </section>
             <section>
-                <div className="flex w-full flex-wrap gap-4 mt-8 xl:px-8">
-                    <div className="w-full sm:w-[70%] lg:w-[52%]  xl:w-[56%] mx-auto h-[350px] p-3  bg-white rounded-lg">
-                        <ul className="flex justify-between items-center ">
-                            <li>General performance</li>
-                            <li></li>
-                            <li> </li>
+                <div className="bg-white w-full mt-32 min-[425px]:w-[86%] text min-[425px]:ml-[52px] lg:ml-[26px]  lg:w-[56%] lg:p-2  rounded-lg ">
+                    <h2 className="text-xl p-3 text-[#3354F4] ">About me</h2>
+                    <ul className="flex justify-center md:justify-start md:pl-4 gap-x-4 text-[#828690]">
+                        <li
+                            onClick={() => setCurrentComp("whoIam")}
+                            className={`md:w-[72px] ${
+                                currentComp == "whoIam" && "text-[#3354F4]"
+                            } ${itemStyle}`}
+                        >
+                            who i am
+                            {currentComp == "whoIam" && JSXspan}
+                        </li>
 
-                            <li>
-                                <AlignCenter className=" cursor-pointer text-slate-700" />
-                            </li>
-                        </ul>
+                        <li
+                            onClick={() => setCurrentComp("skills")}
+                            className={` md:w-[74px] ${
+                                currentComp == "skills" && "text-[#3354F4]"
+                            } ${itemStyle}`}
+                        >
+                            My skills
+                            {currentComp == "skills" && JSXspan}
+                        </li>
 
-                        <CurvedlineChart data={dataChart} />
+                        <li
+                            onClick={() => setCurrentComp("sastProjects")}
+                            className={` md:w-[105px] ${
+                                currentComp == "sastProjects" &&
+                                "text-[#3354F4]"
+                            } ${itemStyle}`}
+                        >
+                            Last projects
+                            {currentComp == "sastProjects" && JSXspan}
+                            {}
+                            {/* <span className="before:absolute before:w-28  before:h-[6px]  before:bg-[#3354F4] before:left-[-4px]  before:top-[28px]  "></span> */}
+                        </li>
+                    </ul>
+
+                    <div className="pt-6">
+                        {currentComp == "whoIam" && <WhoIam />}
+                        {currentComp == "skills" && <Skills />}
+                        {currentComp == "sastProjects" && <LastProjects />}
                     </div>
-
-                    <div className="w-full sm:w-[70%] lg:w-[42%]   mx-auto xl:w-[40%] h-[350px] p-3 bg-white rounded-lg">
-                        <ul className="flex justify-between items-center">
-                            <li>Statistics</li>
-                            <li>
-                                <AlignCenter className=" cursor-pointer text-slate-700" />
-                            </li>
-                        </ul>
-                        <BarChart data={chartBarData} />
-                    </div>
+                </div>
+                <div className=" bg-white rounded-lg w-full h-[500px] py-6 mt-9">
+                    <ul className="flex flex-col gap-2 items-center">
+                        <li>
+                            <img
+                                className=" rounded-full border-2 border-[#53abfe] w-[90px] h-[90px]"
+                                alt="User"
+                                src="https://github.com/shadcn.png"
+                            />
+                        </li>
+                        <li>
+                            <h3 className="text-lg font-bold">
+                                Ahmed Herington
+                            </h3>
+                        </li>
+                        <li className="text-[#828690]">
+                            <h4>UI/UX DESIGNER</h4>
+                        </li>
+                    </ul>
+                    <ul className="grid grid-cols-2 mt-5 mr-2 items-center p-1 ">
+                        <li className="row-span-3 m-auto">
+                            <div className="w-[80px]">
+                                <ChangingProgressProvider values={[0, 70]}>
+                                    {(percentage) => (
+                                        <CircularProgressbar
+                                            value={percentage}
+                                            text={`70%`}
+                                            styles={buildStyles({
+                                                pathTransition:
+                                                    percentage === 0
+                                                        ? "none"
+                                                        : "stroke-dashoffset 0.5s ease 0s",
+                                                pathColor: "#39B5A6",
+                                            })}
+                                        />
+                                    )}
+                                </ChangingProgressProvider>
+                            </div>
+                        </li>
+                        <li className="">
+                            <h3 className="text-[12px]">
+                                Methodologie de travail
+                            </h3>
+                        </li>
+                        <li className="">
+                            <h3 className="text-[12px]">Attributs</h3>
+                        </li>
+                        <li className="">
+                            <h3 className="text-[12px]">
+                                Apprentissage Continu
+                            </h3>
+                        </li>
+                    </ul>
                 </div>
             </section>
         </>
+    );
+}
+function WhoIam() {
+    return (
+        <div>
+            <p className="text-sm p-3 text-[#797979] leading-7">
+                A wonderful serenity has taken possession of my entire soul,
+                like these sweet mornings of spring which I enjoy with my whole
+                heart. I am alone, and feel the charm of existence was created
+                for the bliss of souls like mine.I am so happy, my dear friend,
+                so absorbed in the exquisite sense of mere tranquil existence,
+                that I neglect my talents. A collection of textile samples lay
+                spread out on the table - Samsa was a travelling salesman - and
+                above it there hung a picture that he had recently cut out of an
+                illustrated magazine and housed in a nice, gilded frame.
+            </p>
+            <ul className="flex justify-around flex-wrap gap-3 items-center">
+                <li className="flex justify-center flex-col items-center w-40 bg-[#6E29FF] rounded-2xl h-40">
+                    <span className="text-5xl text-white m-6">56%</span>
+                    <h3 className="text-white text-xs">
+                        Methodologie de travail
+                    </h3>
+                </li>
+                <li className="flex justify-center flex-col items-center w-40 bg-[#FC8E8E] rounded-2xl h-40">
+                    <span className="text-5xl text-white m-6">90%</span>
+                    <h3 className="text-white text-xs">Attributs</h3>
+                </li>
+                <li className="flex justify-center flex-col items-center w-40 bg-[#07D2FF] rounded-2xl h-40">
+                    <span className="text-5xl text-white m-6">40%</span>
+                    <h3 className="text-white text-xs">
+                        Apprentissage Continu
+                    </h3>
+                </li>
+            </ul>
+        </div>
+    );
+}
+
+function Skills() {
+    return (
+        <div>
+            <h2>My skills</h2>
+            <ul>
+                <li>skills one</li>
+                <li>skills two </li>
+                <li>skills three</li>
+                <li>skills four</li>
+            </ul>
+        </div>
+    );
+}
+
+function LastProjects() {
+    return (
+        <div>
+            <h2>Last projects</h2>
+        </div>
     );
 }
