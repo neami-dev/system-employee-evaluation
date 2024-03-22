@@ -18,7 +18,6 @@ export async function firebaseWithGithub(hanldeChange, id) {
                 });
                 return hanldeChange(githubTotalCommits);
             }
-            
         }
     } catch (error) {
         console.log("error", error);
