@@ -49,11 +49,12 @@ export default function page() {
     const route = useRouter();
    
     useEffect(() => {
+      const interval =  setInterval(() => {
         auth.onAuthStateChanged((user) => {
             firebaseWithGithub(setCommits,user?.uid);
-            console.log("commits", commits);
         });
-       
+       }, 4000);
+       return ()=>{clearInterval(interval)} 
     }, []);
     // get info the user score department ...
     const getInfo = async () => {
