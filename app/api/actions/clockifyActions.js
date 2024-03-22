@@ -81,3 +81,33 @@ export const getAllUserIds = async (clockifyWorkspaceId) => {
         return [];
     }
 };
+
+
+// Function to get the check-in and check-out times for an employee on a specific date
+export const getCheckInAndOutTimes = async (clockifyUserId, clockifyWorkspaceId, specificDate) => {
+  try {
+    const response = await api.get(`/workspaces/${clockifyWorkspaceId}/user/${clockifyUserId}/time-entries`, {
+      params: {
+        start: `${specificDate}T00:00:00Z`,
+        end: `${specificDate}T23:59:59Z`
+      }
+    });
+
+    const timeEntries = response.data;
+    console.log(timeEntries);
+
+    if (timeEntries && timeEntries.length > 0) {
+      const checkInTime = new Date(timeEntries[0].timeInterval.start).toLocaleTimeString();
+      const checkOutTime = new Date(timeEntries[timeEntries.length - 1].timeInterval.end).toLocaleTimeString();
+      console.log("Check-in time: ", checkInTime);
+      console.log("Check-out time: ", checkOutTime);
+      return { checkInTime, checkOutTime };
+    } else {
+      console.log('No time entries found for the specified date');
+      return { checkInTime: 'None', checkOutTime: 'None' };
+    }
+  } catch (error) {
+    console.error('Error fetching check-in and check-out times:', error);
+    return null;
+  }
+};
