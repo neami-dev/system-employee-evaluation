@@ -21,7 +21,7 @@ import {
     getTimeTrackedByEmployeeToday,
 } from "@/app/api/actions/clockifyActions";
 import { AlignCenter } from "lucide-react";
- 
+
 import Weather from "@/components/component/weather";
 import ChangingProgressProvider from "@/components/component/ChangingProgressProvider";
 
@@ -29,9 +29,11 @@ import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
 import { getTotalCommitsForToday } from "@/app/api/actions/githubActions";
 import { Skeleton } from "@/components/ui/skeleton";
+import updateDocument from "@/firebase/firestore/updateDocument";
+import getDocument from "@/firebase/firestore/getDocument";
 import { firebaseWithGithub } from "@/dataManagement/firebaseWithGithub";
-// import { firebaseWithGithub } from "@/dataManagement/firebaseWithGithub";
- 
+
+
 
 export default function page() {
     const [userData, setUserData] = useState();
@@ -41,15 +43,29 @@ export default function page() {
     const [tasksPending, setTasksPending] = useState([]);
     const [allTasks, setAllTasks] = useState([]);
     const [tasksOnHold, setTasksOnHold] = useState([]);
-    const [commits, setCommits] = useState(undefined);
+    const [commits, setCommits] = useState();
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
         useState({});
-
     const route = useRouter();
-    const infoDoc = { collectionName: "userData", id: data?.uid };
-
+   
+    useEffect(() => {
+        auth.onAuthStateChanged((user) => {
+            firebaseWithGithub(setCommits,user?.uid);
+            console.log("commits", commits);
+        });
+       
+    }, []);
     // get info the user score department ...
     const getInfo = async () => {
+        
+        console.log("data", data);
+        // if (id !== undefined) {
+        //     const response = await getDocument("userData", id);
+        //     const totalCommits = response.result.data()?.commits;
+        //     setCommits(totalCommits)
+        //     console.log("totalCommits",totalCommits);
+        // }
+
         // const [team, userCickupDetails] = await Promise.all([
         //     getTeams(),
         //     getAuthenticatedUserDetails(),
@@ -94,15 +110,15 @@ export default function page() {
             );
         setTimeTrackedByEmployeeToday(resTimeTrackedByEmployeeToday);
 
-        const GithubTotalCommits = await getTotalCommitsForToday();
-        setCommits(GithubTotalCommits);
+        // const GithubTotalCommits = await getTotalCommitsForToday();
+        // setCommits(GithubTotalCommits);
     };
 
     useEffect(() => {
         // Listen for auth state changes
-        const unsubscribe = auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged((user) => {
             if (user) {
-                setData(user);
+                // setData(user);
             } else {
                 // Redirect if not authenticated
                 route.push("/login");
@@ -110,16 +126,14 @@ export default function page() {
         });
 
         // Cleanup subscription on component unmount
-        return () => unsubscribe();
+        // return () => unsubscribe();
     }, []); // Removed data from dependencies to avoid re-triggering
 
     useEffect(() => {
         getInfo();
-
     }, []);
-useEffect(()=>{
-    firebaseWithGithub()
-})
+   
+
     const dataChart = [
         {
             id: "",
