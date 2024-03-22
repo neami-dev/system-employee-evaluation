@@ -328,6 +328,46 @@ export default function DataTableDemo() {
     const [columnVisibility, setColumnVisibility] = useState({});
     const [rowSelection, setRowSelection] = useState({});
 
+    
+// Simulated function to fetch time entries (replace with your actual Clockify API call)
+// const fetchTimeEntriesForDate = async (userId, workspaceId, date) => {
+//     // Replace this with an actual API call to fetch time entries
+//     return [
+//       { timeInterval: { start: `${date}T08:00:00Z`, end: `${date}T12:00:00Z` } },
+//       { timeInterval: { start: `${date}T13:00:00Z`, end: `${date}T17:00:00Z` } },
+//     ];
+//   };
+  
+//   const TimeTrackingTable = ({ userId, workspaceId }) => {
+//     const [dateRange, setDateRange] = useState({
+//       from: new Date(),
+//       to: addDays(new Date(), 5),
+//     });
+//     const [timeEntries, setTimeEntries] = useState([]);
+  
+//     useEffect(() => {
+//       const fetchAndSetTimeEntries = async () => {
+//         const entries = [];
+//         for (let date = dateRange.from; date <= dateRange.to; date = addDays(date, 1)) {
+//           const formattedDate = format(date, 'yyyy-MM-dd');
+//           const dailyEntries = await fetchTimeEntriesForDate(userId, workspaceId, formattedDate);
+//           if (dailyEntries.length > 0) {
+//             const checkIn = dailyEntries[0].timeInterval.start;
+//             const checkOut = dailyEntries[dailyEntries.length - 1].timeInterval.end;
+//             entries.push({
+//               date: formattedDate,
+//               checkIn: new Date(checkIn).toLocaleTimeString(),
+//               checkOut: new Date(checkOut).toLocaleTimeString(),
+//             });
+//           }
+//         }
+//         setTimeEntries(entries);
+//       };
+  
+//       fetchAndSetTimeEntries();
+//     }, [userId, workspaceId, dateRange]);
+  
+
     const table = useReactTable({
         data,
         columns,
