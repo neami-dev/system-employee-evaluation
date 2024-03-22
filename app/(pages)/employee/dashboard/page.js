@@ -96,7 +96,7 @@ export default function page() {
         // console.log('User Repositories:', GithubRepos);
 
         const userCickupDetails = await getAuthenticatedUserDetails();
-        // console.log("userCickupDetails : ", userCickupDetails);
+        console.log("userCickupDetails : ", userCickupDetails);
 
         const responseAllTasks = await getAllTasksByEmployee(
             team.id,

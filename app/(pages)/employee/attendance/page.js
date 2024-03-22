@@ -36,6 +36,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
+import { DatePickerWithRange } from "@/components/component/DateRangePicker";
 
 const data = [
     {
@@ -354,11 +355,14 @@ export default function DataTableDemo() {
                     value={table.getColumn("email")?.getFilterValue() ?? ""}
                     onChange={(event) =>
                         table
-                            .getColumn("email")
+                        .getColumn("email")
                             ?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
+                <div>
+                    <DatePickerWithRange className="ml-auto mx-5" />
+                </div>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">

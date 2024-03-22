@@ -44,11 +44,13 @@ const isoDurationToSeconds = (isoDuration) => {
   // Function to get time tracked by an employee today
   export const getTimeTrackedByEmployeeToday = async (clockifyUserId, clockifyWorkspaceId) => {
     const date = new Date().toISOString().split('T')[0]; // Get today's date
+    console.log("date : ",date);
   
     try {
       const response = await api.get(`/workspaces/${clockifyWorkspaceId}/user/${clockifyUserId}/time-entries?start=${date}T00:00:00Z&end=${date}T23:59:59Z`);
   
       const timeEntries = response.data;
+      // console.log(timeEntries);
       let totalTimeWorkedInSeconds = 0;
   
       timeEntries.forEach(entry => {
