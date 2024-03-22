@@ -10,15 +10,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import React, { useState, useEffect } from 'react';
 
-export function DatePickerWithRange({ className }) {
-  const [date, setDate] = useState({
-    from: new Date(2022, 0, 20),
-    to: addDays(new Date(2022, 0, 20), 20),
-  });
-  useEffect(() => {
-    console.log('date : ',date);
-  }, [date,])
-  
+export function DatePickerWithRange({ className,date,setDate }) {
+
 
   return (
     <div className={cn('grid gap-2', className)}>

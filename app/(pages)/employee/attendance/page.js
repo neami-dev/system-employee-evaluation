@@ -37,6 +37,9 @@ import {
 } from "@/components/ui/table";
 import { useState } from "react";
 import { DatePickerWithRange } from "@/components/component/DateRangePicker";
+import { addDays, format } from 'date-fns';
+import { useEffect } from "react";
+import { getCheckInOutTimes, getClockifyUserData, getClockifyWorkSpaces } from "@/app/api/actions/clockifyActions";
 
 const data = [
     {
@@ -323,6 +326,13 @@ export const columns = [
 ];
 
 export default function DataTableDemo() {
+    const [dateRange, setDate] = useState({
+        from: new Date(2024, 2, 18),
+        to: addDays(new Date(2024, 2, 21), 1),
+    });
+    
+    const [timeEntries, setTimeEntries] = useState([]);
+
     const [sorting, setSorting] = useState([]);
     const [columnFilters, setColumnFilters] = useState([]);
     const [columnVisibility, setColumnVisibility] = useState({});
@@ -330,42 +340,65 @@ export default function DataTableDemo() {
 
     
 // Simulated function to fetch time entries (replace with your actual Clockify API call)
-// const fetchTimeEntriesForDate = async (userId, workspaceId, date) => {
-//     // Replace this with an actual API call to fetch time entries
-//     return [
-//       { timeInterval: { start: `${date}T08:00:00Z`, end: `${date}T12:00:00Z` } },
-//       { timeInterval: { start: `${date}T13:00:00Z`, end: `${date}T17:00:00Z` } },
-//     ];
-//   };
+
   
 //   const TimeTrackingTable = ({ userId, workspaceId }) => {
 //     const [dateRange, setDateRange] = useState({
 //       from: new Date(),
 //       to: addDays(new Date(), 5),
 //     });
-//     const [timeEntries, setTimeEntries] = useState([]);
+useEffect(() => {
+    const fetchAndSetTimeEntries = async () => {
+        try {
+          const [ClockifyUserData, ClockifyWorkSpaces] = await Promise.all([
+            getClockifyUserData(),
+            getClockifyWorkSpaces(),
+          ]);
+          console.log("ClockifyUserData : ", ClockifyUserData.id);
+          console.log("ClockifyWorkSpaces : ", ClockifyWorkSpaces.id);
+      
+          const entries = [];
+          for (let date = dateRange.from; date <= dateRange.to; date = addDays(date, 1)) {
+            // console.log("date : ", date);
+            const formattedDate = format(date, 'yyyy-MM-dd');
+            const dailyEntries = await getCheckInOutTimes(ClockifyUserData.id, ClockifyWorkSpaces.id, formattedDate);
+            // console.log("dailyEntries: ",Object.keys(dailyEntries).length);
+            // Check if dailyEntries is not null and has elements
+            if (dailyEntries && Object.keys(dailyEntries).length > 0) {
+                console.log("yes");
+              const checkIn = dailyEntries.checkInTime;
+              const checkOut = dailyEntries.checkOutTime;
+              entries.push({
+                date: formattedDate,
+                checkIn: checkIn,
+                checkOut: new Date(checkOut).toLocaleTimeString(),
+              });
+            } else {
+              // Handle the case where there are no entries or dailyEntries is null
+              console.log("no");
+              entries.push({
+                date: formattedDate,
+                checkIn: 'No check-in',
+                checkOut: 'No check-out',
+              });
+            }
+          }
+          setTimeEntries(entries);
+        } catch (error) {
+          console.error('Error in fetchAndSetTimeEntries:', error);
+        }
+      };
+      
   
-//     useEffect(() => {
-//       const fetchAndSetTimeEntries = async () => {
-//         const entries = [];
-//         for (let date = dateRange.from; date <= dateRange.to; date = addDays(date, 1)) {
-//           const formattedDate = format(date, 'yyyy-MM-dd');
-//           const dailyEntries = await fetchTimeEntriesForDate(userId, workspaceId, formattedDate);
-//           if (dailyEntries.length > 0) {
-//             const checkIn = dailyEntries[0].timeInterval.start;
-//             const checkOut = dailyEntries[dailyEntries.length - 1].timeInterval.end;
-//             entries.push({
-//               date: formattedDate,
-//               checkIn: new Date(checkIn).toLocaleTimeString(),
-//               checkOut: new Date(checkOut).toLocaleTimeString(),
-//             });
-//           }
-//         }
-//         setTimeEntries(entries);
-//       };
+    // Now call the async function
+    fetchAndSetTimeEntries();
+    console.log('dateRange : ', dateRange);
+}, [dateRange]);
+
+useEffect(() => {
+      console.log('timeEntries : ', timeEntries);
+  }, [timeEntries])
   
-//       fetchAndSetTimeEntries();
-//     }, [userId, workspaceId, dateRange]);
   
 
     const table = useReactTable({
@@ -387,6 +420,7 @@ export default function DataTableDemo() {
         },
     });
 
+
     return (
         <div className="w-full mt-32  mx-3 px-4 bg-white rounded-lg">
             <div className="flex items-center py-4">
@@ -401,7 +435,7 @@ export default function DataTableDemo() {
                     className="max-w-sm"
                 />
                 <div>
-                    <DatePickerWithRange className="ml-auto mx-5" />
+                    <DatePickerWithRange className="ml-auto mx-5" date={dateRange} setDate={setDate} />
                 </div>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -413,10 +447,11 @@ export default function DataTableDemo() {
                         {table
                             .getAllColumns()
                             .filter((column) => column.getCanHide())
-                            .map((column) => {
+                            .map((column,index) => {
                                 return (
                                     <DropdownMenuCheckboxItem
-                                        key={column.id}
+                                    // key={column.id}
+                                        key={index}
                                         className="capitalize"
                                         checked={column.getIsVisible()}
                                         onCheckedChange={(value) =>
@@ -435,9 +470,12 @@ export default function DataTableDemo() {
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
+                                {headerGroup.headers.map((header,index) => {
                                     return (
-                                        <TableHead key={header.id}>
+                                        <TableHead 
+                                        // key={header.id} 
+                                        key={index}
+                                        >
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -453,15 +491,19 @@ export default function DataTableDemo() {
                     </TableHeader>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
+                            table.getRowModel().rows.map((row,index) => (
                                 <TableRow
-                                    key={row.id}
+                                    // key={row.id}
+                                    key={index}
                                     data-state={
                                         row.getIsSelected() && "selected"
                                     }
                                 >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
+                                    {row.getVisibleCells().map((cell,index) => (
+                                        <TableCell 
+                                        key={index}
+                                        // key={cell.id}
+                                        >
                                             {flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext()

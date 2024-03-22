@@ -89,11 +89,11 @@ export default function page() {
     useEffect(() => {
         const interval =  setInterval(() => {
           auth.onAuthStateChanged((user) => {
-              firebaseWithGithub(setCommits,user?.uid);
+                firebaseWithGithub(setCommits,user?.uid);
           });
          }, 4000);
          return ()=>{clearInterval(interval)} 
-      }, []);
+    }, []);
 
     useEffect(() => {
         // Listen for auth state changes
