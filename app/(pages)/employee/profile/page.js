@@ -1,24 +1,36 @@
 "use client";
-import ChangingProgressProvider from "@/components/component/ChangingProgressProvider";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { auth } from "@/firebase/firebase-config";
+import getDocument from "@/firebase/firestore/getDocument";
 import Link from "next/link";
-import React, { useState } from "react";
-import {
-    CircularProgressbar,
-    CircularProgressbarWithChildren,
-    buildStyles,
-} from "react-circular-progressbar";
+import React, { useEffect, useState } from "react";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 
 export default function Profile() {
     const [currentComp, setCurrentComp] = useState("whoIam");
+    const [userData, setUserData] = useState({});
+
+    useEffect(() => {
+        auth.onAuthStateChanged((user) => {
+            if (user?.uid !== undefined) {
+                getDocument("userData", user?.uid).then((response) => {
+                    response.result &&
+                        setUserData({ ...response.result.data(), ...user });
+                });
+            }
+        });
+    }, []);
+
+    
     const itemStyle =
-        "cursor-pointer  relative    text-center   text-sm md:text-base hover:text-[#3354F4]   ";
+        "cursor-pointer  relative text-center text-sm md:text-base hover:text-[#3354F4]   ";
     const JSXspan = (
         <span className="before:absolute before:w-full  before:h-[2px]  before:bg-[#3354F4] before:left-[-0px] md:before:top-[28px]  before:top-[24px]  "></span>
     );
     return (
         <>
-            <section>
-                <div className="bg-white w-full mt-32 min-[424px]:w-[86%] text min-[424px]:ml-[52px] lg:ml-[26px]  lg:w-[56%] lg:p-2  rounded-lg ">
+            <section className="flex  justify-center min-[426px]:justify-end min-[426px]:px-5 min-[426px]:pr-8 flex-wrap mt-32 w-full">
+                <div className="bg-white h-min w-full pb-7 min-[424px]:w-[86%] lg:w-[56%] rounded-lg ">
                     <h2 className="text-xl p-3 text-[#3354F4] ">About me</h2>
                     <ul className="flex justify-center md:justify-start md:pl-4 gap-x-4 text-[#828690]">
                         <li
@@ -40,43 +52,36 @@ export default function Profile() {
                             My skills
                             {currentComp == "skills" && JSXspan}
                         </li>
-
-                        <li
-                            onClick={() => setCurrentComp("sastProjects")}
-                            className={` md:w-[105px] ${
-                                currentComp == "sastProjects" &&
-                                "text-[#3354F4]"
-                            } ${itemStyle}`}
-                        >
-                            Last projects
-                            {currentComp == "sastProjects" && JSXspan}
-                            {}
-                            {/* <span className="before:absolute before:w-28  before:h-[6px]  before:bg-[#3354F4] before:left-[-4px]  before:top-[28px]  "></span> */}
-                        </li>
                     </ul>
 
                     <div className="pt-6">
-                        {currentComp == "whoIam" && <WhoIam />}
-                        {currentComp == "skills" && <Skills />}
-                        {currentComp == "sastProjects" && <LastProjects />}
+                        {currentComp == "whoIam" && (
+                            <WhoIam userData={userData} />
+                        )}
+                        {currentComp == "skills" && <Skills userData={userData} />}
                     </div>
                 </div>
-                <div className=" bg-white rounded-lg w-full h-[600px] py-6 mt-9">
+                <div className=" bg-white w-full pb-6 py-6 mt-5 min-[424px]:w-[86%] lg:w-[30%] lg:mx-4 lg:mt-0 xl:mx-8 rounded-lg   ">
                     <ul className="flex flex-col gap-2 items-center">
                         <li>
-                            <img
-                                className=" rounded-full border-2 border-[#53abfe] w-[90px] h-[90px]"
-                                alt="User"
-                                src="https://github.com/shadcn.png"
-                            />
+                            <Avatar className=" border-2 border-[#53abfe] w-[90px] h-[90px]">
+                                <AvatarImage
+                                    alt="User"
+                                    src={userData?.photoURL}
+                                />
+                                <AvatarFallback className="capitalize font-bold text-3xl">
+                                    {userData?.displayName?.split("")[0]}
+                                    {userData?.displayName?.split(" ")[1][0]}
+                                </AvatarFallback>
+                            </Avatar>
                         </li>
                         <li>
                             <h3 className="text-lg font-bold">
-                                Ahmed Herington
+                                {userData?.displayName}
                             </h3>
                         </li>
-                        <li className="text-[#828690]">
-                            <h4>UI/UX DESIGNER</h4>
+                        <li className="text-[#828690] uppercase">
+                            <h4>{userData?.department}</h4>
                         </li>
                     </ul>
                     <ul className="grid grid-cols-2 mt-5 mr-2 items-center p-1 ">
@@ -136,19 +141,20 @@ export default function Profile() {
         </>
     );
 }
-function WhoIam() {
+function WhoIam({ userData }) {
     return (
         <div>
             <p className="text-sm p-3 text-[#797979] leading-7">
-                A wonderful serenity has taken possession of my entire soul,
-                like these sweet mornings of spring which I enjoy with my whole
-                heart. I am alone, and feel the charm of existence was created
-                for the bliss of souls like mine.I am so happy, my dear friend,
-                so absorbed in the exquisite sense of mere tranquil existence,
-                that I neglect my talents. A collection of textile samples lay
-                spread out on the table - Samsa was a travelling salesman - and
-                above it there hung a picture that he had recently cut out of an
-                illustrated magazine and housed in a nice, gilded frame.
+                {userData?.whoIAm}A wonderful serenity has taken possession of
+                my entire soul, like these sweet mornings of spring which I
+                enjoy with my whole heart. I am alone, and feel the charm of
+                existence was created for the bliss of souls like mine.I am so
+                happy, my dear friend, so absorbed in the exquisite sense of
+                mere tranquil existence, that I neglect my talents. A collection
+                of textile samples lay spread out on the table - Samsa was a
+                travelling salesman - and above it there hung a picture that he
+                had recently cut out of an illustrated magazine and housed in a
+                nice, gilded frame.
             </p>
             <ul className="flex justify-around flex-wrap gap-3 items-center">
                 <li className="flex justify-center flex-col items-center w-40 bg-[#6E29FF] rounded-2xl h-40">
@@ -172,24 +178,36 @@ function WhoIam() {
     );
 }
 
-function Skills() {
+function Skills({ userData }) {
     return (
         <div>
-            <h2>My skills</h2>
-            <ul>
-                <li>skills one</li>
-                <li>skills two </li>
-                <li>skills three</li>
-                <li>skills four</li>
-            </ul>
-        </div>
-    );
-}
+            <ul className="flex gap-1 flex-wrap px-5">
+                {userData?.skills.map((skill,index) => {
+                    return (
+                        <li key={index}>
+                            <span className="bg-blue-100 text-[#3354F4] text-sm font-medium me-2 px-3 py-1 rounded ">
+                                {skill}
+                            </span>
+                        </li>
+                    );
+                })}
 
-function LastProjects() {
-    return (
-        <div>
-            <h2>Last projects</h2>
+                <li>
+                    <span className="bg-blue-100 text-[#3354F4] text-sm font-medium me-2 px-3 py-1 rounded ">
+                        Default
+                    </span>
+                </li>
+                <li>
+                    <span className="bg-blue-100 text-[#3354F4] text-sm font-medium me-2 px-3 py-1 rounded ">
+                        Default
+                    </span>
+                </li>
+                <li>
+                    <span className="bg-blue-100 text-[#3354F4] text-sm font-medium me-2 px-3 py-1 rounded ">
+                        Default
+                    </span>
+                </li>
+            </ul>
         </div>
     );
 }
