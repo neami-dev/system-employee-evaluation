@@ -3,78 +3,53 @@
 import React, { useEffect, useState } from "react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-
 import { useRouter } from "next/navigation";
-
 import {
     getAllTasksByEmployee,
+    getAuthenticatedUserDetails,
     getCompletedTasksByEmployee,
     getInProgressTasksByEmployee,
     getOpenTasksByEmployee,
     getPendingTasksByEmployee,
+    getTeams,
 } from "@/app/api/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
-
 import {
     getClockifyUserData,
     getClockifyWorkSpaces,
     getTimeTrackedByEmployeeToday,
 } from "@/app/api/actions/clockifyActions";
 import { AlignCenter } from "lucide-react";
-
 import Weather from "@/components/component/weather";
 import ChangingProgressProvider from "@/components/component/ChangingProgressProvider";
-
 import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
-import { getTotalCommitsForToday } from "@/app/api/actions/githubActions";
 import { Skeleton } from "@/components/ui/skeleton";
-import updateDocument from "@/firebase/firestore/updateDocument";
-import getDocument from "@/firebase/firestore/getDocument";
 import { firebaseWithGithub } from "@/dataManagement/firebaseWithGithub";
 
 
 
 export default function page() {
-    const [userData, setUserData] = useState();
-    const [data, setData] = useState({});
+    
     const [tasksCompleted, setTasksCompleted] = useState([]);
     const [tasksInProgress, setTasksInProgress] = useState([]);
     const [tasksPending, setTasksPending] = useState([]);
     const [allTasks, setAllTasks] = useState([]);
     const [tasksOnHold, setTasksOnHold] = useState([]);
-    const [commits, setCommits] = useState();
+    const [commits, setCommits] = useState(undefined);
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
         useState({});
     const route = useRouter();
    
-    useEffect(() => {
-      const interval =  setInterval(() => {
-        auth.onAuthStateChanged((user) => {
-            firebaseWithGithub(setCommits,user?.uid);
-        });
-       }, 4000);
-       return ()=>{clearInterval(interval)} 
-    }, []);
+   
     // get info the user score department ...
     const getInfo = async () => {
-        
-        console.log("data", data);
-        // if (id !== undefined) {
-        //     const response = await getDocument("userData", id);
-        //     const totalCommits = response.result.data()?.commits;
-        //     setCommits(totalCommits)
-        //     console.log("totalCommits",totalCommits);
-        // }
 
-        // const [team, userCickupDetails] = await Promise.all([
-        //     getTeams(),
-        //     getAuthenticatedUserDetails(),
-        // ]);
-        // console.log("=====1", userCickupDetails?.id);
-        const teamId = "9015373700";
-        const userId = "62619802";
-
+        // function to get information from clickUp
+        const [team, userCickupDetails] = await Promise.all([
+            getTeams(),
+            getAuthenticatedUserDetails(),
+        ]);
         const [
             responseAllTasks,
             responseTasksCompleted,
@@ -82,52 +57,54 @@ export default function page() {
             responseTasksOpen,
             responseTasksPending,
         ] = await Promise.all([
-            getAllTasksByEmployee(teamId, userId),
-            getCompletedTasksByEmployee(teamId, userId),
-            getInProgressTasksByEmployee(teamId, userId),
-            getOpenTasksByEmployee(teamId, userId),
-            getPendingTasksByEmployee(teamId, userId),
+            getAllTasksByEmployee(team?.id, userCickupDetails?.id),
+            getCompletedTasksByEmployee(team?.id, userCickupDetails?.id),
+            getInProgressTasksByEmployee(team?.id, userCickupDetails?.id),
+            getOpenTasksByEmployee(team?.id, userCickupDetails?.id),
+            getPendingTasksByEmployee(team?.id, userCickupDetails?.id),
         ]);
-        console.log("====2", responseAllTasks, responseTasksCompleted);
-
+        // useState function
         setAllTasks(responseAllTasks);
         setTasksCompleted(responseTasksCompleted);
-
         setTasksInProgress(responseTasksProgress);
-
         setTasksOnHold(responseTasksOpen);
-
         setTasksPending(responseTasksPending);
-        console.log("2");
 
+        // function to get information from clockify
         const [ClockifyUserData, ClockifyWorkSpaces] = await Promise.all([
             getClockifyUserData(),
             getClockifyWorkSpaces(),
         ]);
+        console.log("1",ClockifyUserData, "2",ClockifyWorkSpaces);
+        const id1 = "";
+        const id2 = "";
         const resTimeTrackedByEmployeeToday =
             await getTimeTrackedByEmployeeToday(
                 ClockifyUserData?.id,
                 ClockifyWorkSpaces?.id
             );
         setTimeTrackedByEmployeeToday(resTimeTrackedByEmployeeToday);
-
-        // const GithubTotalCommits = await getTotalCommitsForToday();
-        // setCommits(GithubTotalCommits);
     };
+    // get last commits from github
+    useEffect(() => {
+        const interval =  setInterval(() => {
+          auth.onAuthStateChanged((user) => {
+              firebaseWithGithub(setCommits,user?.uid);
+          });
+         }, 4000);
+         return ()=>{clearInterval(interval)} 
+      }, []);
 
     useEffect(() => {
         // Listen for auth state changes
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // setData(user);
-            } else {
+      const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (!user) {
                 // Redirect if not authenticated
                 route.push("/login");
-            }
+            } 
         });
-
         // Cleanup subscription on component unmount
-        // return () => unsubscribe();
+        return () => unsubscribe();
     }, []); // Removed data from dependencies to avoid re-triggering
 
     useEffect(() => {

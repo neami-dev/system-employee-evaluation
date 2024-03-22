@@ -4,7 +4,6 @@ import updateDocument from "@/firebase/firestore/updateDocument";
 
 export async function firebaseWithGithub(hanldeChange, id) {
     try {
-        console.log(id);
         if (id !== undefined) {
             const response = await getDocument("userData", id);
             const totalCommits = response.result.data()?.commits;
