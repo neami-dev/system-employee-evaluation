@@ -11,7 +11,7 @@ export async function firebaseWithGithub(hanldeChange, id) {
             console.log("totalCommits=",totalCommits);
       
             setInterval( () => {
-                 
+                  
                  getTotalCommitsForToday().then((githubTotalCommits)=>{
                     if (totalCommits !== githubTotalCommits) {
                        updateDocument({
