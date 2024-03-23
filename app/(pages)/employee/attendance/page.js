@@ -44,113 +44,89 @@ import {
     getClockifyUserData,
     getClockifyWorkSpaces,
 } from "@/app/api/actions/clockifyActions";
+import Loading from "@/components/component/Loading";
 
-// const data = [
-//     {
-//         id: "m5gr84i9",
-//         amount: 316,
-//         status: "success",
-//         email: "ken99@yahoo.com",
-//     },
-//     {
-//         id: "3u1reuv4",
-//         amount: 242,
-//         status: "success",
-//         email: "Abe45@gmail.com",
-//     },
-//     {
-//         id: "derv1ws0",
-//         amount: 837,
-//         status: "processing",
-//         email: "Monserrat44@gmail.com",
-//     },
-//     {
-//         id: "5kma53ae",
-//         amount: 874,
-//         status: "success",
-//         email: "Silas22@gmail.com",
-//     },
-//     {
-//         id: "bhqecj",
-//         amount: 721,
-//         status: "absent",
-//         email: "carmella@hotmail.com",
-//     },
-//     {
-//         id: "bhqecjip",
-//         amount: 721,
-//         status: "absent",
-//         email: "carmella@hotmail.com",
-//     },
-//     {
-//         id: "bhqeckp",
-//         amount: 721,
-//         status: "late arrival",
-//         email: "carmella@hotmail.com",
-//     },
-//     {
-//         id: "bhqecj",
-//         amount: 721,
-//         status: "late arrival",
-//         email: "carmella@hotmail.com",
-//     },
-//     {
-//         id: "bhqecjip",
-//         amount: 721,
-//         status: "absent",
-//         email: "carmella@hotmail.com",
-//     },
-//     {
-//         id: "bhqeckp",
-//         amount: 721,
-//         status: "absent",
-//         email: "carmella@hotmail.com",
-//     },
-//     {
-//         id: "bhqecj",
-//         amount: 721,
-//         status: "late arrival",
-//         email: "carmella@hotmail.com",
-//     },
-//     {
-//         id: "bhqecjip",
-//         amount: 721,
-//         status: "absent",
-//         email: "carmella@hotmail.com",
-//     },
-//     {
-//         id: "bhqeckp",
-//         amount: 721,
-//         status: "absent",
-//         email: "carmella@hotmail.com",
-//     },
-//     {
-//         id: "bhqecj",
-//         amount: 721,
-//         status: "late arrival",
-//         email: "carmella@hotmail.com",
-//     },
-//     {
-//         id: "bhqecjip",
-//         amount: 721,
-//         status: "absent",
-//         email: "carmella@hotmail.com",
-//     },
-//     {
-//         id: "bhqeckp",
-//         amount: 721,
 
-//         status: "late arrival",
-//         email: "carmella@hotmail.com",
-//     },
-// ];
+function parseTimeToMinutes(timeString) {
+    if (typeof timeString !== 'string') {
+        // console.error('parseTime expects a string input, got:', typeof timeString);
+        return 0; // Or handle this case as appropriate for your application
+      }
+    
+      // Attempt to extract the time and period parts from the input string
+      const parts = timeString.split(' ');
+      if (parts.length < 2) {
+        // console.error('parseTime received an incorrectly formatted string:', timeString);
+        return 0; // Or handle this case as appropriate for your application
+      }
+    
+      let [time, period] = parts;
+      let [hours, minutes] = time.split(':').map(Number);
+    
+      // Adjust hours based on the period
+      if (period && period.toLowerCase() === 'pm' && hours < 12) hours += 12;
+      if (period && period.toLowerCase() === 'am' && hours === 12) hours = 0;
+    
+      return hours * 60 + minutes; // Return the total minutes    
+}
+function calculateWorkHoursMessage(checkInTime, checkOutTime) {
+    // Calculate the duration in minutes
+    const durationMinutes = parseTimeToMinutes(checkOutTime) - parseTimeToMinutes(checkInTime);
 
-// export type Payment = {
-//   id: string
-//   amount: number
-//   status: "pending" | "processing" | "success" | "failed"
-//   email: string
-// }
+    // Convert duration to hours
+    const durationHours = durationMinutes / 60;
+
+    // Determine the message based on the duration
+    if (durationHours > 8) {
+        return 'Excellent work';
+    } else if (durationHours === 8) {
+        return 'Well done';
+    } else {
+        return 'Not completed';
+    }
+}
+
+function calculateAndFormatTimeDifference(checkIn, checkOut) {
+    // Check if either check-in or check-out time is "---"
+    if (checkIn === "---" || checkOut === "---") {
+        return "---";
+    }
+
+    // Calculate the difference in minutes
+    const differenceInMinutes = parseTimeToMinutes(checkOut) - parseTimeToMinutes(checkIn);
+
+    // Format and return the difference
+    return formatDurationToHoursMinutes(differenceInMinutes);
+}
+
+
+function formatDurationToHoursMinutes(totalMinutes) {
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours}h : ${minutes}m`;
+}
+
+function formatTime(timeString) {
+    if (typeof timeString !== 'string') {
+        console.error('formatTime expects a string input, got:', typeof timeString);
+        return ''; // Or return a default string, or handle the error as appropriate
+    }
+    // Split the time and the period (am/pm)
+    const [time, period] = timeString.split(' ');
+  
+    // Split the time into hours, minutes, and seconds
+    const [hours, minutes, seconds] = time.split(':');
+  
+    // Reassemble the string in the desired format
+    const formattedTime = `${hours}h : ${minutes}m : ${seconds}s ${period}`;
+  
+    return formattedTime;
+  }
+
+  function getDayName(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { weekday: 'long' });
+}
 
 export const columns = [
     // {
@@ -194,12 +170,36 @@ export const columns = [
     // },
     {
         accessorKey: "date",
-        header: () => <div className="text-center">date</div>,
+        header: ({column}) => <div 
+                    className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
+                    variant="ghost"
+                    onClick={() =>
+                        column.toggleSorting(column.getIsSorted() === "asc")
+                    }>date
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </div>,
         cell: ({ row }) => {
             return (
                 <>
                     <div className="capitalize text-center ">
                         {row.getValue("date")}
+
+                    </div>
+                </>
+            );
+        },
+    },
+    {
+        accessorKey: "day",
+        header: () => <div className="text-center">day</div>,
+        cell: ({ row }) => {
+            return (
+                <>
+                <div className="justify-center">
+
+                </div>
+                    <div className="capitalize w-[40px] text-left ">
+                        {getDayName(row.getValue("date"))}
                     </div>
                 </>
             );
@@ -209,57 +209,64 @@ export const columns = [
         accessorKey: "checkIn",
         header: ({ column }) => {
             return (
-                <Button
+                <div
                     variant="ghost"
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
+                    className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
                 >
                     Check-in
                     <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
+                </div>
             );
         },
         cell: ({ row }) => (
-            <div className="lowercase">{row.getValue("date")}</div>
+            <div className="lowercase text-center">{row.getValue("checkIn") !== "---"?formatTime(row.getValue("checkIn")):"---"}</div>
         ),
     },
     {
         accessorKey: "checkOut",
         header: ({ column }) => {
             return (
-                <Button
+                <div
                     variant="ghost"
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
+                    className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
                 >
                     Check-out
                     <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
+                </div>
             );
         },
         cell: ({ row }) => (
-            <div className="lowercase">{row.getValue("checkOut")}</div>
+            <div className="lowercase text-center">{row.getValue("checkOut") !== "---"?formatTime(row.getValue("checkOut")):"---"}</div>
         ),
     },
     {
-        accessorKey: "status",
+        accessorKey: "Work hours",
         header: ({ column }) => {
             return (
-                <Button
+                <div
                     variant="ghost"
                     onClick={() =>
                         column.toggleSorting(column.getIsSorted() === "asc")
                     }
+                    className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
                 >
                     Work hours
                     <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
+                </div>
             );
         },
         cell: ({ row }) => (
-            <div className="lowercase">{row.getValue("status")}</div>
+            <div className="lowercase text-center">{calculateAndFormatTimeDifference(
+                row.getValue("checkIn"), 
+                row.getValue("checkOut")
+            )
+            }</div>
         ),
     },
     {
@@ -268,27 +275,30 @@ export const columns = [
         cell: ({ row }) => {
             return (
                 <>
-                    {row.getValue("status") == "absent" && (
-                        <div className="capitalize text-center text-[#AA0000] bg-[#FFE5EE] rounded-lg p-2 ">
-                            {/* {row.getValue("status")} */}
+                    {calculateWorkHoursMessage(row.getValue("checkIn"),row.getValue("checkOut")) == "Excellent work" && (
+                        <div className="capitalize text-center text-white font-bold bg-green-500 rounded-lg p-2 ">
+                            Excellent work
                         </div>
                     )}
 
-                    {row.getValue("status") == "success" && (
-                        <div className="capitalize text-center text-green-800 bg-[#b5ebc9] rounded-lg p-2 ">
-                            {/* {row.getValue("status")} */}
+                    {calculateWorkHoursMessage(row.getValue("checkIn"),row.getValue("checkOut")) == "Well done" && (
+                        <div className="capitalize text-center text-white font-bold bg-green-500 rounded-lg p-2 ">
+                            Well done
                         </div>
                     )}
-                    {row.getValue("status") == "processing" && (
-                        <div className="capitalize text-center text-[#0764E6] bg-[#E6EFFC] rounded-lg p-2 ">
-                            {/* {row.getValue("status")} */}
+                    {calculateWorkHoursMessage(row.getValue("checkIn"),row.getValue("checkOut")) == "Not completed" && (
+                        <div className="capitalize text-center font-bold text-red-700 bg-red-200 rounded-lg p-2 ">
+                            Not completed
                         </div>
+                        
                     )}
-                    {row.getValue("status") == "late arrival" && (
-                        <div className="capitalize text-center text-[#D5B500] bg-[#e9e5dc] rounded-lg p-2 ">
-                            {/* {row.getValue("status")} */}
-                        </div>
-                    )}
+                    {
+                    // row.getValue("status") == "late arrival" && (
+                    //     <div className="capitalize text-center text-[#D5B500] bg-[#e9e5dc] rounded-lg p-2 ">
+                    //         {/* {row.getValue("status")} */}
+                    //     </div>
+                    // )
+                    }
                 </>
             );
         },
@@ -357,8 +367,8 @@ export default function DataTableDemo() {
                         getClockifyUserData(),
                         getClockifyWorkSpaces(),
                     ]);
-                console.log("ClockifyUserData : ", ClockifyUserData.id);
-                console.log("ClockifyWorkSpaces : ", ClockifyWorkSpaces.id);
+                // console.log("ClockifyUserData : ", ClockifyUserData.id);
+                // console.log("ClockifyWorkSpaces : ", ClockifyWorkSpaces.id);
 
                 const entries = [];
                 for (
@@ -376,21 +386,21 @@ export default function DataTableDemo() {
                     // console.log("dailyEntries: ",Object.keys(dailyEntries).length);
                     // Check if dailyEntries is not null and has elements
                     if (dailyEntries && Object.keys(dailyEntries).length > 0) {
-                        console.log("yes");
+                        // console.log("yes");
                         const checkIn = dailyEntries.checkInTime;
                         const checkOut = dailyEntries.checkOutTime;
                         entries.push({
                             date: formattedDate,
                             checkIn: checkIn,
-                            checkOut: new Date(checkOut).toLocaleTimeString(),
+                            checkOut: checkOut,
                         });
                     } else {
                         // Handle the case where there are no entries or dailyEntries is null
-                        console.log("no");
+                        // console.log("no");
                         entries.push({
                             date: formattedDate,
-                            checkIn: "No check-in",
-                            checkOut: "No check-out",
+                            checkIn: "---",
+                            checkOut: "---",
                         });
                     }
                 }
@@ -539,7 +549,8 @@ export default function DataTableDemo() {
                                         colSpan={columns.length}
                                         className="h-24 text-center"
                                     >
-                                        No results.
+                                        {/* No results. */}
+                                        <Loading />
                                     </TableCell>
                                 </TableRow>
                             )}
