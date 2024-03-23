@@ -7,8 +7,10 @@ export async function firebaseWithGithub(hanldeChange, id) {
         if (id !== undefined) {
             const response = await getDocument("userData", id);
             const totalCommits = response.result.data()?.commits;
+           
             hanldeChange(totalCommits);
             const githubTotalCommits = await getTotalCommitsForToday();
+            console.log("githubTotalCommits",githubTotalCommits);
             if (totalCommits !== githubTotalCommits) {
                 await updateDocument({
                     collectionName: "userData",
