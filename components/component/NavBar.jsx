@@ -34,7 +34,7 @@ export default function NavBar() {
             // console.log(res);
             setUserData(res);
         });
-    }, [userData]);
+    }, []);
     async function logout() {
         signOut(auth)
             .then(() => {

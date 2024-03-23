@@ -27,10 +27,7 @@ import BarChart from "@/components/component/barChart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { firebaseWithGithub } from "@/dataManagement/firebaseWithGithub";
 
-
-
 export default function page() {
-    
     const [tasksCompleted, setTasksCompleted] = useState([]);
     const [tasksInProgress, setTasksInProgress] = useState([]);
     const [tasksPending, setTasksPending] = useState([]);
@@ -40,11 +37,9 @@ export default function page() {
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
         useState({});
     const route = useRouter();
-   
-   
+
     // get info the user score department ...
     const getInfo = async () => {
-
         // function to get information from clickUp
         const [team, userCickupDetails] = await Promise.all([
             getTeams(),
@@ -71,18 +66,12 @@ export default function page() {
         setTasksPending(responseTasksPending);
 
         // function to get information from clockify
-        const [ClockifyUserData, ClockifyWorkSpaces] = await Promise.all([
-            getClockifyUserData(),
-            getClockifyWorkSpaces(),
-        ]);
-        console.log("1",ClockifyUserData, "2",ClockifyWorkSpaces);
-        const id1 = "";
-        const id2 = "";
+        const ClockifyUserData = await getClockifyUserData();
+        console.log("ClockifyUserData",ClockifyUserData);
+
+        const id2 = "65f45d9f5489a9380ca9c849";
         const resTimeTrackedByEmployeeToday =
-            await getTimeTrackedByEmployeeToday(
-                ClockifyUserData?.id,
-                ClockifyWorkSpaces?.id
-            );
+            await getTimeTrackedByEmployeeToday(ClockifyUserData?.id, id2);
         setTimeTrackedByEmployeeToday(resTimeTrackedByEmployeeToday);
     };
     // get last commits from github
@@ -97,11 +86,11 @@ export default function page() {
 
     useEffect(() => {
         // Listen for auth state changes
-      const unsubscribe = auth.onAuthStateChanged((user) => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
             if (!user) {
                 // Redirect if not authenticated
                 route.push("/login");
-            } 
+            }
         });
         // Cleanup subscription on component unmount
         return () => unsubscribe();
@@ -110,7 +99,6 @@ export default function page() {
     useEffect(() => {
         getInfo();
     }, []);
-   
 
     const dataChart = [
         {
