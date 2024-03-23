@@ -21,7 +21,6 @@ export default function Profile() {
         });
     }, []);
 
-    
     const itemStyle =
         "cursor-pointer  relative text-center text-sm md:text-base hover:text-[#3354F4]   ";
     const JSXspan = (
@@ -58,7 +57,9 @@ export default function Profile() {
                         {currentComp == "whoIam" && (
                             <WhoIam userData={userData} />
                         )}
-                        {currentComp == "skills" && <Skills userData={userData} />}
+                        {currentComp == "skills" && (
+                            <Skills userData={userData} />
+                        )}
                     </div>
                 </div>
                 <div className=" bg-white w-full pb-6 py-6 mt-5 min-[424px]:w-[86%] lg:w-[30%] lg:mx-4 lg:mt-0 xl:mx-8 rounded-lg   ">
@@ -182,15 +183,16 @@ function Skills({ userData }) {
     return (
         <div>
             <ul className="flex gap-1 flex-wrap px-5">
-                {userData?.skills.map((skill,index) => {
-                    return (
-                        <li key={index}>
-                            <span className="bg-blue-100 text-[#3354F4] text-sm font-medium me-2 px-3 py-1 rounded ">
-                                {skill}
-                            </span>
-                        </li>
-                    );
-                })}
+                {userData?.skills !== undefined &&
+                    userData?.skills.map((skill, index) => {
+                        return (
+                            <li key={index}>
+                                <span className="bg-blue-100 text-[#3354F4] text-sm font-medium me-2 px-3 py-1 rounded ">
+                                    {skill}
+                                </span>
+                            </li>
+                        );
+                    })}
 
                 <li>
                     <span className="bg-blue-100 text-[#3354F4] text-sm font-medium me-2 px-3 py-1 rounded ">
