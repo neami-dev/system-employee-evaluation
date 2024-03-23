@@ -34,6 +34,7 @@ export default function page() {
     const [allTasks, setAllTasks] = useState([]);
     const [tasksOnHold, setTasksOnHold] = useState([]);
     const [commits, setCommits] = useState(undefined);
+    const [oldCommits, setOldCommits] = useState(undefined);
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
         useState({});
     const route = useRouter();
@@ -76,15 +77,24 @@ export default function page() {
     };
     // get last commits from github
     useEffect(() => {
-        // const interval = setInterval(() => {
+        const interval = setInterval(() => {
             auth.onAuthStateChanged((user) => {
                 firebaseWithGithub(setCommits, user?.uid);
             });
-        // }, 4000);
-        // return () => {
-        //     clearInterval(interval);
-        // };
+        }, 4000);
+        return () => {
+            clearInterval(interval);
+        };
     }, []);
+    useEffect(() => {
+        console.log("commits : ",commits);
+        console.log("oldCommits : ",oldCommits);
+        if(oldCommits !== commits && commits !== undefined) {
+            setOldCommits(commits)
+        }
+      
+    }, [commits])
+    
 
     useEffect(() => {
         // Listen for auth state changes
@@ -348,7 +358,7 @@ export default function page() {
                         )}
                     </li>
                     <li className={`${itemStyle}`}>
-                        {commits !== undefined ? (
+                        {oldCommits !== undefined ? (
                             <>
                                 <div className="w-[65px]">
                                     <ChangingProgressProvider
@@ -360,7 +370,7 @@ export default function page() {
                                         {(percentage) => (
                                             <CircularProgressbar
                                                 value={percentage}
-                                                text={`${commits}/3`}
+                                                text={`${oldCommits}/3`}
                                                 styles={buildStyles({
                                                     pathTransition:
                                                         percentage === 0

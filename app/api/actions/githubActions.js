@@ -109,61 +109,83 @@ export const getGithubCommitsForToday = async (userId) => {
 };
 
 // Function to get the total number of commits by the authenticated user for the current day across all repositories
-// export const getTotalCommitsForToday = async () => {
-//     const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-//     const username = await getGitHubUsername(); // Fetch the authenticated user's username
-//     const repos = await getUserRepos(); // Assume getUserRepos function is defined here or imported
-//     let totalCommits = 0;
-  
-//     for (const repo of repos) {
-//       try {
-//         const response = await githubApi.get(`/repos/${repo.full_name}/commits`, {
-//           params: {
-//             since: `${today}T00:00:00Z`,
-//             until: `${today}T23:59:59Z`,
-//             author: username,
-//           },
-//         });
-//         totalCommits += response.data.length;
-//       } catch (error) {
-//         console.error(`Error fetching commits for repo ${repo.full_name}:`, error.message);
-//         // Optionally, you could choose to continue accumulating commits even if one repo fails, or handle differently
-//       }
-//     }
-  
-//     return totalCommits;
-//   };
-
 export const getTotalCommitsForToday = async () => {
-    const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
     const username = await getGitHubUsername(); // Fetch the authenticated user's username
     const repos = await getUserRepos(); // Assume getUserRepos function is defined here or imported
     let totalCommits = 0;
-
+  
     for (const repo of repos) {
-        try {
-            const response = await githubApi.get(
-                `/repos/${repo.full_name}/commits`,
-                  
-                {
-                    params: {
-                        since: `${today}T00:00:00Z`,
-                        until: `${today}T23:59:59Z`,
-                        author: username,
-                    },
-                    next: { revalidate: 5 }  
-                },
-                    
-            );
-            totalCommits += response.data.length;
-        } catch (error) {
-            console.error(
-                `Error fetching commits for repo ${repo.full_name}:`,
-                error.message
-            );
-            // Optionally, you could choose to continue accumulating commits even if one repo fails, or handle differently
-        }
+      try {
+        const response = await githubApi.get(`/repos/${repo.full_name}/commits`, {
+          params: {
+            since: `${today}T00:00:00Z`,
+            until: `${today}T23:59:59Z`,
+            author: username,
+          },
+        });
+        totalCommits += response.data.length;
+      } catch (error) {
+        console.error(`Error fetching commits for repo ${repo.full_name}:`, error.message);
+        // Optionally, you could choose to continue accumulating commits even if one repo fails, or handle differently
+      }
     }
-
+  
     return totalCommits;
-};
+  };
+
+// export const getTotalCommitsForToday = async () => {
+//     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
+//     const username = await getGitHubUsername(); // Fetch the authenticated user's username
+//     const repos = await getUserRepos(); // Assume getUserRepos function is defined here or imported
+//     let totalCommits = 0;
+
+//     for (const repo of repos) {
+//         try {
+//             const response = await githubApi.get(
+//                 `/repos/${repo.full_name}/commits`,
+                  
+//                 {
+//                     params: {
+//                         since: `${today}T00:00:00Z`,
+//                         until: `${today}T23:59:59Z`,
+//                         author: username,
+//                     },
+//                     next: { revalidate: 5 }  
+//                 },
+                    
+//             );
+//             totalCommits += response.data.length;
+//         } catch (error) {
+//             console.error(
+//                 `Error fetching commits for repo ${repo.full_name}:`,
+//                 error.message
+//             );
+//             // Optionally, you could choose to continue accumulating commits even if one repo fails, or handle differently
+//         }
+//     }
+
+//     return totalCommits;
+// };
+
+// export const getTotalCommitsForToday = async () => {
+//   const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+//   const username = await getGitHubUsername(); // Assume this fetches the authenticated user's GitHub username
+//   const repos = await getUserRepos(); // Assume this fetches all user repos
+
+//   const commitCounts = await Promise.all(repos.map(repo => 
+//       githubApi.get(`/repos/${repo.full_name}/commits`, {
+//           params: {
+//               since: `${today}T00:00:00Z`,
+//               until: `${today}T23:59:59Z`,
+//               author: username,
+//           },
+//       }).then(response => response.data.length)
+//       .catch(error => {
+//           console.error(`Error fetching commits for repo ${repo.full_name}:`, error.message);
+//           return 0; // Return 0 to ensure the failure of one does not affect the count of others
+//       })
+//   ));
+
+//   return commitCounts.reduce((total, count) => total + count, 0);
+// };
