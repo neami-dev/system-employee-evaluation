@@ -7,18 +7,22 @@ export async function firebaseWithGithub(hanldeChange, id) {
         if (id !== undefined) {
             const response = await getDocument("userData", id);
             const totalCommits = response.result.data()?.commits;
-           
             hanldeChange(totalCommits);
-            const githubTotalCommits = await getTotalCommitsForToday();
-            console.log("githubTotalCommits",githubTotalCommits);
-            if (totalCommits !== githubTotalCommits) {
-                await updateDocument({
-                    collectionName: "userData",
-                    id: id,
-                    data: { commits: githubTotalCommits },
+            setInterval( () => {
+                 getTotalCommitsForToday().then((githubTotalCommits)=>{
+                    if (totalCommits !== githubTotalCommits) {
+                       updateDocument({
+                            collectionName: "userData",
+                            id: id,
+                            data: { commits: githubTotalCommits },
+                        });
+                        return hanldeChange(githubTotalCommits);
+                    }
+                  
+
                 });
-                return hanldeChange(githubTotalCommits);
-            }
+                 
+            }, 2000);
         }
     } catch (error) {
         console.log("error", error);

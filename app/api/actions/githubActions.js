@@ -4,7 +4,7 @@ import axios from "axios";
 import { cookies } from "next/headers";
 
 const GITHUB_TOKEN = cookies().get("tokenGithub"); // github API token
-
+console.log("GITHUB_TOKEN",GITHUB_TOKEN);
 const githubApi = axios.create({
     baseURL: "https://api.github.com",
     headers: {
