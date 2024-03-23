@@ -35,7 +35,7 @@ export default function page() {
     const [allTasks, setAllTasks] = useState([]);
     const [tasksOnHold, setTasksOnHold] = useState([]);
     const [commits, setCommits] = useState(undefined);
-    
+    // const [oldCommits, setOldCommits] = useState(undefined);
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
         useState({});
     const route = useRouter();
@@ -79,10 +79,21 @@ export default function page() {
     };
     // get last commits from github
     useEffect(() => {
-        auth.onAuthStateChanged((user) => {
-            firebaseWithGithub(setCommits, user?.uid);
-        });
+        
+            auth.onAuthStateChanged((user) => {
+                firebaseWithGithub(setCommits, user?.uid);
+            });
+        
     }, []);
+    // useEffect(() => {
+    //     console.log("commits : ",commits);
+    //     console.log("oldCommits : ",oldCommits);
+    //     if(oldCommits !== commits && commits !== undefined) {
+    //         setOldCommits(commits)
+    //     }
+      
+    // }, [commits])
+    
 
     useEffect(() => {
         // Listen for auth state changes
