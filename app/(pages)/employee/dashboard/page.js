@@ -26,6 +26,7 @@ import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { firebaseWithGithub } from "@/dataManagement/firebaseWithGithub";
+import { getTotalCommitsForToday } from "@/app/api/actions/githubActions";
 
 export default function page() {
     const [tasksCompleted, setTasksCompleted] = useState([]);
@@ -34,12 +35,14 @@ export default function page() {
     const [allTasks, setAllTasks] = useState([]);
     const [tasksOnHold, setTasksOnHold] = useState([]);
     const [commits, setCommits] = useState(undefined);
+    
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
         useState({});
     const route = useRouter();
 
     // get info the user score department ...
     const getInfo = async () => {
+        
         // function to get information from clickUp
         const [team, userCickupDetails] = await Promise.all([
             getTeams(),
@@ -76,10 +79,9 @@ export default function page() {
     };
     // get last commits from github
     useEffect(() => {
-         
-            auth.onAuthStateChanged((user) => {
-                firebaseWithGithub(setCommits, user?.uid);
-            });
+        auth.onAuthStateChanged((user) => {
+            firebaseWithGithub(setCommits, user?.uid);
+        });
     }, []);
 
     useEffect(() => {

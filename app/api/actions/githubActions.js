@@ -4,7 +4,7 @@ import axios from "axios";
 import { cookies } from "next/headers";
 
 const GITHUB_TOKEN = cookies().get("tokenGithub"); // github API token
-
+console.log("GITHUB_TOKEN",GITHUB_TOKEN);
 const githubApi = axios.create({
     baseURL: "https://api.github.com",
     headers: {
@@ -119,16 +119,15 @@ export const getTotalCommitsForToday = async () => {
         try {
             const response = await githubApi.get(
                 `/repos/${repo.full_name}/commits`,
-                  
+
                 {
+                    next: { revalidate: 5 },
                     params: {
                         since: `${today}T00:00:00Z`,
                         until: `${today}T23:59:59Z`,
                         author: username,
                     },
-                    next: { revalidate: 5 }  
-                },
-                    
+                }
             );
             totalCommits += response.data.length;
         } catch (error) {
