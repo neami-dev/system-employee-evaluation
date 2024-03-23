@@ -72,7 +72,7 @@ export default function Profile() {
                                 />
                                 <AvatarFallback className="capitalize font-bold text-3xl">
                                     {userData?.displayName?.split("")[0]}
-                                    {userData?.displayName?.split(" ")[1][0]}
+                                    {/* {userData?.displayName?.split(" ")[1][0]} */}
                                 </AvatarFallback>
                             </Avatar>
                         </li>

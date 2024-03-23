@@ -76,14 +76,10 @@ export default function page() {
     };
     // get last commits from github
     useEffect(() => {
-        const interval = setInterval(() => {
+         
             auth.onAuthStateChanged((user) => {
                 firebaseWithGithub(setCommits, user?.uid);
             });
-        }, 4000);
-        return () => {
-            clearInterval(interval);
-        };
     }, []);
 
     useEffect(() => {
