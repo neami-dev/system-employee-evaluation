@@ -41,7 +41,7 @@ import { addDays, format } from 'date-fns';
 import { useEffect } from "react";
 import { getCheckInOutTimes, getClockifyUserData, getClockifyWorkSpaces } from "@/app/api/actions/clockifyActions";
 
-const data = [
+let data = [
     {
         id: "m5gr84i9",
         amount: 316,
@@ -177,15 +177,19 @@ export const columns = [
         accessorKey: "amount",
         header: () => <div className="text-left">Date</div>,
         cell: ({ row }) => {
-            const amount = parseFloat(row.getValue("amount"));
+            // const amount = parseFloat(row.getValue("amount"));
 
-            // Format the amount as a dollar amount
-            const formatted = new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-            }).format(amount);
+            // // Format the amount as a dollar amount
+            // const formatted = new Intl.NumberFormat("en-US", {
+            //     style: "currency",
+            //     currency: "USD",
+            // }).format(amount);
+            console.log(row);
 
-            return <div className="text-left font-medium">{formatted}</div>;
+            return <div className="text-left font-medium">
+                {/* {formatted} */}
+                {row.getValue("date")}
+                </div>;
         },
     },
     {
@@ -195,7 +199,8 @@ export const columns = [
             return (
                 <>
                     <div className="capitalize text-center ">
-                        {row.getValue("status")}
+                        {/* {row.getValue("status")} */}
+                        AA
                     </div>
                 </>
             );
@@ -217,7 +222,8 @@ export const columns = [
             );
         },
         cell: ({ row }) => (
-            <div className="lowercase">{row.getValue("email")}</div>
+            <div className="lowercase">AA</div>
+            // <div className="lowercase">{row.getValue("email")}</div>
         ),
     },
     {
@@ -236,7 +242,8 @@ export const columns = [
             );
         },
         cell: ({ row }) => (
-            <div className="lowercase">{row.getValue("email")}</div>
+            <div className="lowercase">AA</div>
+            // <div className="lowercase">{row.getValue("email")}</div>
         ),
     },
     {
@@ -255,7 +262,8 @@ export const columns = [
             );
         },
         cell: ({ row }) => (
-            <div className="lowercase">{row.getValue("email")}</div>
+            // <div className="lowercase">{row.getValue("email")}</div>
+            <div className="lowercase">AA</div>
         ),
     },
     {
@@ -266,23 +274,23 @@ export const columns = [
                 <>
                     {row.getValue("status") == "absent" && (
                         <div className="capitalize text-center text-[#AA0000] bg-[#FFE5EE] rounded-lg p-2 ">
-                            {row.getValue("status")}
+                            {/* {row.getValue("status")} */}
                         </div>
                     )}
 
                     {row.getValue("status") == "success" && (
                         <div className="capitalize text-center text-green-800 bg-[#b5ebc9] rounded-lg p-2 ">
-                            {row.getValue("status")}
+                            {/* {row.getValue("status")} */}
                         </div>
                     )}
                     {row.getValue("status") == "processing" && (
                         <div className="capitalize text-center text-[#0764E6] bg-[#E6EFFC] rounded-lg p-2 ">
-                            {row.getValue("status")}
+                            {/* {row.getValue("status")} */}
                         </div>
                     )}
                     {row.getValue("status") == "late arrival" && (
                         <div className="capitalize text-center text-[#D5B500] bg-[#e9e5dc] rounded-lg p-2 ">
-                            {row.getValue("status")}
+                            {/* {row.getValue("status")} */}
                         </div>
                     )}
                 </>
@@ -371,7 +379,7 @@ useEffect(() => {
               entries.push({
                 date: formattedDate,
                 checkIn: checkIn,
-                checkOut: new Date(checkOut).toLocaleTimeString(),
+                checkOut: checkOut,
               });
             } else {
               // Handle the case where there are no entries or dailyEntries is null
@@ -396,7 +404,9 @@ useEffect(() => {
 }, [dateRange]);
 
 useEffect(() => {
-      console.log('timeEntries : ', timeEntries);
+    console.log('timeEntries : ', timeEntries);
+    data = [...timeEntries]; // This updates the `data` array with the new `timeEntries`
+    console.log('data : ', data);
   }, [timeEntries])
   
   
