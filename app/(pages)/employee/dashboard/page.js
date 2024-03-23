@@ -87,8 +87,8 @@ export default function page() {
         };
     }, []);
     useEffect(() => {
-        console.log("commits : ",commits);
-        console.log("oldCommits : ",oldCommits);
+        // console.log("commits : ",commits);
+        // console.log("oldCommits : ",oldCommits);
         if(oldCommits !== commits && commits !== undefined) {
             setOldCommits(commits)
         }
