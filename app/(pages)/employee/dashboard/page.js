@@ -67,7 +67,7 @@ export default function page() {
 
         // function to get information from clockify
         const ClockifyUserData = await getClockifyUserData();
-        console.log("ClockifyUserData",ClockifyUserData);
+        console.log("ClockifyUserData", ClockifyUserData);
 
         const id2 = "65f45d9f5489a9380ca9c849";
         const resTimeTrackedByEmployeeToday =
@@ -76,12 +76,14 @@ export default function page() {
     };
     // get last commits from github
     useEffect(() => {
-        const interval =  setInterval(() => {
-          auth.onAuthStateChanged((user) => {
-                firebaseWithGithub(setCommits,user?.uid);
-          });
-         }, 4000);
-         return ()=>{clearInterval(interval)} 
+        const interval = setInterval(() => {
+            auth.onAuthStateChanged((user) => {
+                firebaseWithGithub(setCommits, user?.uid);
+            });
+        }, 4000);
+        return () => {
+            clearInterval(interval);
+        };
     }, []);
 
     useEffect(() => {
@@ -155,8 +157,8 @@ export default function page() {
         "bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ";
     return (
         <>
-            <section className=" grid justify-center w-full mx-auto  pt-32">
-                <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ">
+            <section className=" grid justify-center w-full mx-auto pt-32">
+                <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:ml-[80px] lg:grid-cols-3 xl:grid-cols-4 ">
                     <li className="w-[260px] md:row-span-2 lg:row-span-3 xl:row-span-2">
                         <Weather />
                     </li>
@@ -384,8 +386,8 @@ export default function page() {
                 </ul>
             </section>
             <section>
-                <div className="flex w-full flex-wrap gap-4 mt-8 xl:px-8">
-                    <div className="w-full sm:w-[70%] lg:w-[52%]  xl:w-[56%] mx-auto h-[350px] p-3  bg-white rounded-lg">
+                <div className="flex w-full flex-wrap gap-4 lg:w-[86%] lg:ml-[106px] xl:w-[90%]  mt-8 xl:px-8">
+                    <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[52%]  xl:w-[56%] mx-auto h-[350px] p-3  bg-white rounded-lg">
                         <ul className="flex justify-between items-center ">
                             <li>General performance</li>
                             <li></li>
@@ -399,7 +401,7 @@ export default function page() {
                         <CurvedlineChart data={dataChart} />
                     </div>
 
-                    <div className="w-full sm:w-[70%] lg:w-[42%]   mx-auto xl:w-[40%] h-[350px] p-3 bg-white rounded-lg">
+                    <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[42%]   mx-auto xl:w-[40%] h-[350px] p-3 bg-white rounded-lg">
                         <ul className="flex justify-between items-center">
                             <li>Statistics</li>
                             <li>
