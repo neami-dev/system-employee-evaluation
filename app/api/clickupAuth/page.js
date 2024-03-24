@@ -27,7 +27,7 @@ export default function ClickupCallback() {
             route.push("/login");
         }
     }
-
+    
     return (
         <>
             <Loading />
