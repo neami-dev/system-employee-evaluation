@@ -27,6 +27,7 @@ import BarChart from "@/components/component/barChart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { firebaseWithGithub } from "@/dataManagement/firebaseWithGithub";
 import { getTotalCommitsForToday } from "@/app/api/actions/githubActions";
+import { firebaseGetClockifyUserId } from "@/dataManagement/firebaseWithClockify";
 
 export default function page() {
     const [tasksCompleted, setTasksCompleted] = useState([]);
@@ -82,6 +83,8 @@ export default function page() {
         
             auth.onAuthStateChanged((user) => {
                 firebaseWithGithub(setCommits, user?.uid);
+                firebaseGetClockifyUserId(user?.uid);
+
             });
         
     }, []);
