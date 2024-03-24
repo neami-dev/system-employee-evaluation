@@ -21,7 +21,7 @@ export default function ClickupCallback() {
 
         if (dataToken) {
             console.log("accessToken good ");
-            route.push("/employee/profile");
+            route.push("/employee/dashboard");
         } else {
             console.error(dataToken);
             route.push("/login");

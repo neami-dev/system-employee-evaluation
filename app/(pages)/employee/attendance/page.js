@@ -70,6 +70,10 @@ function parseTimeToMinutes(timeString) {
       return hours * 60 + minutes; // Return the total minutes    
 }
 function calculateWorkHoursMessage(checkInTime, checkOutTime) {
+    // Check if either check-in or check-out time is "---"
+    if (checkIn === "---" || checkOut === "---") {
+        return "Absent";
+    }
     // Calculate the duration in minutes
     const durationMinutes = parseTimeToMinutes(checkOutTime) - parseTimeToMinutes(checkInTime);
 
@@ -289,6 +293,12 @@ export const columns = [
                     {calculateWorkHoursMessage(row.getValue("checkIn"),row.getValue("checkOut")) == "Not completed" && (
                         <div className="capitalize text-center font-bold text-red-700 bg-red-200 rounded-lg p-2 ">
                             Not completed
+                        </div>
+                        
+                    )}
+                    {calculateWorkHoursMessage(row.getValue("checkIn"),row.getValue("checkOut")) == "Absent" && (
+                        <div className="capitalize text-center font-bold text-red-700 bg-red-200 rounded-lg p-2 ">
+                            Absent
                         </div>
                         
                     )}
