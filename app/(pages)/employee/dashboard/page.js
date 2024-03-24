@@ -43,7 +43,6 @@ export default function page() {
 
     // get info the user score department ...
     const getInfo = async () => {
-        
         // function to get information from clickUp
         const [team, userCickupDetails] = await Promise.all([
             getTeams(),
@@ -80,13 +79,10 @@ export default function page() {
     };
     // get last commits from github
     useEffect(() => {
-        
-            auth.onAuthStateChanged((user) => {
-                firebaseWithGithub(setCommits, user?.uid);
-                firebaseGetClockifyUserId(user?.uid);
-
-            });
-        
+        auth.onAuthStateChanged((user) => {
+            firebaseWithGithub(setCommits, user?.uid);
+            firebaseGetClockifyUserId(user?.uid);
+        });
     }, []);
     // useEffect(() => {
     //     console.log("commits : ",commits);
@@ -94,9 +90,8 @@ export default function page() {
     //     if(oldCommits !== commits && commits !== undefined) {
     //         setOldCommits(commits)
     //     }
-      
+
     // }, [commits])
-    
 
     useEffect(() => {
         // Listen for auth state changes

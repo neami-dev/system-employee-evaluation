@@ -5,6 +5,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 import {
     EmailAuthProvider,
     reauthenticateWithCredential,
@@ -12,20 +14,32 @@ import {
     verifyBeforeUpdateEmail,
 } from "firebase/auth";
 import { auth } from "@/firebase/firebase-config";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function page() {
     const route = useRouter();
     const [repos, setRepos] = useState([]);
+    const [repoSelected, setRepoSelected] = useState({});
     const [workspaces, setWorkspaces] = useState([]);
     const newFullNameRef = useRef();
     const newEmailRef = useRef();
     const newPasswordRef = useRef();
+    const [keySelected, setKeySelected] = useState(null);
 
-    useEffect(() => {
+    useEffect(() => {  
+         
         const getRepos = async () => {
             const response = await getGitHubUserRepos();
             setRepos(response);
-            // console.log("repos", response);
+            console.log("repos", response);
         };
         getRepos();
         const getyWorkSpaces = async () => {
@@ -40,36 +54,38 @@ export default function page() {
         const newEmail = newEmailRef.current.value;
         const newFullName = newFullNameRef.current.value;
         const newPassword = newPasswordRef.current.value;
-        const password = "123456"
+        const password = "123456";
         console.log(newEmail);
         if (newEmail !== undefined) {
-           
-                const user = auth.currentUser;
-                const actionCodeSettings = {
-                    url: 'https://www.example.com/?email=user@example.com',
-                    iOS: {
-                       bundleId: 'com.example.ios'
-                    },
-                    android: {
-                      packageName: 'com.example.android',
-                      installApp: true,
-                      minimumVersion: '12'
-                    },
-                    handleCodeInApp: true
-                  };
+            const user = auth.currentUser;
+            const actionCodeSettings = {
+                url: "https://www.example.com/?email=user@example.com",
+                iOS: {
+                    bundleId: "com.example.ios",
+                },
+                android: {
+                    packageName: "com.example.android",
+                    installApp: true,
+                    minimumVersion: "12",
+                },
+                handleCodeInApp: true,
+            };
 
-                try {
-                    // Reauthenticate user
-                    
-                    await verifyBeforeUpdateEmail(user,newEmail,actionCodeSettings).then(res=>console.log(res))
-                    // Update email
-                    // await updateEmail(user, newEmail);
-                    // console.log("Email updated successfully");
-                } catch (error) {
-                    console.error("Error reauthenticating:", error.message);
-                    return { success: false, error: error.message };
-                }
-            
+            try {
+                // Reauthenticate user
+
+                await verifyBeforeUpdateEmail(
+                    user,
+                    newEmail,
+                    actionCodeSettings
+                ).then((res) => console.log(res));
+                // Update email
+                // await updateEmail(user, newEmail);
+                // console.log("Email updated successfully");
+            } catch (error) {
+                console.error("Error reauthenticating:", error.message);
+                return { success: false, error: error.message };
+            }
         }
     };
     return (
@@ -186,7 +202,7 @@ export default function page() {
                 </div>
                 <div className="bg-white rounded-lg  p-4 my-4">
                     <h3>changing your workspace in clickUp</h3>
-                    {/* Integration Buttons */}
+
                     <Button
                         onClick={() =>
                             route.push(
@@ -195,22 +211,113 @@ export default function page() {
                         }
                         className="mt-6 w-[160px] gap-x-3 "
                     >
-                        {/* <svg
-                            className="w-[26px] ml-[-19px] "
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path d="m2 18.439 3.69-2.828c1.961 2.56 4.044 3.739 6.363 3.739 2.307 0 4.33-1.166 6.203-3.704l3.744 2.759c-2.702 3.66-6.059 5.595-9.947 5.595-3.875 0-7.265-1.922-10.053-5.561zm10.04-12.289-6.568 5.66-3.036-3.52 9.619-8.29 9.543 8.296-3.05 3.509z" />
-                        </svg> */}
-
-                        <span>ClickUp</span>
+                        change workspace
                     </Button>
                 </div>
                 <div className="bg-white rounded-lg  p-4 my-4">
+                    <h3>changing your workspace in clockify</h3>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button className="mt-6 w-[160px]">
+                                change workspace
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Edit workspace</DialogTitle>
+                                <DialogDescription>
+                                    Make changes to your profile here. Click
+                                    save when you're done.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <ScrollArea className="h-[200px] w-full rounded-md border">
+                                    <div className="p-4">
+                                        <h4 className="mb-4 text-sm font-medium leading-none">
+                                        workspace
+                                        </h4>
+                                        <hr />
+                                        
+                                        {repos !== undefined && repos?.map((repo) => (
+                                            <div key={repo?.name} className="">
+                                                <p
+                                                    onClick={() => {
+                                                        console.log(repo);
+                                                        setRepoSelected(repo);
+                                                        setKeySelected(
+                                                            repo?.name
+                                                        );
+                                                    }}
+                                                    className={`text-sm cursor-pointer ${
+                                                        repo?.name ==
+                                                            keySelected &&
+                                                        "bg-[#b4b5b6]"
+                                                    } hover:bg-[#ddd]  p-2 my-1 rounded-lg`}
+                                                >
+                                                    {repo?.name}
+                                                </p>
+                                                <hr />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </ScrollArea>
+                            </div>
+                            <DialogFooter>
+                                <Button>Save changes</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+                <div className="bg-white rounded-lg  p-4 my-4">
                     <h3>changing your repositorie in github</h3>
-                    <Button className="mt-6 w-[160px] bg-[#3354F4]">
-                        change workspace
-                    </Button>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button className="mt-6 w-[160px]">
+                                change repositorie
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Edit repositorie</DialogTitle>
+                                <DialogDescription>
+                                    Make changes to your profile here. Click
+                                    save when you're done.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <ScrollArea className="h-[200px] w-full rounded-md border">
+                                    <div className="p-4">
+                                        <h4 className="mb-4 text-sm font-medium leading-none">
+                                            repos
+                                        </h4>
+                                        <hr />
+
+                                        {repos.map((repo, index) => (
+                                            <div key={index} className="">
+                                                <p
+                                                    onClick={() => {
+                                                        console.log(repo);
+                                                        setRepoSelected(repo);
+                                                        setKeySelected(index);
+                                                    }}
+                                                    className={`text-sm cursor-pointer ${
+                                                        index == keySelected &&
+                                                        "bg-[#b4b5b6]"
+                                                    } hover:bg-[#ddd]  p-2 my-1 rounded-lg`}
+                                                >
+                                                    {repo?.name}
+                                                </p>
+                                                <hr />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </ScrollArea>
+                            </div>
+                            <DialogFooter>
+                                <Button>Save changes</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </section>
         </>
