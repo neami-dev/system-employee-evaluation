@@ -26,7 +26,7 @@ import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { firebaseWithGithub } from "@/dataManagement/firebaseWithGithub/GetCommitsFirebaseWithGithub";
-import { getTotalCommitsForToday } from "@/app/api/actions/githubActions";
+
 import { GetUserIdfirebaseClockify, GetfirebaseClockifyUserId, firebaseGetClockifyUserId } from "@/dataManagement/firebaseWithClockify";
 
 export default function page() {
@@ -43,7 +43,6 @@ export default function page() {
 
     // get info the user score department ...
     const getInfo = async () => {
-        
         // function to get information from clickUp
         const [team, userCickupDetails] = await Promise.all([
             getTeams(),
@@ -93,9 +92,8 @@ export default function page() {
     //     if(oldCommits !== commits && commits !== undefined) {
     //         setOldCommits(commits)
     //     }
-      
+
     // }, [commits])
-    
 
     useEffect(() => {
         // Listen for auth state changes

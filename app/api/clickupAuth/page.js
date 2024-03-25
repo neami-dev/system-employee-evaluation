@@ -43,6 +43,10 @@ export default function ClickupCallback() {
             router.push("/login");
         }
     }
-
-    return <Loading />;
+    
+    return (
+        <>
+            <Loading />
+        </>
+    );
 }
