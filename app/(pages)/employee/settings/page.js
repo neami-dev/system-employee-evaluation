@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import {
     EmailAuthProvider,
+    onAuthStateChanged,
     reauthenticateWithCredential,
     updateEmail,
     verifyBeforeUpdateEmail,
@@ -23,6 +24,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import getDocument from "@/firebase/firestore/getDocument";
 
 export default function page() {
     const route = useRouter();
@@ -33,22 +35,31 @@ export default function page() {
     const newEmailRef = useRef();
     const newPasswordRef = useRef();
     const [keySelected, setKeySelected] = useState(null);
+    const [userData, setUserData] = useState({})
 
     useEffect(() => {  
-         
+         onAuthStateChanged(auth,(user)=>{
+            if (user) {
+            getDocument("userData",user?.uid).then(response=>{
+                setUserData({...user, ...response.result.data()})
+            })
+            }
+         })
         const getRepos = async () => {
             const response = await getGitHubUserRepos();
             setRepos(response);
-            console.log("repos", response);
+            // console.log("repos", response);
         };
         getRepos();
         const getyWorkSpaces = async () => {
             const response = await getClockifyWorkSpaces();
             setWorkspaces(response);
-            // console.log("workspaces", response);
+            console.log("workspaces", response);
         };
         getyWorkSpaces();
     }, []);
+    console.log(userData);
+
     const handleInfoChange = async (e) => {
         e.preventDefault();
         const newEmail = newEmailRef.current.value;
@@ -108,9 +119,9 @@ export default function page() {
 
                         <li className="flex items-center justify-around w-[100%] sm:w-[60%]">
                             <Avatar className=" border-2 w-[60px] h-[60px] md:w-[70px] md:h-[70px] ">
-                                <AvatarImage alt="User" src={``} />
+                                <AvatarImage alt="User" src={userData?.photoURL} />
                                 <AvatarFallback className="capitalize font-bold text-3xl">
-                                    A
+                                    {userData?.displayName?.split("")[0]}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex ml-3 gap-2">
@@ -200,6 +211,63 @@ export default function page() {
                         </div>
                     </form>
                 </div>
+                <div className="bg-white rounded-lg py-2 px-6">
+                    <h3 className="text-[#212b36] my-3">Basic information</h3>
+                    <form className="">
+                        <div className="mt-8 ">
+                            {/* <input type="hidden" name="remember" defaultValue="true" /> */}
+                            <div className="rounded-md flex flex-col items-end justify-end ">
+                                <div className=" w-[100%] mx-auto flex">
+                                    <label
+                                        htmlFor="full-name"
+                                        className="w-[40%] relative hidden sm:block"
+                                    >
+                                        <span className=" absolute left-[30%]">
+                                            {" "}
+                                            Full Name
+                                        </span>
+                                    </label>
+
+                                    <input
+                                        id="full-name"
+                                        name="fullName"
+                                        type="username"
+                                        required
+                                        className="rounded relative block w-full sm:w-[60%]  px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                        placeholder="New Full Name"
+                                        // ref={newFullNameRef}
+                                    />
+                                </div>
+
+                                <div className="w-[100%] mx-auto  flex">
+                                    <label
+                                        htmlFor="whoIAm"
+                                        className="w-[40%] relative hidden sm:block"
+                                    >
+                                        <span className="absolute left-[30%]">
+                                        who I am
+                                        </span>
+                                    </label>
+                                    <textarea
+                                        id="whoIAm"
+                                        name="whoIAm"
+                                        type="textArea"
+                                        required
+                                        className=" rounded relative block w-full sm:w-[60%] px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                        placeholder="who I am"
+                                    />
+                                </div>
+                                 
+                                <Button
+                                    // onClick={handleInfoChange}
+                                    className="mt-6 w-[160px]"
+                                >
+                                    save change
+                                </Button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
                 <div className="bg-white rounded-lg  p-4 my-4">
                     <h3>changing your workspace in clickUp</h3>
 
@@ -238,23 +306,23 @@ export default function page() {
                                         </h4>
                                         <hr />
                                         
-                                        {repos !== undefined && repos?.map((repo) => (
-                                            <div key={repo?.name} className="">
+                                        {workspaces !== undefined && workspaces?.map((workspace) => (
+                                            <div key={workspace?.name} className="">
                                                 <p
                                                     onClick={() => {
-                                                        console.log(repo);
-                                                        setRepoSelected(repo);
+                                                        console.log(workspace);
+                                                        setRepoSelected(workspace);
                                                         setKeySelected(
-                                                            repo?.name
+                                                            workspace?.name
                                                         );
                                                     }}
                                                     className={`text-sm cursor-pointer ${
-                                                        repo?.name ==
+                                                        workspace?.name ==
                                                             keySelected &&
                                                         "bg-[#b4b5b6]"
                                                     } hover:bg-[#ddd]  p-2 my-1 rounded-lg`}
                                                 >
-                                                    {repo?.name}
+                                                    {workspace?.name}
                                                 </p>
                                                 <hr />
                                             </div>

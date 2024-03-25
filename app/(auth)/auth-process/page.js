@@ -1,8 +1,20 @@
 "use client"
+import { GetTokenfirebaseClickup } from "@/dataManagement/firebaseWIthClickup";
+import { auth } from "@/firebase/firebase-config";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const IntegrationPage = () => {
     const route = useRouter();
+    const [Clickup, setClickup] = useState(false)
+
+    useEffect(() => {
+        auth.onAuthStateChanged((user) => {
+            GetTokenfirebaseClickup(setClickup,user?.uid)
+        });
+    
+    }, [])
+    
 
     return (
         <div className="min-h-screen bg-blue-50 flex flex-col items-center justify-center p-4 lg:p-10">
@@ -14,10 +26,12 @@ const IntegrationPage = () => {
 
             <div className="flex flex-col items-center justify-center space-y-4 lg:space-y-0 lg:flex-row lg:space-x-8">
                 {/* Integration Buttons */}
-                <button onClick={() => route.push(
-                `https://app.clickup.com/api?client_id=${process.env.NEXT_PUBLIC_CLICKUP_CLIENT_ID}&redirect_uri=http://localhost:3000/api/clickupAuth`
-                    )}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out flex items-center space-x-2">
+                <button onClick={() => 
+                route.push(
+                    `https://app.clickup.com/api?client_id=${process.env.NEXT_PUBLIC_CLICKUP_CLIENT_ID}&redirect_uri=http://localhost:3000/api/clickupAuth`
+                        )
+                }
+                    className={`${Clickup ? "bg-green-500 hover:bg-green-700": "bg-blue-500 hover:bg-blue-700"}bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out flex items-center space-x-2`}>
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                         <span>ClickUp</span>
                 </button>
