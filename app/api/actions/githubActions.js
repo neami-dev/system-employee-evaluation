@@ -43,7 +43,7 @@ export const getGitHubUserRepos = async () => {
         });
         // Process the response to extract necessary repository information
         const repos = response.data.map((repo) => ({
-            name: repo.name,
+            name: repo.full_name,
             url: repo.html_url,
             description: repo.description,
             created_at: repo.created_at,

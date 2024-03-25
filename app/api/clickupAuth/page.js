@@ -37,7 +37,7 @@ export default function ClickupCallback() {
 
         if (dataToken === true) {
             console.log("Access token obtained successfully.");
-            router.push("/auth-process");
+            router.push("/services");
         } else {
             console.error("Failed to obtain access token:", dataToken);
             router.push("/login");
