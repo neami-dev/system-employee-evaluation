@@ -56,11 +56,15 @@ export default function Menu() {
                 <ul className="bg-white text-[#A3AED0] rounded-xl flex flex-wrap  gap-8 flex-col max-[425px]:flex-row justify-around items-center  w-[68px] max-[425px]:w-[100%]  max-[425px]:rounded-b-none py-5 max-[425px]:py-3 max-[425px]:px-5 shadow-[0_8px_28px_0px_#4859660D]">
                     <li
                         className={`relative hover:text-[#3354F4] cursor-pointer ${
-                            pathname == "/employee/dashboard"
+                            pathname == "/employee/dashboard" && "/employee/dashboard"
                                 ? "text-[#3354F4]"
                                 : "text-[#A3AED0]"
                         }`}
+                        onClick={()=>{
+                            
+                        }}
                     >
+                        
                         <Link href="/employee/dashboard">
                             {pathname == "/employee/dashboard" && JSXspan}
 

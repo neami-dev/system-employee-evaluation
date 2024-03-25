@@ -16,7 +16,6 @@ import {
 import { auth } from "@/firebase/firebase-config";
 import {
     getClockifyUserData,
-    getClockifyWorkSpaces,
     getTimeTrackedByEmployeeToday,
 } from "@/app/api/actions/clockifyActions";
 import { AlignCenter } from "lucide-react";
@@ -26,8 +25,8 @@ import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { firebaseWithGithub } from "@/dataManagement/firebaseWithGithub/GetCommitsFirebaseWithGithub";
+import { GetUserIdfirebaseClockify } from "@/dataManagement/firebaseWithClockify";
 
-import { GetUserIdfirebaseClockify, GetfirebaseClockifyUserId, firebaseGetClockifyUserId } from "@/dataManagement/firebaseWithClockify";
 
 export default function page() {
     const [tasksCompleted, setTasksCompleted] = useState([]);
@@ -82,7 +81,9 @@ export default function page() {
         
             auth.onAuthStateChanged((user) => {
                 firebaseWithGithub(setCommits, user?.uid);
+        
                 GetUserIdfirebaseClockify(user?.uid);
+                
             });
         
     }, []);
