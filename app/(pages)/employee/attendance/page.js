@@ -71,7 +71,7 @@ function parseTimeToMinutes(timeString) {
 }
 function calculateWorkHoursMessage(checkInTime, checkOutTime) {
     // Check if either check-in or check-out time is "---"
-    if (checkIn === "---" || checkOut === "---") {
+    if (checkInTime === "---" || checkOutTime === "---") {
         return "Absent";
     }
     // Calculate the duration in minutes

@@ -1,5 +1,5 @@
 
-import { getClockifyUserData, getClockifyWorkSpaces, getTimeTrackedByEmployeeToday } from "@/app/api/actions/clockifyActions";
+import { getClockifyUserData, getTimeTrackedByEmployeeToday } from "@/app/api/actions/clockifyActions";
 import getDocument from "@/firebase/firestore/getDocument";
 import updateDocument from "@/firebase/firestore/updateDocument";
 import { setDoc } from "firebase/firestore";
