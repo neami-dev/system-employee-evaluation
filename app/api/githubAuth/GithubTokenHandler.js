@@ -1,8 +1,10 @@
 "use server"
 
+import { SetTokenfirebaseGithub } from "@/dataManagement/firebaseWithGithub/SetTokenFirebseGithub";
 import { cookies } from "next/headers";
 
-export default async function GithubTokenHandler(code) {
+export default async function GithubTokenHandler(code,uid) {
+    console.log("uid : ",uid);
     console.log("code : ",code);
     try {
       const tokenResponse = await fetch(`${process.env.GITHUB_BASE_URL}/oauth/access_token`, {
@@ -24,7 +26,15 @@ export default async function GithubTokenHandler(code) {
         console.log("the token is here : ", tokenData.access_token);
         cookies().set("tokenGithub", tokenData.access_token)
         
-        return true
+        const setToken = await SetTokenfirebaseGithub(uid,tokenData.access_token)
+        console.log("setTOken : ",setToken);
+        if (setToken == "OK") {
+          return true
+        } else if (setToken == "FAILED") {
+          console.log("failed setting the token in firebase");
+          return "failed setting the token in firebase"
+        }
+
       } else {
         console.log("token exchange failed");
         return "Token exchange failed"

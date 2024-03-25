@@ -1,6 +1,6 @@
 "use server"
 
-import { SetTokenfirebaseClickup } from "@/dataManagement/firebaseWIthClickup.js";
+import { SetTokenfirebaseClickup } from "@/dataManagement/firebaseClickup/SetTokenfirebaseClickup.js";
 import { auth } from "@/firebase/firebase-config";
 // import { getAuthenticatedUserDetails, getTeams } from "@/app/api/actions/clickupActions.js";
 import { cookies } from "next/headers";
