@@ -14,17 +14,28 @@ export const getClockifyUserData = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching user data from Clockify:', error);
+    return 'invalid';
   }
 };
 
 export const getClockifyWorkSpaces = async () => {
-    try {
-      const response = await api.get('/workspaces');
-      return response.data[0];
-    } catch (error) {
-      console.error('Error fetching user data from Clockify:', error);
-    }
-  };
+  try {
+    const response = await api.get('/workspaces');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user data from Clockify:', error);
+    return 'invalid';
+  }
+};
+
+// export const getClockifyWorkSpaces = async () => {
+//     try {
+//       const response = await api.get('/workspaces');
+//       return response.data[0];
+//     } catch (error) {
+//       console.error('Error fetching user data from Clockify:', error);
+//     }
+//   };
 
 // Helper function to convert ISO 8601 duration to seconds
 const isoDurationToSeconds = (isoDuration) => {

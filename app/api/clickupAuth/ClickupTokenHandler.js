@@ -1,10 +1,13 @@
 "use server"
 
+import { SetTokenfirebaseClickup } from "@/dataManagement/firebaseWIthClickup.js";
+import { auth } from "@/firebase/firebase-config";
 // import { getAuthenticatedUserDetails, getTeams } from "@/app/api/actions/clickupActions.js";
 import { cookies } from "next/headers";
 
-export default async function ClickupTokenHandler(code) {
+export default async function ClickupTokenHandler(code,uid) {
     console.log("code : ",code);
+    console.log("uid : ",uid);
     try {
       const tokenResponse = await fetch(`${process.env.CLICKUP_BASE_URL}/oauth/token`, {
         method: 'POST',
@@ -22,7 +25,14 @@ export default async function ClickupTokenHandler(code) {
         console.log("the token is here : ", tokenData.access_token);
         cookies().set("tokenClickup", tokenData.access_token)
         
-        return true
+        const setToken = await SetTokenfirebaseClickup(uid,tokenData.access_token)
+        console.log("setTOken : ",setToken);
+        if (setToken == "OK") {
+          return true
+        } else if (setToken == "FAILED") {
+          console.log("failed setting the token in firebase");
+          return "failed setting the token in firebase"
+        }
       } else {
         console.log("token exchange failed");
         return "Token exchange failed"
