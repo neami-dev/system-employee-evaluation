@@ -1,6 +1,6 @@
 "use client";
 import { auth } from "@/firebase/firebase-config";
-import { signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,13 +26,18 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 export default function NavBar() {
     const [userData, setUserData] = useState("");
+    const route = useRouter()
 
     useEffect(() => {
-        auth.onAuthStateChanged((res) => {
-            // console.log(res);
-            setUserData(res);
+        onAuthStateChanged(auth,(user) => {
+            
+            setUserData(user);
+            if(!user){
+                route.push("/login")
+            }
         });
     }, []);
     async function logout() {

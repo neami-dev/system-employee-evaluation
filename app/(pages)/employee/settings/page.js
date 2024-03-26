@@ -7,13 +7,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import {
-    EmailAuthProvider,
-    onAuthStateChanged,
-    reauthenticateWithCredential,
-    updateEmail,
-    verifyBeforeUpdateEmail,
-} from "firebase/auth";
 import { auth } from "@/firebase/firebase-config";
 import {
     Dialog,
@@ -25,6 +18,8 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import getDocument from "@/firebase/firestore/getDocument";
+import { editEmail } from "@/firebase/firebase-admin/editEmail";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function page() {
     const route = useRouter();
@@ -35,16 +30,16 @@ export default function page() {
     const newEmailRef = useRef();
     const newPasswordRef = useRef();
     const [keySelected, setKeySelected] = useState(null);
-    const [userData, setUserData] = useState({})
+    const [userData, setUserData] = useState({});
 
-    useEffect(() => {  
-         onAuthStateChanged(auth,(user)=>{
+    useEffect(() => {
+        onAuthStateChanged(auth, (user) => {
             if (user) {
-            getDocument("userData",user?.uid).then(response=>{
-                setUserData({...user, ...response.result.data()})
-            })
+                getDocument("userData", user?.uid).then((response) => {
+                    setUserData({ ...user, ...response.result.data() });
+                });
             }
-         })
+        });
         const getRepos = async () => {
             const response = await getGitHubUserRepos();
             setRepos(response);
@@ -68,35 +63,7 @@ export default function page() {
         const password = "123456";
         console.log(newEmail);
         if (newEmail !== undefined) {
-            const user = auth.currentUser;
-            const actionCodeSettings = {
-                url: "https://www.example.com/?email=user@example.com",
-                iOS: {
-                    bundleId: "com.example.ios",
-                },
-                android: {
-                    packageName: "com.example.android",
-                    installApp: true,
-                    minimumVersion: "12",
-                },
-                handleCodeInApp: true,
-            };
-
-            try {
-                // Reauthenticate user
-
-                await verifyBeforeUpdateEmail(
-                    user,
-                    newEmail,
-                    actionCodeSettings
-                ).then((res) => console.log(res));
-                // Update email
-                // await updateEmail(user, newEmail);
-                // console.log("Email updated successfully");
-            } catch (error) {
-                console.error("Error reauthenticating:", error.message);
-                return { success: false, error: error.message };
-            }
+            editEmail(newEmail);
         }
     };
     return (
@@ -119,7 +86,10 @@ export default function page() {
 
                         <li className="flex items-center justify-around w-[100%] sm:w-[60%]">
                             <Avatar className=" border-2 w-[60px] h-[60px] md:w-[70px] md:h-[70px] ">
-                                <AvatarImage alt="User" src={userData?.photoURL} />
+                                <AvatarImage
+                                    alt="User"
+                                    src={userData?.photoURL}
+                                />
                                 <AvatarFallback className="capitalize font-bold text-3xl">
                                     {userData?.displayName?.split("")[0]}
                                 </AvatarFallback>
@@ -202,7 +172,7 @@ export default function page() {
                                     />
                                 </div>
                                 <Button
-                                    // onClick={handleInfoChange}
+                                    onClick={handleInfoChange}
                                     className="mt-6 w-[160px]"
                                 >
                                     save change
@@ -245,7 +215,7 @@ export default function page() {
                                         className="w-[40%] relative hidden sm:block"
                                     >
                                         <span className="absolute left-[30%]">
-                                        who I am
+                                            who I am
                                         </span>
                                     </label>
                                     <textarea
@@ -257,7 +227,7 @@ export default function page() {
                                         placeholder="who I am"
                                     />
                                 </div>
-                                 
+
                                 <Button
                                     // onClick={handleInfoChange}
                                     className="mt-6 w-[160px]"
@@ -302,31 +272,39 @@ export default function page() {
                                 <ScrollArea className="h-[200px] w-full rounded-md border">
                                     <div className="p-4">
                                         <h4 className="mb-4 text-sm font-medium leading-none">
-                                        workspace
+                                            workspace
                                         </h4>
                                         <hr />
-                                        
-                                        {workspaces !== undefined && workspaces?.map((workspace) => (
-                                            <div key={workspace?.name} className="">
-                                                <p
-                                                    onClick={() => {
-                                                        console.log(workspace);
-                                                        setRepoSelected(workspace);
-                                                        setKeySelected(
-                                                            workspace?.name
-                                                        );
-                                                    }}
-                                                    className={`text-sm cursor-pointer ${
-                                                        workspace?.name ==
-                                                            keySelected &&
-                                                        "bg-[#b4b5b6]"
-                                                    } hover:bg-[#ddd]  p-2 my-1 rounded-lg`}
+
+                                        {workspaces !== undefined &&
+                                            workspaces?.map((workspace) => (
+                                                <div
+                                                    key={workspace?.name}
+                                                    className=""
                                                 >
-                                                    {workspace?.name}
-                                                </p>
-                                                <hr />
-                                            </div>
-                                        ))}
+                                                    <p
+                                                        onClick={() => {
+                                                            console.log(
+                                                                workspace
+                                                            );
+                                                            setRepoSelected(
+                                                                workspace
+                                                            );
+                                                            setKeySelected(
+                                                                workspace?.name
+                                                            );
+                                                        }}
+                                                        className={`text-sm cursor-pointer ${
+                                                            workspace?.name ==
+                                                                keySelected &&
+                                                            "bg-[#b4b5b6]"
+                                                        } hover:bg-[#ddd]  p-2 my-1 rounded-lg`}
+                                                    >
+                                                        {workspace?.name}
+                                                    </p>
+                                                    <hr />
+                                                </div>
+                                            ))}
                                     </div>
                                 </ScrollArea>
                             </div>
@@ -360,24 +338,30 @@ export default function page() {
                                         </h4>
                                         <hr />
 
-                                        {repos.map((repo, index) => (
-                                            <div key={index} className="">
-                                                <p
-                                                    onClick={() => {
-                                                        console.log(repo);
-                                                        setRepoSelected(repo);
-                                                        setKeySelected(index);
-                                                    }}
-                                                    className={`text-sm cursor-pointer ${
-                                                        index == keySelected &&
-                                                        "bg-[#b4b5b6]"
-                                                    } hover:bg-[#ddd]  p-2 my-1 rounded-lg`}
-                                                >
-                                                    {repo?.name}
-                                                </p>
-                                                <hr />
-                                            </div>
-                                        ))}
+                                        {repos !== undefined &&
+                                            repos?.map((repo, index) => (
+                                                <div key={index} className="">
+                                                    <p
+                                                        onClick={() => {
+                                                            console.log(repo);
+                                                            setRepoSelected(
+                                                                repo
+                                                            );
+                                                            setKeySelected(
+                                                                index
+                                                            );
+                                                        }}
+                                                        className={`text-sm cursor-pointer ${
+                                                            index ==
+                                                                keySelected &&
+                                                            "bg-[#b4b5b6]"
+                                                        } hover:bg-[#ddd]  p-2 my-1 rounded-lg`}
+                                                    >
+                                                        {repo?.name}
+                                                    </p>
+                                                    <hr />
+                                                </div>
+                                            ))}
                                     </div>
                                 </ScrollArea>
                             </div>

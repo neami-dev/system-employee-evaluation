@@ -8,6 +8,14 @@ import {
     History,
     Users,
 } from "lucide-react";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -29,6 +37,7 @@ export default function Menu() {
             setUserData(result?.result?.data());
         }
     };
+
     useEffect(() => {
         // Listen for auth state changes
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -55,21 +64,32 @@ export default function Menu() {
             <div className=" menu fixed w-10  z-10 top-36 left-[4%] max-[865px]:left-[2%] max-[425px]:w-[100%]">
                 <ul className="bg-white text-[#A3AED0] rounded-xl flex flex-wrap  gap-8 flex-col max-[425px]:flex-row justify-around items-center  w-[68px] max-[425px]:w-[100%]  max-[425px]:rounded-b-none py-5 max-[425px]:py-3 max-[425px]:px-5 shadow-[0_8px_28px_0px_#4859660D]">
                     <li
-                        className={`relative hover:text-[#3354F4] cursor-pointer ${
-                            pathname == "/employee/dashboard" && "/employee/dashboard"
+                        className={`relative hover:text-[#3354F4]  cursor-pointer ${
+                            pathname ==
+                            ("/employee/dashboard" && "/admin/dashboard")
                                 ? "text-[#3354F4]"
                                 : "text-[#A3AED0]"
                         }`}
-                        onClick={()=>{
-                            
-                        }}
                     >
-                        
-                        <Link href="/employee/dashboard">
-                            {pathname == "/employee/dashboard" && JSXspan}
+                        <Select className=" ">
+                            <SelectTrigger className=" border-none w-6 hover:outline-none ">
+                                {pathname ==("/employee/dashboard" && "/admin/dashboard") && JSXspan}
 
-                            <Blocks />
-                        </Link>
+                                <Blocks className=" absolute left-[3px] top-[5px]" />
+                            </SelectTrigger>
+
+                            <SelectContent className="flex justify-center absolute left-[40px] top-[-50px]">
+                                <div className="text-center text-[#767d8e] hover:text-[#4c4a4a]">
+                                    <Link href="/admin/dashboard">Admin</Link>
+                                </div>
+                                <hr />
+                                <div className="text-center text-[#767d8e] hover:text-[#4c4a4a]">
+                                    <Link href="/employee/dashboard">
+                                        Employee
+                                    </Link>
+                                </div>
+                            </SelectContent>
+                        </Select>
                     </li>
                     <li
                         className={`relative hover:text-[#3354F4] cursor-pointer ${
@@ -84,31 +104,31 @@ export default function Menu() {
                             <MessageSquareText />
                         </Link>
                     </li>
-                    {userData?.role == "admin" && (
+                    {true && (
                         <>
                             {" "}
                             <li
                                 className={`relative hover:text-[#3354F4] cursor-pointer ${
-                                    pathname == "/employee/profile"
+                                    pathname == "/admin/manageEmployees"
                                         ? "text-[#3354F4]"
                                         : "text-[#A3AED0]"
                                 }`}
                             >
-                                <Link href="/employee/profile">
-                                    {pathname == "/employee/profile" && JSXspan}
+                                <Link href="/admin/manageEmployees">
+                                    {pathname == "/admin/manageEmployees" && JSXspan}
 
                                     <Users />
                                 </Link>
                             </li>
                             <li
                                 className={`relative hover:text-[#3354F4] cursor-pointer ${
-                                    pathname == "/employee/profile"
+                                    pathname == "/admin/"
                                         ? "text-[#3354F4]"
                                         : "text-[#A3AED0]"
                                 }`}
                             >
-                                <Link href="/employee/profile">
-                                    {pathname == "/employee/profile" && JSXspan}
+                                <Link href="/admin/">
+                                    {pathname == "/admin/" && JSXspan}
 
                                     <UserPlus />
                                 </Link>
@@ -117,13 +137,13 @@ export default function Menu() {
                     )}
                     <li
                         className={`relative hover:text-[#3354F4] cursor-pointer ${
-                            pathname == "/employee/attendance"
+                            pathname == ("/employee/attendance" && "/admin/attendance")
                                 ? "text-[#3354F4]"
                                 : "text-[#A3AED0]"
                         }`}
                     >
                         <Link href="/employee/attendance">
-                            {pathname == "/employee/attendance" && JSXspan}
+                            {pathname == ("/employee/attendance" && "/admin/attendance") && JSXspan}
                             <History />
                         </Link>
                     </li>
