@@ -62,7 +62,7 @@ export default function regsiter() {
         } else {
             console.log("Sign-up successful, redirecting...");
             // router.push("/employee/profile");
-            router.push("http://localhost:3000/auth-process");
+            router.push("http://localhost:3000/services");
         }
     };
     return (
