@@ -7,12 +7,10 @@ export default async function signUp({ email, password, fullName }) {
         error = null;
 
     const data = {
-        department: null,
-        joiningDate: new Date(),
+        department: "",
         score: 0,
         skills:[],
         whoIAm : "",
-        projects :{name:"",desription:""},
         role : "employee"
     };
 
