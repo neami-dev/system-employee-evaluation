@@ -57,6 +57,7 @@ import { useEffect } from "react";
 import { getEmployees } from "@/firebase/firebase-admin/getEmployees";
 import getDocument from "@/firebase/firestore/getDocument";
 import { Skeleton } from "@/components/ui/skeleton";
+import { deleteEmployee } from "@/firebase/firebase-admin/deleteEmployee";
 
 export const columns = [
     {
@@ -176,7 +177,7 @@ export const columns = [
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem
                                 onClick={() =>
-                                    navigator.clipboard.writeText(employee.id)
+                                    navigator.clipboard.writeText(employee.uid)
                                 }
                             >
                                 <div className="flex cursor-pointer">
@@ -212,7 +213,14 @@ export const columns = [
                                             <AlertDialogCancel>
                                                 Cancel
                                             </AlertDialogCancel>
-                                            <AlertDialogAction>
+                                            <AlertDialogAction
+                                                className="bg-red-700"
+                                                onClick={() => {
+                                                    deleteEmployee(
+                                                        employee.uid
+                                                    ); 
+                                                }}
+                                            >
                                                 Continue
                                             </AlertDialogAction>
                                         </AlertDialogFooter>
