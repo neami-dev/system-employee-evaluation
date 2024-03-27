@@ -43,7 +43,7 @@ import {
     getCheckInOutTimes,
     getClockifyUserData,
     getClockifyWorkSpaces,
-} from "@/app/api/actions/clockifyActions";
+} from "@/app/api_services/actions/clockifyActions";
 import Loading from "@/components/component/Loading";
 
 function parseTimeToMinutes(timeString) {
@@ -136,45 +136,6 @@ function getDayName(dateString) {
 }
 
 export const columns = [
-    // {
-    //     id: "select",
-    //     header: ({ table }) => (
-    //         <Checkbox
-    //             checked={
-    //                 table.getIsAllPageRowsSelected() ||
-    //                 (table.getIsSomePageRowsSelected() && "indeterminate")
-    //             }
-    //             onCheckedChange={(value) =>
-    //                 table.toggleAllPageRowsSelected(!!value)
-    //             }
-    //             aria-label="Select all"
-    //         />
-    //     ),
-    //     cell: ({ row }) => (
-    //         <Checkbox
-    //             checked={row.getIsSelected()}
-    //             onCheckedChange={(value) => row.toggleSelected(!!value)}
-    //             aria-label="Select row"
-    //         />
-    //     ),
-    //     enableSorting: false,
-    //     enableHiding: false,
-    // },
-    // {
-    //     accessorKey: "amount",
-    //     header: () => <div className="text-left">Date</div>,
-    //     cell: ({ row }) => {
-    //         const amount = parseFloat(row.getValue("amount"));
-
-    //         // Format the amount as a dollar amount
-    //         const formatted = new Intl.NumberFormat("en-US", {
-    //             style: "currency",
-    //             currency: "USD",
-    //         }).format(amount);
-
-    //         return <div className="text-left font-medium">{formatted}</div>;
-    //     },
-    // },
     {
         accessorKey: "date",
         header: ({ column }) => (
@@ -192,8 +153,8 @@ export const columns = [
         cell: ({ row }) => {
             return (
                 <>
-                    <div className="capitalize text-center ">
-                        {row.getValue("date")}
+                    <div className="capitalize text-[#a9a7a7] text-center text-[12px] md:text-[14px]">
+                        {row.getValue("date") || "null"}
                     </div>
                 </>
             );
@@ -201,13 +162,12 @@ export const columns = [
     },
     {
         accessorKey: "day",
-        header: () => <div className="text-center">day</div>,
+        header: () => <div className="text-center ">day</div>,
         cell: ({ row }) => {
             return (
                 <>
-                    <div className="justify-center"></div>
-                    <div className="capitalize w-[40px] text-left ">
-                        {getDayName(row.getValue("date"))}
+                    <div className="capitalize text-[#a9a7a7] text-[12px] md:text-[14px] text-center ">
+                        {getDayName(row.getValue("date")) || "null"}
                     </div>
                 </>
             );
@@ -230,7 +190,7 @@ export const columns = [
             );
         },
         cell: ({ row }) => (
-            <div className="lowercase text-center">
+            <div className="lowercase text-[#a9a7a7] text-center">
                 {row.getValue("checkIn") !== "---"
                     ? formatTime(row.getValue("checkIn"))
                     : "---"}
@@ -254,7 +214,7 @@ export const columns = [
             );
         },
         cell: ({ row }) => (
-            <div className="lowercase text-center">
+            <div className="text-center text-[#a9a7a7] text-[12px] md:text-[14px]">
                 {row.getValue("checkOut") !== "---"
                     ? formatTime(row.getValue("checkOut"))
                     : "---"}
@@ -278,11 +238,11 @@ export const columns = [
             );
         },
         cell: ({ row }) => (
-            <div className="lowercase text-center">
+            <div className="text-center text-[#a9a7a7] text-[12px] md:text-[14px]">
                 {calculateAndFormatTimeDifference(
                     row.getValue("checkIn"),
                     row.getValue("checkOut")
-                )}
+                ) || "null"}
             </div>
         ),
     },
@@ -296,7 +256,7 @@ export const columns = [
                         row.getValue("checkIn"),
                         row.getValue("checkOut")
                     ) == "Excellent work" && (
-                        <div className="capitalize text-center text-white font-bold bg-green-500 rounded-lg p-2 ">
+                        <div className="capitalize text-center text-[12px] md:text-[14px] text-white font-bold bg-green-500 rounded-lg p-2 ">
                             Excellent work
                         </div>
                     )}
@@ -305,7 +265,7 @@ export const columns = [
                         row.getValue("checkIn"),
                         row.getValue("checkOut")
                     ) == "Well done" && (
-                        <div className="capitalize text-center text-white font-bold bg-green-500 rounded-lg p-2 ">
+                        <div className="capitalize text-center text-[12px] md:text-[14px] text-white font-bold bg-green-500 rounded-lg p-1 md:p-2 ">
                             Well done
                         </div>
                     )}
@@ -313,7 +273,7 @@ export const columns = [
                         row.getValue("checkIn"),
                         row.getValue("checkOut")
                     ) == "Not completed" && (
-                        <div className="capitalize text-center font-bold text-red-700 bg-red-200 rounded-lg p-2 ">
+                        <div className="capitalize text-center text-[12px] md:text-[14px] text-[#de8e8e] bg-red-200 rounded-lg p-1 md:p-2 ">
                             Not completed
                         </div>
                     )}
@@ -321,7 +281,7 @@ export const columns = [
                         row.getValue("checkIn"),
                         row.getValue("checkOut")
                     ) == "Absent" && (
-                        <div className="capitalize text-center font-bold text-red-700 bg-red-200 rounded-lg p-2 ">
+                        <div className="capitalize text-center text-[12px] md:text-[14px] text-[#e27777] bg-[#FFE5EE] rounded-lg p-1 md:p-2 ">
                             Absent
                         </div>
                     )}
@@ -336,40 +296,6 @@ export const columns = [
             );
         },
     },
-
-    // {
-    //     id: "actions",
-    //     enableHiding: false,
-    //     cell: ({ row }) => {
-    //         const payment = row.original;
-
-    //         return (
-    //             <DropdownMenu>
-    //                 <DropdownMenuTrigger asChild>
-    //                     <Button variant="ghost" className="h-8 w-8 p-0">
-    //                         <span className="sr-only">Open menu</span>
-    //                         <MoreHorizontal className="h-4 w-4" />
-    //                     </Button>
-    //                 </DropdownMenuTrigger>
-    //                 <DropdownMenuContent align="end">
-    //                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-    //                     <DropdownMenuItem
-    //                         onClick={() =>
-    //                             navigator.clipboard.writeText(payment.id)
-    //                         }
-    //                     >
-    //                         Copy payment ID
-    //                     </DropdownMenuItem>
-    //                     <DropdownMenuSeparator />
-    //                     <DropdownMenuItem>View customer</DropdownMenuItem>
-    //                     <DropdownMenuItem>
-    //                         View payment details
-    //                     </DropdownMenuItem>
-    //                 </DropdownMenuContent>
-    //             </DropdownMenu>
-    //         );
-    //     },
-    // },
 ];
 
 export default function DataTableDemo() {
@@ -473,55 +399,45 @@ export default function DataTableDemo() {
 
     return (
         <section className="flex justify-center">
-            <div className="w-full mt-32 lg:w-[84%] lg:ml-[76px] xl:w-[86%] xl:ml-[82px]  mx-3 px-4 bg-white rounded-lg">
-                <div className="flex flex-col sm:flex-row justify-center sm:justify-evenly flex-wrap items-center py-4">
-                    <div className="">
+            <div className="w-[94%] mt-32 min-[426px]:w-[80%] min-[426px]:ml-[76px] sm:w-[80%] sm:ml-[84px] lg:w-[82%] lg:ml-[96px] mx-3 px-4 bg-white rounded-lg">
+                <div className="flex flex-wrap items-center p-1 justify-end ">
+                    <div className="m-1">
                         <DatePickerWithRange
-                            className=""
                             date={dateRange}
                             setDate={setDate}
                         />
                     </div>
-                    <Input
-                        placeholder="Filter emails..."
-                        value={
-                            table.getColumn("checkOut")?.getFilterValue() ?? ""
-                        }
-                        onChange={(event) =>
-                            table
-                                .getColumn("checkOut")
-                                ?.setFilterValue(event.target.value)
-                        }
-                        className="max-w-sm my-3 lg:mx-3"
-                    />
-
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="ml-auto">
-                                Columns <ChevronDown className=" h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {table
-                                .getAllColumns()
-                                .filter((column) => column.getCanHide())
-                                .map((column, index) => {
-                                    return (
-                                        <DropdownMenuCheckboxItem
-                                            // key={column.id}
-                                            key={index}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) =>
-                                                column.toggleVisibility(!!value)
-                                            }
-                                        >
-                                            {column.id}
-                                        </DropdownMenuCheckboxItem>
-                                    );
-                                })}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="m-1">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" className="ml-auto">
+                                    Columns <ChevronDown className=" h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {table
+                                    .getAllColumns()
+                                    .filter((column) => column.getCanHide())
+                                    .map((column, index) => {
+                                        return (
+                                            <DropdownMenuCheckboxItem
+                                                // key={column.id}
+                                                key={index}
+                                                className="capitalize"
+                                                checked={column.getIsVisible()}
+                                                onCheckedChange={(value) =>
+                                                    column.toggleVisibility(
+                                                        !!value
+                                                    )
+                                                }
+                                            >
+                                                {column.id}
+                                            </DropdownMenuCheckboxItem>
+                                        );
+                                    })}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
                 <div className="rounded-md border">
                     <Table>

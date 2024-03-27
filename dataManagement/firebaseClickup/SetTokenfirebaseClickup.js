@@ -1,11 +1,10 @@
-"use server"
-import { getTotalCommitsForToday } from "@/app/api/actions/githubActions";
+"use server";
+import { getTotalCommitsForToday } from "@/app/api_services/actions/githubActions";
 import addDocumentById from "@/firebase/firestore/addDocumentById";
 import getDocument from "@/firebase/firestore/getDocument";
 import updateDocument from "@/firebase/firestore/updateDocument";
 import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 import { setDoc } from "firebase/firestore";
-
 
 export async function SetTokenfirebaseClickup(id, clickupToken) {
     try {

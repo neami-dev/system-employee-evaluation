@@ -1,4 +1,4 @@
-import { getTotalCommitsForToday } from "@/app/api/actions/githubActions";
+import { getTotalCommitsForToday } from "@/app/api_services/actions/githubActions";
 import getDocument from "@/firebase/firestore/getDocument";
 import updateDocument from "@/firebase/firestore/updateDocument";
 
@@ -8,19 +8,17 @@ export async function firebaseWithGithub(hanldeChange, id) {
             const response = await getDocument("userData", id);
             const totalCommits = response.result.data()?.commits;
             hanldeChange(totalCommits);
-           
-           const  interVal = setInterval(() => {
-                 getTotalCommitsForToday().then((githubTotalCommits)=>{
+
+            const interVal = setInterval(() => {
+                getTotalCommitsForToday().then((githubTotalCommits) => {
                     if (totalCommits !== githubTotalCommits) {
-                       updateDocument({
+                        updateDocument({
                             collectionName: "userData",
                             id: id,
                             data: { commits: githubTotalCommits },
                         });
                         return hanldeChange(githubTotalCommits);
                     }
-                  
-
                 });
             }, 2000);
             return () => clearInterval(interVal);

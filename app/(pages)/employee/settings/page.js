@@ -1,6 +1,6 @@
 "use client";
-import { getClockifyWorkSpaces } from "@/app/api/actions/clockifyActions";
-import { getGitHubUserRepos } from "@/app/api/actions/githubActions";
+import { getClockifyWorkSpaces } from "@/app/api_services/actions/clockifyActions";
+import { getGitHubUserRepos } from "@/app/api_services/actions/githubActions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";

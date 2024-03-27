@@ -12,21 +12,20 @@ import {
     getOpenTasksByEmployee,
     getPendingTasksByEmployee,
     getTeams,
-} from "@/app/api/actions/clickupActions";
+} from "@/app/api_services/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
 import {
     getClockifyUserData,
     getTimeTrackedByEmployeeToday,
-} from "@/app/api/actions/clockifyActions";
+} from "@/app/api_services/actions/clockifyActions";
 import { AlignCenter } from "lucide-react";
 import Weather from "@/components/component/weather";
 import ChangingProgressProvider from "@/components/component/ChangingProgressProvider";
 import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
 import { Skeleton } from "@/components/ui/skeleton";
-import { firebaseWithGithub } from "@/dataManagement/firebaseWithGithub/GetCommitsFirebaseWithGithub";
-import { GetUserIdfirebaseClockify } from "@/dataManagement/firebaseWithClockify";
- 
+import { firebaseWithGithub } from "@/dataManagement/firebaseGithub/GetCommitsFirebaseWithGithub";
+import { GetUserIdfirebaseClockify } from "@/dataManagement/firebaseClockify/firebaseWithClockify";
 
 export default function page() {
     const [tasksCompleted, setTasksCompleted] = useState([]);
@@ -78,14 +77,11 @@ export default function page() {
     };
     // get last commits from github
     useEffect(() => {
-        
-            auth.onAuthStateChanged((user) => {
-                firebaseWithGithub(setCommits, user?.uid);
-        
-                GetUserIdfirebaseClockify(user?.uid);
-                
-            });
-        
+        auth.onAuthStateChanged((user) => {
+            firebaseWithGithub(setCommits, user?.uid);
+
+            GetUserIdfirebaseClockify(user?.uid);
+        });
     }, []);
     // useEffect(() => {
     //     console.log("commits : ",commits);

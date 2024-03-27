@@ -1,18 +1,6 @@
 "use client";
-import { createEmployee } from "@/firebase/firebase-admin/createEmployee";
-import { deleteEmployee } from "@/firebase/firebase-admin/deleteEmployee";
-import { getEmployees } from "@/firebase/firebase-admin/getEmployees";
-import getDocument from "@/firebase/firestore/getDocument";
-import getDocuments from "@/firebase/firestore/getDocuments";
-import React, { useEffect, useState } from "react";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+
+import * as React from "react";
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -25,7 +13,7 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -39,214 +27,212 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import Loading from "@/components/component/Loading";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { useState } from "react";
+import { useEffect } from "react";
+import { getEmployees } from "@/firebase/firebase-admin/getEmployees";
+import getDocument from "@/firebase/firestore/getDocument";
+import { Skeleton } from "@/components/ui/skeleton";
+
 export const columns = [
     {
-        accessorKey: "id",
-        header: ({ column }) => (
-            <div
-                className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
-                variant="ghost"
-            >
-                Id
+        accessorKey: "uid",
+        header: () => <div className="text-center">ID</div>,
+        cell: ({ row }) => (
+            <div className="text-[12px] text-center text-[#a9a7a7] md:text-[14px]">
+                {row.getValue("uid")?.split("", 8) || "null"}
+                ...
             </div>
         ),
-        cell: ({ row }) => {
-            return (
-                <>
-                    <div className="capitalize text-center ">
-                        {row.getValue("id")}
-                    </div>
-                </>
-            );
-        },
     },
     {
-        accessorKey: "fullName",
-        header: () => <div className="text-center">Full Name</div>,
-        cell: ({ row }) => {
-            return (
-                <>
-                    <div className="justify-center"></div>
-                    <div className="capitalize w-[40px] text-center ">
-                        {row.getValue("fullName") !== undefined
-                            ? row.getValue("fullName")
-                            : "null"}
-                    </div>
-                </>
-            );
-        },
+        accessorKey: "displayName",
+        header: ({ column }) => (
+            <div
+                onClick={() =>
+                    column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="text-center flex justify-center items-center cursor-pointer rounded-sm hover:bg-gray-200"
+            >
+                Full Name <ArrowUpDown className="ml-2 h-4 w-4" />
+            </div>
+        ),
+        cell: ({ row }) => (
+            <div className="lowercase text-center text-[#a9a7a7] text-[12px] md:text-[14px]">
+                {row.getValue("displayName") || "null"}
+            </div>
+        ),
     },
     {
         accessorKey: "joiningDate",
-        header: ({ column }) => {
+        header: () => (
+            <>
+                <div className="text-center ">Joining Date</div>
+            </>
+        ),
+
+        cell: ({ row }) => {
             return (
-                <div
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                    className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
-                >
-                    Joining Date
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                <div className="text-center text-[#a9a7a7] text-[12px] md:text-[14px]">
+                    {row.getValue("joiningDate") || "null"}
                 </div>
             );
         },
-        cell: ({ row }) => (
-            <div className="lowercase text-center">
-                {row.getValue("joiningDate") !== undefined
-                    ? row.getValue("joiningDate")
-                    : "null"}
-            </div>
-        ),
+    },
+    {
+        accessorKey: "role",
+        header: () => <div className="text-center">Role</div>,
+        cell: ({ row }) => {
+            return (
+                <div className="text-center text-[#a9a7a7] text-[12px] md:text-[14px]">
+                    {row.getValue("role") || "null"}
+                </div>
+            );
+        },
     },
     {
         accessorKey: "department",
-        header: ({ column }) => {
+        header: () => <div className="text-center"> Department</div>,
+        cell: ({ row }) => {
             return (
-                <div
-                    variant="ghost"
-                    // onClick={() =>
-                    //     column.toggleSorting(column.getIsSorted() === "asc")
-                    // }
-                    className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
-                >
-                    Department
+                <div className="text-center text-[#a9a7a7] text-[12px] md:text-[14px]">
+                    {row.getValue("department") || "null"}
                 </div>
             );
         },
-        cell: ({ row }) => (
-            <div className="lowercase text-center">
-                {row.getValue("department") !== undefined
-                    ? row.getValue("department")
-                    : "null"}
-            </div>
-        ),
     },
     {
         accessorKey: "currentTasks",
-        header: ({ column }) => {
+        header: () => <div className="text-center">Current Tasks</div>,
+        cell: ({ row }) => {
             return (
-                <div
-                    variant="ghost"
-                    className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
-                >
-                    Current Tasks
+                <div className="text-center text-[#a9a7a7] text-[12px] md:text-[14px]">
+                    {row.getValue("currentTasks") || "null"}
                 </div>
             );
         },
-        cell: ({ row }) => (
-            <div className="lowercase text-center">
-                {row.getValue("currentTasks") !== undefined
-                    ? row.getValue("currentTasks")
-                    : "null"}
-            </div>
-        ),
     },
     {
         accessorKey: "score",
-        header: ({ column }) => {
-            return (
-                <div
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                    className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
-                >
-                    Score
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </div>
-            );
-        },
-        cell: ({ row }) => (
-            <div className="lowercase text-center">
-                {row.getValue("score") !== undefined
-                    ? row.getValue("score")
-                    : "null"}
+        header: ({ column }) => (
+            <div
+                onClick={() =>
+                    column.toggleSorting(column.getIsSorted() === "asc")
+                }
+                className="text-center flex justify-center items-center cursor-pointer rounded-sm hover:bg-gray-200"
+            >
+                Score <ArrowUpDown className="ml-2 h-4 w-4" />
             </div>
         ),
-    },
-    {
-        accessorKey: "Actions",
-        header: ({ column }) => {
+        cell: ({ row }) => {
             return (
-                <div
-                    variant="ghost"
-                    // onClick={() =>
-                    // column.toggleSorting(column.getIsSorted() === "asc")
-                    // }
-                    className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
-                >
-                    Actions
+                <div className="mx-auto bg-[#39B5A6] text-white rounded-full w-[40px] h-[40px] text-center pt-2.5  text-[12px] md:text-[14px]">
+                    {row.getValue("score") || "null"}%
                 </div>
             );
         },
-        cell: ({ row }) => (
-            <div className="lowercase text-center">{row.getValue("score")}</div>
-        ),
+    },
+    {
+        id: "actions",
+        header: () => <div className="text-center">Actions</div>,
+
+        cell: ({ row }) => {
+            const employee = row.original;
+
+            return (
+                <div className="w-full flex justify-center">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem
+                                onClick={() =>
+                                    navigator.clipboard.writeText(employee.id)
+                                }
+                            >
+                                Copy ID
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>View details</DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <Trash2 className="mr-2" size={18} />
+                                Delete
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>View customer</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            );
+        },
     },
 ];
-export default function manageEmployees() {
+const jsxElement = (
+    <>
+        <Skeleton className=" h-10 w-[100%] rounded-sm mb-2" />
+        <hr />
+        <Skeleton className=" h-10 w-[100%] rounded-sm my-2" />
+        <hr />
+        <Skeleton className=" h-10 w-[100%] rounded-sm my-2" />
+        <hr />
+        <Skeleton className=" h-10 w-[100%] rounded-sm mt-2" />
+    </>
+);
+export default function DataTableDemo() {
     const [sorting, setSorting] = useState([]);
     const [columnFilters, setColumnFilters] = useState([]);
     const [columnVisibility, setColumnVisibility] = useState({});
     const [rowSelection, setRowSelection] = useState({});
+    const [textNoResults, setTextNoResults] = useState(jsxElement);
     const [userData, setUserData] = useState([]);
-    // deleteEmployee("eubtvH7jfzMstBsSLNAdWGKr1k03")
-    const getInfo = async () => {
-        // const { employees } = await Promise.all([getEmployees()]);
-        // const newUser = await createEmployee({
-        //     email: "khalid2@gmail.com",
-        //     emailVerified: true,
-        //     password: "123456",
-        // });
-        const employees = await getEmployees();
-        const newData = [];
-        await Promise.all(
-            employees.result?.users?.map(async (user) => {
-                const res = await getDocument("userData", user?.uid);
-                if (res.result !== null && res.result?.data() !== undefined) {
-                    if (user?.uid == res.result.id) {
-                        newData.push({
-                            ...user,
-                            id: res.result.id,
-                            ...res.result?.data(),
-                        });
-                    }
-                }
-            })
-        );
-        setUserData(newData);
-    };
-    useEffect(() => {
-        getInfo();
-    }, [userData]);
-    // console.log("userData", userData);
-    // setFirestoreData(newData);
-    const data = [
-        {
-            joiningDate: "29 July 2023",
-            department: "Mobile Development",
-            currentTasks: 7,
-            score: "78%",
-        },
-        {
-            clickupToken:
-                "62619802_c38ee019cfbde9c50f6ce93b06a5349de8547e17edef53a4594046ffa1290fa3",
-            disabled: false,
-            displayName: "amine",
-            email: "amine@gmail.com",
-            emailVerified: false,
-            githubRepo: "Neamitest/system-employee-evaluation",
-            githubToken: "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",
-            id: "EAdgDXuyaXZSwlsndN9WbrEXTgD2",
-        },
-    ];
 
+    useEffect(() => {
+        setTimeout(() => {
+            setTextNoResults(<>No Results!</>);
+        }, 10000);
+    }, []);
+
+    useEffect(() => {
+        const getData = async () => {
+            const newData = [];
+            const employees = await getEmployees();
+            await Promise.all(
+                employees.result?.users?.map(async (user) => {
+                    const res = await getDocument("userData", user?.uid);
+                    if (
+                        res.result !== null &&
+                        res.result?.data() !== undefined
+                    ) {
+                        if (user?.uid == res.result.id) {
+                            newData.push({
+                                ...user,
+                                joiningDate: new Date(
+                                    user?.metadata?.creationTime
+                                ).toLocaleDateString(),
+                                ...res.result?.data(),
+                            });
+                        }
+                    }
+                })
+            );
+            setUserData(newData);
+        };
+        getData();
+    }, []);
+    console.log(userData);
     const table = useReactTable({
-        data: data,
+        data: userData || [],
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -266,35 +252,36 @@ export default function manageEmployees() {
 
     return (
         <section className="flex justify-center">
-            <div className="w-full mt-32 lg:w-[84%] lg:ml-[76px] xl:w-[86%] xl:ml-[82px]  mx-3 px-4 bg-white rounded-lg">
-                <div className="flex flex-col sm:flex-row justify-center sm:justify-evenly flex-wrap items-center py-4">
-                    <div className=""></div>
+            <div className="w-[94%] mt-32 min-[426px]:w-[80%] min-[426px]:ml-[76px] sm:w-[80%] sm:ml-[84px] lg:w-[82%] lg:ml-[96px] mx-3 px-4 bg-white rounded-lg">
+                <div className="w-full flex p-4">
                     <Input
-                        placeholder="Filter emails..."
-                        value={table.getColumn("id")?.getFilterValue() ?? ""}
+                        placeholder="Filter Full Names..."
+                        value={
+                            table.getColumn("displayName")?.getFilterValue() ??
+                            ""
+                        }
                         onChange={(event) =>
                             table
-                                .getColumn("id")
+                                .getColumn("displayName")
                                 ?.setFilterValue(event.target.value)
                         }
-                        className="max-w-sm my-3 lg:mx-3"
+                        className="max-w-sm"
                     />
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="ml-auto">
-                                Columns <ChevronDown className=" h-4 w-4" />
+                                Columns <ChevronDown className="ml-2 h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             {table
                                 .getAllColumns()
                                 .filter((column) => column.getCanHide())
-                                .map((column, index) => {
+                                .map((column) => {
                                     return (
                                         <DropdownMenuCheckboxItem
-                                            // key={column.id}
-                                            key={index}
+                                            key={column.id}
                                             className="capitalize"
                                             checked={column.getIsVisible()}
                                             onCheckedChange={(value) =>
@@ -313,52 +300,39 @@ export default function manageEmployees() {
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map(
-                                        (header, index) => {
-                                            return (
-                                                <TableHead
-                                                    // key={header.id}
-                                                    key={index}
-                                                >
-                                                    {header.isPlaceholder
-                                                        ? null
-                                                        : flexRender(
-                                                              header.column
-                                                                  .columnDef
-                                                                  .header,
-                                                              header.getContext()
-                                                          )}
-                                                </TableHead>
-                                            );
-                                        }
-                                    )}
+                                    {headerGroup.headers.map((header) => {
+                                        return (
+                                            <TableHead key={header.id}>
+                                                {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(
+                                                          header.column
+                                                              .columnDef.header,
+                                                          header.getContext()
+                                                      )}
+                                            </TableHead>
+                                        );
+                                    })}
                                 </TableRow>
                             ))}
                         </TableHeader>
                         <TableBody>
                             {table.getRowModel().rows?.length ? (
-                                table.getRowModel().rows.map((row, index) => (
+                                table.getRowModel().rows.map((row) => (
                                     <TableRow
-                                        // key={row.id}
-                                        key={index}
+                                        key={row.id}
                                         data-state={
                                             row.getIsSelected() && "selected"
                                         }
                                     >
-                                        {row
-                                            .getVisibleCells()
-                                            .map((cell, index) => (
-                                                <TableCell
-                                                    key={index}
-                                                    // key={cell.id}
-                                                >
-                                                    {flexRender(
-                                                        cell.column.columnDef
-                                                            .cell,
-                                                        cell.getContext()
-                                                    )}
-                                                </TableCell>
-                                            ))}
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        ))}
                                     </TableRow>
                                 ))
                             ) : (
@@ -367,8 +341,7 @@ export default function manageEmployees() {
                                         colSpan={columns.length}
                                         className="h-24 text-center"
                                     >
-                                        {/* No results. */}
-                                        <Loading />
+                                        {textNoResults}
                                     </TableCell>
                                 </TableRow>
                             )}
