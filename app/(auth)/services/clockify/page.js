@@ -157,7 +157,9 @@ function ClockifyPage() {
                         />
                         <small className="text-[13px]">
                             You have to generate your API-KEY manually from
-                            https://app.clockify.me/user/settings
+                            <a href="https://app.clockify.me/user/settings" className="text-blue-700 px-3 font-bold">
+                              https://app.clockify.me/user/settings
+                            </a>
                         </small>
                     </div>
                     {/* <span className="text-green-600 text-[25px] font-semibold">Token is integrated</span> */}
