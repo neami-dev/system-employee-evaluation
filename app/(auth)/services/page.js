@@ -15,6 +15,10 @@ const IntegrationPage = () => {
     const [Clickup, setClickup] = useState(null)
     const [Github, setGithub] = useState(null)
     const [Clockify, setClockify] = useState(null)
+    
+     // Conditional for button visibility
+    const isAllIntegrated = Clickup && Github && Clockify;
+
 
     useEffect(() => {
         auth.onAuthStateChanged((user) => {
@@ -76,13 +80,15 @@ const IntegrationPage = () => {
                     <span>Clockify</span>
                 </button>
             </div>
-            <button onClick={() => route.push(
-                    `/employee/dashboard`
-                    )} 
-            className={`${Clickup&&Github&&Clockify ? "": "hidden"}flex justify-center gap-3 bg-blue-500 hover:bg-blue-700 text-white text-[19px] mt-[70px] w-[200px] font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out items-center space-x-2`}>
-                Dashboard 
-                <ArrowBigRightDash className="w-8 h-8" />
-            </button>
+            {isAllIntegrated && (
+                <button
+                onClick={() => route.push('/employee/dashboard')}
+                className="flex justify-center items-center gap-2 bg-blue-500 hover:bg-blue-700 text-white font-bold text-lg mt-8 w-48 py-2 px-4 rounded-lg shadow transition duration-300 ease-in-out"
+                >
+                Dashboard
+                <ArrowBigRightDash className="w-6 h-6" />
+                </button>
+            )}
         </div>
     }
     </>
