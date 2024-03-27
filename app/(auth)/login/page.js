@@ -59,7 +59,7 @@ export default function login() {
             setIsLoading(false); // Stop loading after auth attempt
         } else {
             console.log("Authentication successful: ", auth);
-            route.push("http://localhost:3000/auth-process");
+            route.push("http://localhost:3000/services");
             // route.push("/employee/profile");
         }
     };

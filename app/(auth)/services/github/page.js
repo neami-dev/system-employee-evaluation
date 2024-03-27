@@ -135,7 +135,7 @@ console.log(userData);
                               <DialogFooter>
                                 <DialogClose asChild>
                                   <Button type="button" onClick={() => console.log("repoSelected : ",repoSelected)}>
-                                    Save changes
+                                    Close
                                   </Button>
                                 </DialogClose>
                               </DialogFooter>

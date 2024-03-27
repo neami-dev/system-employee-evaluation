@@ -7,7 +7,7 @@ import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 import { setDoc } from "firebase/firestore";
 
 
-export async function SetTokenfirebaseGithub(id, githubToken) {
+export async function setApiKeyFirebaseClockify(id, clockifyApiKey) {
     try {
         if (id !== undefined) {
             console.log("id is good");
@@ -17,7 +17,7 @@ export async function SetTokenfirebaseGithub(id, githubToken) {
                 await updateDocumentA({
                     collectionName: "userData",
                     id: id,
-                    data: { githubToken: githubToken },
+                    data: { clockifyApiKey: clockifyApiKey },
                 });
                 console.log("OK");
                 return "OK";

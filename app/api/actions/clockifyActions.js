@@ -8,6 +8,22 @@ const api = axios.create({
 });
 
 // Example function to get user data from Clockify
+export const CheckApiKeyClockify = async (Key) => {
+    console.log("key:", Key);
+    try {
+        const response = await axios.get("https://api.clockify.me/api/v1/user", {
+            headers: { "X-Api-Key": Key },
+        });
+        // console.log("res:", response.data);
+        return true; // Assuming you want to return a boolean
+    } catch (error) {
+        console.error('Error fetching user data from Clockify:', error.message);
+        return false;
+    }
+};
+
+
+// Example function to get user data from Clockify
 export const getClockifyUserData = async () => {
   try {
     const response = await api.get('/user');

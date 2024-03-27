@@ -1,20 +1,25 @@
 "use client"
 import Loading from "@/components/component/Loading";
-import { GetTokenfirebaseClickup } from "@/dataManagement/firebaseClickup/GetTokenfirebaseClickup";
+import { GetTokenfirebaseClickup } from "@/dataManagement/firebaseWithClickup/GetTokenfirebaseClickup";
+import { GetApiKeyFirebaseClockify } from "@/dataManagement/firebaseWithClockify/GetApiKeyFirebaseClockify";
 import { GetTokenFirebaseGithub } from "@/dataManagement/firebaseWithGithub/GetTokenFIrebaseGithub";
 import { auth } from "@/firebase/firebase-config";
+import { ArrowBigRightDash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Button } from "react-day-picker";
 
 const IntegrationPage = () => {
     const route = useRouter();
     const [Clickup, setClickup] = useState(null)
     const [Github, setGithub] = useState(null)
+    const [Clockify, setClockify] = useState(null)
 
     useEffect(() => {
         auth.onAuthStateChanged((user) => {
             GetTokenfirebaseClickup(setClickup,user?.uid)
             GetTokenFirebaseGithub(setGithub,user?.uid)
+            GetApiKeyFirebaseClockify(setClockify,user?.uid)
         });
     
     }, [])
@@ -60,11 +65,21 @@ const IntegrationPage = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                     </svg>
                 </div>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out flex items-center space-x-2">
+                <button onClick={() => route.push(
+                    `/services/clockify`
+                    )} 
+                    className={`${Clockify ? "bg-green-500 hover:bg-green-700": "bg-blue-500 hover:bg-blue-700"} text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out flex items-center space-x-2`}>
                     <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     <span>Clockify</span>
                 </button>
             </div>
+            <button onClick={() => route.push(
+                    `/employee/dashboard`
+                    )} 
+            className={`${Clickup&&Github&&Clockify ? "": "hidden"}flex justify-center gap-3 bg-blue-500 hover:bg-blue-700 text-white text-[19px] mt-[70px] w-[200px] font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out flex items-center space-x-2`}>
+                Dashboard 
+                <ArrowBigRightDash className="w-8 h-8" />
+            </button>
         </div>
     }
     </>

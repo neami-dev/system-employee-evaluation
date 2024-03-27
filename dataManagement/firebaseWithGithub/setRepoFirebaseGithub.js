@@ -1,5 +1,5 @@
 "use server"
-import { getTotalCommitsForToday } from "@/app/api/actions/githubActions";
+// import { getTotalCommitsForToday } from "@/app/api/actions/githubActions";
 import addDocumentById from "@/firebase/firestore/addDocumentById";
 import getDocument from "@/firebase/firestore/getDocument";
 import updateDocument from "@/firebase/firestore/updateDocument";

@@ -7,7 +7,7 @@ import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 import { setDoc } from "firebase/firestore";
 
 
-export async function SetTokenfirebaseGithub(id, githubToken) {
+export async function SetWorkSpaceIdfirebaseClockify(ClockifyWorkspace,id) {
     try {
         if (id !== undefined) {
             console.log("id is good");
@@ -17,10 +17,10 @@ export async function SetTokenfirebaseGithub(id, githubToken) {
                 await updateDocumentA({
                     collectionName: "userData",
                     id: id,
-                    data: { githubToken: githubToken },
+                    data: { ClockifyWorkspace: ClockifyWorkspace },
                 });
                 console.log("OK");
-                return "OK";
+                return {status : "OK"};
             } catch (err) {
                 console.log("error : ", err.message);
                 return "FAILED"; // Returning "FAILED" if an error occurs
