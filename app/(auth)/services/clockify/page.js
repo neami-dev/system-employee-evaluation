@@ -157,7 +157,7 @@ function ClockifyPage() {
                         />
                         <small className="text-[13px]">
                             You have to generate your API-KEY manually from
-                            <a href="https://app.clockify.me/user/settings" className="text-blue-700 px-3 font-bold">
+                            <a href="https://app.clockify.me/user/settings" className="text-blue-700 px-3 font-bold" target="_blank" >
                               https://app.clockify.me/user/settings
                             </a>
                         </small>
