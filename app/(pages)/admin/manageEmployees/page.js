@@ -13,7 +13,13 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash2 } from "lucide-react";
+import {
+    ArrowUpDown,
+    ChevronDown,
+    Copy,
+    MoreHorizontal,
+    Trash2,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,6 +41,17 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { useEffect } from "react";
 import { getEmployees } from "@/firebase/firebase-admin/getEmployees";
@@ -162,14 +179,48 @@ export const columns = [
                                     navigator.clipboard.writeText(employee.id)
                                 }
                             >
-                                Copy ID
+                                <div className="flex cursor-pointer">
+                                    <Copy className="mr-2" size={18} />
+                                    Copy ID
+                                </div>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
+                            <div>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <div className=" flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-[#f2f3f2]  ">
+                                            <Trash2
+                                                className="mr-2"
+                                                size={18}
+                                            />
+                                            Delete
+                                        </div>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>
+                                                Are you absolutely sure?
+                                            </AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This action cannot be undone.
+                                                This will permanently delete
+                                                your account and remove your
+                                                data from our servers.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>
+                                                Cancel
+                                            </AlertDialogCancel>
+                                            <AlertDialogAction>
+                                                Continue
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
                             <DropdownMenuItem>View details</DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Trash2 className="mr-2" size={18} />
-                                Delete
-                            </DropdownMenuItem>
+                            <DropdownMenuItem></DropdownMenuItem>
                             <DropdownMenuItem>View customer</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -230,6 +281,7 @@ export default function DataTableDemo() {
         };
         getData();
     }, []);
+
     console.log(userData);
     const table = useReactTable({
         data: userData || [],

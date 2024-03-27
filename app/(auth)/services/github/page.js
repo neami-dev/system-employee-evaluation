@@ -164,17 +164,9 @@ function GithubPage() {
                             </div>
                             <DialogFooter>
                                 <DialogClose asChild>
-                                    <Button
-                                        type="button"
-                                        onClick={() =>
-                                            console.log(
-                                                "repoSelected : ",
-                                                repoSelected
-                                            )
-                                        }
-                                    >
-                                        Save changes
-                                    </Button>
+                                  <Button type="button" onClick={() => console.log("repoSelected : ",repoSelected)}>
+                                    Close
+                                  </Button>
                                 </DialogClose>
                             </DialogFooter>
                         </DialogContent>

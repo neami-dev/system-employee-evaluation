@@ -71,7 +71,7 @@ export default function Menu() {
                                 : "text-[#A3AED0]"
                         }`}
                     >
-                        <Select className=" ">
+                        <Select>
                             <SelectTrigger className=" border-none w-6 hover:outline-none ">
                                 {pathname ==("/employee/dashboard" && "/admin/dashboard") && JSXspan}
 
