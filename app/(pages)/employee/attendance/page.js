@@ -46,28 +46,27 @@ import {
 } from "@/app/api/actions/clockifyActions";
 import Loading from "@/components/component/Loading";
 
-
 function parseTimeToMinutes(timeString) {
-    if (typeof timeString !== 'string') {
+    if (typeof timeString !== "string") {
         // console.error('parseTime expects a string input, got:', typeof timeString);
         return 0; // Or handle this case as appropriate for your application
-      }
-    
-      // Attempt to extract the time and period parts from the input string
-      const parts = timeString.split(' ');
-      if (parts.length < 2) {
+    }
+
+    // Attempt to extract the time and period parts from the input string
+    const parts = timeString.split(" ");
+    if (parts.length < 2) {
         // console.error('parseTime received an incorrectly formatted string:', timeString);
         return 0; // Or handle this case as appropriate for your application
-      }
-    
-      let [time, period] = parts;
-      let [hours, minutes] = time.split(':').map(Number);
-    
-      // Adjust hours based on the period
-      if (period && period.toLowerCase() === 'pm' && hours < 12) hours += 12;
-      if (period && period.toLowerCase() === 'am' && hours === 12) hours = 0;
-    
-      return hours * 60 + minutes; // Return the total minutes    
+    }
+
+    let [time, period] = parts;
+    let [hours, minutes] = time.split(":").map(Number);
+
+    // Adjust hours based on the period
+    if (period && period.toLowerCase() === "pm" && hours < 12) hours += 12;
+    if (period && period.toLowerCase() === "am" && hours === 12) hours = 0;
+
+    return hours * 60 + minutes; // Return the total minutes
 }
 function calculateWorkHoursMessage(checkInTime, checkOutTime) {
     // Check if either check-in or check-out time is "---"
@@ -75,18 +74,19 @@ function calculateWorkHoursMessage(checkInTime, checkOutTime) {
         return "Absent";
     }
     // Calculate the duration in minutes
-    const durationMinutes = parseTimeToMinutes(checkOutTime) - parseTimeToMinutes(checkInTime);
+    const durationMinutes =
+        parseTimeToMinutes(checkOutTime) - parseTimeToMinutes(checkInTime);
 
     // Convert duration to hours
     const durationHours = durationMinutes / 60;
 
     // Determine the message based on the duration
     if (durationHours > 8) {
-        return 'Excellent work';
+        return "Excellent work";
     } else if (durationHours === 8) {
-        return 'Well done';
+        return "Well done";
     } else {
-        return 'Not completed';
+        return "Not completed";
     }
 }
 
@@ -97,12 +97,12 @@ function calculateAndFormatTimeDifference(checkIn, checkOut) {
     }
 
     // Calculate the difference in minutes
-    const differenceInMinutes = parseTimeToMinutes(checkOut) - parseTimeToMinutes(checkIn);
+    const differenceInMinutes =
+        parseTimeToMinutes(checkOut) - parseTimeToMinutes(checkIn);
 
     // Format and return the difference
     return formatDurationToHoursMinutes(differenceInMinutes);
 }
-
 
 function formatDurationToHoursMinutes(totalMinutes) {
     const hours = Math.floor(totalMinutes / 60);
@@ -111,25 +111,28 @@ function formatDurationToHoursMinutes(totalMinutes) {
 }
 
 function formatTime(timeString) {
-    if (typeof timeString !== 'string') {
-        console.error('formatTime expects a string input, got:', typeof timeString);
-        return ''; // Or return a default string, or handle the error as appropriate
+    if (typeof timeString !== "string") {
+        console.error(
+            "formatTime expects a string input, got:",
+            typeof timeString
+        );
+        return ""; // Or return a default string, or handle the error as appropriate
     }
     // Split the time and the period (am/pm)
-    const [time, period] = timeString.split(' ');
-  
+    const [time, period] = timeString.split(" ");
+
     // Split the time into hours, minutes, and seconds
-    const [hours, minutes, seconds] = time.split(':');
-  
+    const [hours, minutes, seconds] = time.split(":");
+
     // Reassemble the string in the desired format
     const formattedTime = `${hours}h : ${minutes}m : ${seconds}s ${period}`;
-  
-    return formattedTime;
-  }
 
-  function getDayName(dateString) {
+    return formattedTime;
+}
+
+function getDayName(dateString) {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { weekday: 'long' });
+    return date.toLocaleDateString("en-US", { weekday: "long" });
 }
 
 export const columns = [
@@ -174,20 +177,23 @@ export const columns = [
     // },
     {
         accessorKey: "date",
-        header: ({column}) => <div 
-                    className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
-                    variant="ghost"
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }>date
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </div>,
+        header: ({ column }) => (
+            <div
+                className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
+                variant="ghost"
+                onClick={() =>
+                    column.toggleSorting(column.getIsSorted() === "asc")
+                }
+            >
+                date
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+            </div>
+        ),
         cell: ({ row }) => {
             return (
                 <>
                     <div className="capitalize text-center ">
                         {row.getValue("date")}
-
                     </div>
                 </>
             );
@@ -199,9 +205,7 @@ export const columns = [
         cell: ({ row }) => {
             return (
                 <>
-                <div className="justify-center">
-
-                </div>
+                    <div className="justify-center"></div>
                     <div className="capitalize w-[40px] text-left ">
                         {getDayName(row.getValue("date"))}
                     </div>
@@ -226,7 +230,11 @@ export const columns = [
             );
         },
         cell: ({ row }) => (
-            <div className="lowercase text-center">{row.getValue("checkIn") !== "---"?formatTime(row.getValue("checkIn")):"---"}</div>
+            <div className="lowercase text-center">
+                {row.getValue("checkIn") !== "---"
+                    ? formatTime(row.getValue("checkIn"))
+                    : "---"}
+            </div>
         ),
     },
     {
@@ -246,7 +254,11 @@ export const columns = [
             );
         },
         cell: ({ row }) => (
-            <div className="lowercase text-center">{row.getValue("checkOut") !== "---"?formatTime(row.getValue("checkOut")):"---"}</div>
+            <div className="lowercase text-center">
+                {row.getValue("checkOut") !== "---"
+                    ? formatTime(row.getValue("checkOut"))
+                    : "---"}
+            </div>
         ),
     },
     {
@@ -266,11 +278,12 @@ export const columns = [
             );
         },
         cell: ({ row }) => (
-            <div className="lowercase text-center">{calculateAndFormatTimeDifference(
-                row.getValue("checkIn"), 
-                row.getValue("checkOut")
-            )
-            }</div>
+            <div className="lowercase text-center">
+                {calculateAndFormatTimeDifference(
+                    row.getValue("checkIn"),
+                    row.getValue("checkOut")
+                )}
+            </div>
         ),
     },
     {
@@ -279,35 +292,45 @@ export const columns = [
         cell: ({ row }) => {
             return (
                 <>
-                    {calculateWorkHoursMessage(row.getValue("checkIn"),row.getValue("checkOut")) == "Excellent work" && (
+                    {calculateWorkHoursMessage(
+                        row.getValue("checkIn"),
+                        row.getValue("checkOut")
+                    ) == "Excellent work" && (
                         <div className="capitalize text-center text-white font-bold bg-green-500 rounded-lg p-2 ">
                             Excellent work
                         </div>
                     )}
 
-                    {calculateWorkHoursMessage(row.getValue("checkIn"),row.getValue("checkOut")) == "Well done" && (
+                    {calculateWorkHoursMessage(
+                        row.getValue("checkIn"),
+                        row.getValue("checkOut")
+                    ) == "Well done" && (
                         <div className="capitalize text-center text-white font-bold bg-green-500 rounded-lg p-2 ">
                             Well done
                         </div>
                     )}
-                    {calculateWorkHoursMessage(row.getValue("checkIn"),row.getValue("checkOut")) == "Not completed" && (
+                    {calculateWorkHoursMessage(
+                        row.getValue("checkIn"),
+                        row.getValue("checkOut")
+                    ) == "Not completed" && (
                         <div className="capitalize text-center font-bold text-red-700 bg-red-200 rounded-lg p-2 ">
                             Not completed
                         </div>
-                        
                     )}
-                    {calculateWorkHoursMessage(row.getValue("checkIn"),row.getValue("checkOut")) == "Absent" && (
+                    {calculateWorkHoursMessage(
+                        row.getValue("checkIn"),
+                        row.getValue("checkOut")
+                    ) == "Absent" && (
                         <div className="capitalize text-center font-bold text-red-700 bg-red-200 rounded-lg p-2 ">
                             Absent
                         </div>
-                        
                     )}
                     {
-                    // row.getValue("status") == "late arrival" && (
-                    //     <div className="capitalize text-center text-[#D5B500] bg-[#e9e5dc] rounded-lg p-2 ">
-                    //         {/* {row.getValue("status")} */}
-                    //     </div>
-                    // )
+                        // row.getValue("status") == "late arrival" && (
+                        //     <div className="capitalize text-center text-[#D5B500] bg-[#e9e5dc] rounded-lg p-2 ">
+                        //         {/* {row.getValue("status")} */}
+                        //     </div>
+                        // )
                     }
                 </>
             );

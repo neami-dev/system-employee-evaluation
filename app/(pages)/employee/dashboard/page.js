@@ -26,6 +26,7 @@ import BarChart from "@/components/component/barChart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { firebaseWithGithub } from "@/dataManagement/firebaseWithGithub/GetCommitsFirebaseWithGithub";
 import { GetUserIdfirebaseClockify } from "@/dataManagement/firebaseWithClockify";
+ 
 
 export default function page() {
     const [tasksCompleted, setTasksCompleted] = useState([]);

@@ -7,7 +7,7 @@ export default async function getDocument(collectionName, id) {
    
   const docRef = doc(db, collectionName, id);
    
-  let result = null ,error = null;
+  let result ,error = null;
 
   try {
    
