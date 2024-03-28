@@ -58,6 +58,8 @@ import { getEmployees } from "@/firebase/firebase-admin/getEmployees";
 import getDocument from "@/firebase/firestore/getDocument";
 import { Skeleton } from "@/components/ui/skeleton";
 import { deleteEmployee } from "@/firebase/firebase-admin/deleteEmployee";
+import { test } from "@/firebase/firebase-admin/test";
+import { auth } from "@/firebase/firebase-config";
 
 export const columns = [
     {
@@ -205,8 +207,8 @@ export const columns = [
                                             <AlertDialogDescription>
                                                 This action cannot be undone.
                                                 This will permanently delete
-                                                your account and remove your
-                                                data from our servers.
+                                                account and remove data from our
+                                                servers.
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
@@ -218,7 +220,7 @@ export const columns = [
                                                 onClick={() => {
                                                     deleteEmployee(
                                                         employee.uid
-                                                    ); 
+                                                    );
                                                 }}
                                             >
                                                 Continue
@@ -257,6 +259,10 @@ export default function DataTableDemo() {
     const [userData, setUserData] = useState([]);
 
     useEffect(() => {
+       console.log( auth.onAuthStateChanged((i)=>{
+        console.log(i);
+       }));
+        test()
         setTimeout(() => {
             setTextNoResults(<>No Results!</>);
         }, 10000);
