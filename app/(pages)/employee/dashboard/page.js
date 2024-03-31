@@ -77,12 +77,29 @@ export default function page() {
     };
     // get last commits from github
     useEffect(() => {
-        auth.onAuthStateChanged((user) => {
-            firebaseWithGithub(setCommits, user?.uid);
-
-            GetUserIdfirebaseClockify(user?.uid);
+        // This variable will be true if the component is mounted and false if it has been unmounted
+        let isComponentMounted = true;
+      
+        // Refactor firebaseWithGithub to return a cleanup function that clears the interval
+        const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+          if (isComponentMounted && user) {
+            // You will need to adjust firebaseWithGithub to manage and clear the interval properly
+            const cleanupFirebaseWithGithub = firebaseWithGithub(setCommits, user.uid);
+            GetUserIdfirebaseClockify(user.uid);
+            
+            // If cleanup function is returned by firebaseWithGithub, call it in the cleanup of useEffect
+            return cleanupFirebaseWithGithub;
+          }
         });
-    }, []);
+    
+        // Return a cleanup function from the useEffect
+        return () => {
+          isComponentMounted = false; // Set the flag to false when the component unmounts
+          unsubscribeAuth(); // Unsubscribe from auth state changes when the component unmounts
+          // If you have other subscriptions or intervals, clear them here
+        };
+      }, []);
+      
     // useEffect(() => {
     //     console.log("commits : ",commits);
     //     console.log("oldCommits : ",oldCommits);
