@@ -10,7 +10,8 @@ export default async function addDocumentById({ collectionName, id, data }) {
 
         result = await setDoc(ref, data);
     } catch (e) {
-        error = e;
+        error = e?.message || "Error adding by id";
+
     }
 
     return { result, error };

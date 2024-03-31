@@ -11,7 +11,7 @@ export default async function updateDocument({ collectionName, id, data }) {
         result = await updateDoc(ref, data);
 
     } catch (e) {
-        error = e;
+        error = e?.message || "Error updating";
     }
 
     return { result, error };

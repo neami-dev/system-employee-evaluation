@@ -26,6 +26,7 @@ import BarChart from "@/components/component/barChart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { firebaseWithGithub } from "@/dataManagement/firebaseGithub/GetCommitsFirebaseWithGithub";
 import { GetUserIdfirebaseClockify } from "@/dataManagement/firebaseClockify/firebaseWithClockify";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function page() {
     const [tasksCompleted, setTasksCompleted] = useState([]);
@@ -34,11 +35,26 @@ export default function page() {
     const [allTasks, setAllTasks] = useState([]);
     const [tasksOnHold, setTasksOnHold] = useState([]);
     const [commits, setCommits] = useState(undefined);
+    const [isLogged, setIsLogged] = useState(false);
     // const [oldCommits, setOldCommits] = useState(undefined);
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
         useState({});
     const route = useRouter();
 
+
+     // get last commits from github and check is logged
+     useEffect(() => {
+        onAuthStateChanged(auth,(user) => {
+            if (user) {
+                setIsLogged(true);
+                firebaseWithGithub(setCommits, user?.uid);
+                GetUserIdfirebaseClockify(user?.uid);
+            }else{
+                route.push("/login")
+            }
+
+        });
+    }, []);
     // get info the user score department ...
     const getInfo = async () => {
         // function to get information from clickUp
@@ -75,31 +91,7 @@ export default function page() {
             await getTimeTrackedByEmployeeToday(ClockifyUserData?.id, id2);
         setTimeTrackedByEmployeeToday(resTimeTrackedByEmployeeToday);
     };
-    // get last commits from github
-    useEffect(() => {
-        // This variable will be true if the component is mounted and false if it has been unmounted
-        let isComponentMounted = true;
-      
-        // Refactor firebaseWithGithub to return a cleanup function that clears the interval
-        const unsubscribeAuth = auth.onAuthStateChanged((user) => {
-          if (isComponentMounted && user) {
-            // You will need to adjust firebaseWithGithub to manage and clear the interval properly
-            const cleanupFirebaseWithGithub = firebaseWithGithub(setCommits, user.uid);
-            GetUserIdfirebaseClockify(user.uid);
-            
-            // If cleanup function is returned by firebaseWithGithub, call it in the cleanup of useEffect
-            return cleanupFirebaseWithGithub;
-          }
-        });
-    
-        // Return a cleanup function from the useEffect
-        return () => {
-          isComponentMounted = false; // Set the flag to false when the component unmounts
-          unsubscribeAuth(); // Unsubscribe from auth state changes when the component unmounts
-          // If you have other subscriptions or intervals, clear them here
-        };
-      }, []);
-      
+   
     // useEffect(() => {
     //     console.log("commits : ",commits);
     //     console.log("oldCommits : ",oldCommits);
@@ -178,263 +170,266 @@ export default function page() {
     };
     const itemStyle =
         "bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ";
-    return (
-        <>
-            <section className=" grid justify-center w-full mx-auto pt-32">
-                <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:ml-[80px] lg:grid-cols-3 xl:grid-cols-4 ">
-                    <li className="w-[260px] md:row-span-2 lg:row-span-3 xl:row-span-2">
-                        <Weather />
-                    </li>
-                    <li className={`${itemStyle} `}>
-                        {allTasks?.length > 0 ? (
-                            <>
-                                <div className="w-[65px]">
-                                    <ChangingProgressProvider
-                                        values={[
-                                            0,
-                                            progressPercentageTask()
-                                                .tasksCompleted,
-                                        ]}
-                                    >
-                                        {(percentage) => (
-                                            <CircularProgressbar
-                                                value={percentage}
-                                                text={`${tasksCompleted?.length}/${allTasks?.length}`}
-                                                styles={buildStyles({
-                                                    pathTransition:
-                                                        percentage === 0
-                                                            ? "none"
-                                                            : "stroke-dashoffset 0.5s ease 0s",
-                                                    pathColor: "#3354F4",
-                                                })}
-                                            />
-                                        )}
-                                    </ChangingProgressProvider>
-                                </div>
-                                <p>Tasks Completed</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center">
-                                <Skeleton className="h-16 w-16 rounded-full mr-1" />
-                                <div className="">
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
-                                </div>
-                            </div>
-                        )}
-                    </li>
-                    <li className={`${itemStyle}`}>
-                        {allTasks?.length > 0 ? (
-                            <>
-                                <div className="w-[65px]">
-                                    <ChangingProgressProvider
-                                        values={[
-                                            0,
-                                            progressPercentageTask()
-                                                .tasksInProgress,
-                                        ]}
-                                    >
-                                        {(percentage) => (
-                                            <CircularProgressbar
-                                                value={percentage}
-                                                text={`${tasksInProgress?.length}/${allTasks?.length}`}
-                                                styles={buildStyles({
-                                                    pathTransition:
-                                                        percentage === 0
-                                                            ? "none"
-                                                            : "stroke-dashoffset 0.5s ease 0s",
-                                                    pathColor: "#3354F4",
-                                                })}
-                                            />
-                                        )}
-                                    </ChangingProgressProvider>
-                                </div>
-                                <p> Tasks in Progress</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center">
-                                <Skeleton className="h-16 w-16 rounded-full mr-1" />
-                                <div className="">
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
-                                </div>
-                            </div>
-                        )}
-                    </li>
-                    <li className={`${itemStyle}`}>
-                        {allTasks?.length > 0 ? (
-                            <>
-                                <div className="w-[65px]">
-                                    <ChangingProgressProvider
-                                        values={[
-                                            0,
-                                            progressPercentageTask()
-                                                .tasksOnHold,
-                                        ]}
-                                    >
-                                        {(percentage) => (
-                                            <CircularProgressbar
-                                                value={percentage}
-                                                responseTasksOnHold
-                                                text={`${tasksOnHold?.length}/${allTasks?.length}`}
-                                                styles={buildStyles({
-                                                    pathTransition:
-                                                        percentage === 0
-                                                            ? "none"
-                                                            : "stroke-dashoffset 0.5s ease 0s",
-                                                    pathColor: "#3354F4",
-                                                })}
-                                            />
-                                        )}
-                                    </ChangingProgressProvider>
-                                </div>
-                                <p> Tasks On Hold</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center">
-                                <Skeleton className="h-16 w-16 rounded-full mr-1" />
-                                <div className="">
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
-                                </div>
-                            </div>
-                        )}
-                    </li>
-                    <li className={`${itemStyle}`}>
-                        {allTasks?.length > 0 ? (
-                            <>
-                                <div className="w-[65px]">
-                                    <ChangingProgressProvider
-                                        values={[
-                                            0,
-                                            progressPercentageTask()
-                                                .tasksPending,
-                                        ]}
-                                    >
-                                        {(percentage) => (
-                                            <CircularProgressbar
-                                                value={percentage}
-                                                text={`${tasksPending.length}/${allTasks?.length}`}
-                                                styles={buildStyles({
-                                                    pathTransition:
-                                                        percentage === 0
-                                                            ? "none"
-                                                            : "stroke-dashoffset 0.5s ease 0s",
-                                                    pathColor: "#3354F4",
-                                                })}
-                                            />
-                                        )}
-                                    </ChangingProgressProvider>
-                                </div>
-                                <p> tasks Pending</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center">
-                                <Skeleton className="h-16 w-16 rounded-full mr-1" />
-                                <div className="">
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
-                                </div>
-                            </div>
-                        )}
-                    </li>
-                    <li className={`${itemStyle}`}>
-                        {timeTrackedByEmployeeToday?.hours !== undefined ? (
-                            <>
-                                <div className="w-[65px]">
-                                    <ChangingProgressProvider
-                                        values={[
-                                            0,
-                                            progressPercentageTimeWork(),
-                                        ]}
-                                    >
-                                        {(percentage) => (
-                                            <CircularProgressbar
-                                                value={percentage}
-                                                text={`${timeTrackedByEmployeeToday?.hours}/8H`}
-                                                styles={buildStyles({
-                                                    pathTransition:
-                                                        percentage === 0
-                                                            ? "none"
-                                                            : "stroke-dashoffset 0.5s ease 0s",
-                                                    pathColor: "#3354F4",
-                                                })}
-                                            />
-                                        )}
-                                    </ChangingProgressProvider>
-                                </div>
-                                <p> Work Time</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center">
-                                <Skeleton className="h-16 w-16 rounded-full mr-1" />
-                                <div className="">
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
-                                </div>
-                            </div>
-                        )}
-                    </li>
-                    <li className={`${itemStyle}`}>
-                        {commits !== undefined ? (
-                            <>
-                                <div className="w-[65px]">
-                                    <ChangingProgressProvider
-                                        values={[
-                                            0,
-                                            progressPercentageCommits(),
-                                        ]}
-                                    >
-                                        {(percentage) => (
-                                            <CircularProgressbar
-                                                value={percentage}
-                                                text={`${commits}/3`}
-                                                styles={buildStyles({
-                                                    pathTransition:
-                                                        percentage === 0
-                                                            ? "none"
-                                                            : "stroke-dashoffset 0.5s ease 0s",
-                                                    pathColor: "#3354F4",
-                                                })}
-                                            />
-                                        )}
-                                    </ChangingProgressProvider>
-                                </div>
-                                <p>Commits</p>
-                            </>
-                        ) : (
-                            <div className="flex items-center">
-                                <Skeleton className="h-16 w-16 rounded-full mr-1" />
-                                <div className="">
-                                    <Skeleton className="h-3 w-[120px] mt-2" />
-                                </div>
-                            </div>
-                        )}
-                    </li>
-                </ul>
-            </section>
-            <section>
-                <div className="flex w-full flex-wrap gap-4 lg:w-[86%] lg:ml-[106px] xl:w-[90%]  mt-8 xl:px-8">
-                    <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[52%]  xl:w-[56%] mx-auto h-[350px] p-3  bg-white rounded-lg">
-                        <ul className="flex justify-between items-center ">
-                            <li>General performance</li>
-                            <li></li>
-                            <li> </li>
-
-                            <li>
-                                <AlignCenter className=" cursor-pointer text-slate-700" />
+        if (isLogged) {
+            return (
+                <>
+                    <section className=" grid justify-center w-full mx-auto pt-32">
+                        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:ml-[80px] lg:grid-cols-3 xl:grid-cols-4 ">
+                            <li className="w-[260px] md:row-span-2 lg:row-span-3 xl:row-span-2">
+                                <Weather />
+                            </li>
+                            <li className={`${itemStyle} `}>
+                                {allTasks?.length > 0 ? (
+                                    <>
+                                        <div className="w-[65px]">
+                                            <ChangingProgressProvider
+                                                values={[
+                                                    0,
+                                                    progressPercentageTask()
+                                                        .tasksCompleted,
+                                                ]}
+                                            >
+                                                {(percentage) => (
+                                                    <CircularProgressbar
+                                                        value={percentage}
+                                                        text={`${tasksCompleted?.length}/${allTasks?.length}`}
+                                                        styles={buildStyles({
+                                                            pathTransition:
+                                                                percentage === 0
+                                                                    ? "none"
+                                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                                            pathColor: "#3354F4",
+                                                        })}
+                                                    />
+                                                )}
+                                            </ChangingProgressProvider>
+                                        </div>
+                                        <p>Tasks Completed</p>
+                                    </>
+                                ) : (
+                                    <div className="flex items-center">
+                                        <Skeleton className="h-16 w-16 rounded-full mr-1" />
+                                        <div className="">
+                                            <Skeleton className="h-3 w-[120px] mt-2" />
+                                        </div>
+                                    </div>
+                                )}
+                            </li>
+                            <li className={`${itemStyle}`}>
+                                {allTasks?.length > 0 ? (
+                                    <>
+                                        <div className="w-[65px]">
+                                            <ChangingProgressProvider
+                                                values={[
+                                                    0,
+                                                    progressPercentageTask()
+                                                        .tasksInProgress,
+                                                ]}
+                                            >
+                                                {(percentage) => (
+                                                    <CircularProgressbar
+                                                        value={percentage}
+                                                        text={`${tasksInProgress?.length}/${allTasks?.length}`}
+                                                        styles={buildStyles({
+                                                            pathTransition:
+                                                                percentage === 0
+                                                                    ? "none"
+                                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                                            pathColor: "#3354F4",
+                                                        })}
+                                                    />
+                                                )}
+                                            </ChangingProgressProvider>
+                                        </div>
+                                        <p> Tasks in Progress</p>
+                                    </>
+                                ) : (
+                                    <div className="flex items-center">
+                                        <Skeleton className="h-16 w-16 rounded-full mr-1" />
+                                        <div className="">
+                                            <Skeleton className="h-3 w-[120px] mt-2" />
+                                        </div>
+                                    </div>
+                                )}
+                            </li>
+                            <li className={`${itemStyle}`}>
+                                {allTasks?.length > 0 ? (
+                                    <>
+                                        <div className="w-[65px]">
+                                            <ChangingProgressProvider
+                                                values={[
+                                                    0,
+                                                    progressPercentageTask()
+                                                        .tasksOnHold,
+                                                ]}
+                                            >
+                                                {(percentage) => (
+                                                    <CircularProgressbar
+                                                        value={percentage}
+                                                        responseTasksOnHold
+                                                        text={`${tasksOnHold?.length}/${allTasks?.length}`}
+                                                        styles={buildStyles({
+                                                            pathTransition:
+                                                                percentage === 0
+                                                                    ? "none"
+                                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                                            pathColor: "#3354F4",
+                                                        })}
+                                                    />
+                                                )}
+                                            </ChangingProgressProvider>
+                                        </div>
+                                        <p> Tasks On Hold</p>
+                                    </>
+                                ) : (
+                                    <div className="flex items-center">
+                                        <Skeleton className="h-16 w-16 rounded-full mr-1" />
+                                        <div className="">
+                                            <Skeleton className="h-3 w-[120px] mt-2" />
+                                        </div>
+                                    </div>
+                                )}
+                            </li>
+                            <li className={`${itemStyle}`}>
+                                {allTasks?.length > 0 ? (
+                                    <>
+                                        <div className="w-[65px]">
+                                            <ChangingProgressProvider
+                                                values={[
+                                                    0,
+                                                    progressPercentageTask()
+                                                        .tasksPending,
+                                                ]}
+                                            >
+                                                {(percentage) => (
+                                                    <CircularProgressbar
+                                                        value={percentage}
+                                                        text={`${tasksPending.length}/${allTasks?.length}`}
+                                                        styles={buildStyles({
+                                                            pathTransition:
+                                                                percentage === 0
+                                                                    ? "none"
+                                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                                            pathColor: "#3354F4",
+                                                        })}
+                                                    />
+                                                )}
+                                            </ChangingProgressProvider>
+                                        </div>
+                                        <p> tasks Pending</p>
+                                    </>
+                                ) : (
+                                    <div className="flex items-center">
+                                        <Skeleton className="h-16 w-16 rounded-full mr-1" />
+                                        <div className="">
+                                            <Skeleton className="h-3 w-[120px] mt-2" />
+                                        </div>
+                                    </div>
+                                )}
+                            </li>
+                            <li className={`${itemStyle}`}>
+                                {timeTrackedByEmployeeToday?.hours !== undefined ? (
+                                    <>
+                                        <div className="w-[65px]">
+                                            <ChangingProgressProvider
+                                                values={[
+                                                    0,
+                                                    progressPercentageTimeWork(),
+                                                ]}
+                                            >
+                                                {(percentage) => (
+                                                    <CircularProgressbar
+                                                        value={percentage}
+                                                        text={`${timeTrackedByEmployeeToday?.hours}/8H`}
+                                                        styles={buildStyles({
+                                                            pathTransition:
+                                                                percentage === 0
+                                                                    ? "none"
+                                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                                            pathColor: "#3354F4",
+                                                        })}
+                                                    />
+                                                )}
+                                            </ChangingProgressProvider>
+                                        </div>
+                                        <p> Work Time</p>
+                                    </>
+                                ) : (
+                                    <div className="flex items-center">
+                                        <Skeleton className="h-16 w-16 rounded-full mr-1" />
+                                        <div className="">
+                                            <Skeleton className="h-3 w-[120px] mt-2" />
+                                        </div>
+                                    </div>
+                                )}
+                            </li>
+                            <li className={`${itemStyle}`}>
+                                {commits !== undefined ? (
+                                    <>
+                                        <div className="w-[65px]">
+                                            <ChangingProgressProvider
+                                                values={[
+                                                    0,
+                                                    progressPercentageCommits(),
+                                                ]}
+                                            >
+                                                {(percentage) => (
+                                                    <CircularProgressbar
+                                                        value={percentage}
+                                                        text={`${commits}/3`}
+                                                        styles={buildStyles({
+                                                            pathTransition:
+                                                                percentage === 0
+                                                                    ? "none"
+                                                                    : "stroke-dashoffset 0.5s ease 0s",
+                                                            pathColor: "#3354F4",
+                                                        })}
+                                                    />
+                                                )}
+                                            </ChangingProgressProvider>
+                                        </div>
+                                        <p>Commits</p>
+                                    </>
+                                ) : (
+                                    <div className="flex items-center">
+                                        <Skeleton className="h-16 w-16 rounded-full mr-1" />
+                                        <div className="">
+                                            <Skeleton className="h-3 w-[120px] mt-2" />
+                                        </div>
+                                    </div>
+                                )}
                             </li>
                         </ul>
-
-                        <CurvedlineChart data={dataChart} />
-                    </div>
-
-                    <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[42%]   mx-auto xl:w-[40%] h-[350px] p-3 bg-white rounded-lg">
-                        <ul className="flex justify-between items-center">
-                            <li>Statistics</li>
-                            <li>
-                                <AlignCenter className=" cursor-pointer text-slate-700" />
-                            </li>
-                        </ul>
-                        <BarChart data={chartBarData} />
-                    </div>
-                </div>
-            </section>
-        </>
-    );
+                    </section>
+                    <section>
+                        <div className="flex w-full flex-wrap gap-4 lg:w-[86%] lg:ml-[106px] xl:w-[90%]  mt-8 xl:px-8">
+                            <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[52%]  xl:w-[56%] mx-auto h-[350px] p-3  bg-white rounded-lg">
+                                <ul className="flex justify-between items-center ">
+                                    <li>General performance</li>
+                                    <li></li>
+                                    <li> </li>
+        
+                                    <li>
+                                        <AlignCenter className=" cursor-pointer text-slate-700" />
+                                    </li>
+                                </ul>
+        
+                                <CurvedlineChart data={dataChart} />
+                            </div>
+        
+                            <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[42%]   mx-auto xl:w-[40%] h-[350px] p-3 bg-white rounded-lg">
+                                <ul className="flex justify-between items-center">
+                                    <li>Statistics</li>
+                                    <li>
+                                        <AlignCenter className=" cursor-pointer text-slate-700" />
+                                    </li>
+                                </ul>
+                                <BarChart data={chartBarData} />
+                            </div>
+                        </div>
+                    </section>
+                </>
+            );
+        }
+    
 }

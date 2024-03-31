@@ -9,7 +9,7 @@ import {
     deleteDoc,
     doc,
 } from "firebase/firestore";
-import { usersCollectionRef } from "../firebase/firebase-config";
+
 import { redirect } from "next/navigation";
 export default function Home() {
     const [newName, setNewName] = useState("");

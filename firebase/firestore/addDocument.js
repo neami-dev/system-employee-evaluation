@@ -9,7 +9,7 @@ export default async function addDocument(collectionName, data) {
     try {
         result = await addDoc(collection(db,collectionName), data);
     } catch (e) {
-        error = e;
+        error = e?.message || "Error adding";
     }
 
     return { result, error };

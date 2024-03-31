@@ -1,32 +1,35 @@
 "use server";
-
 import { getAuth } from "firebase-admin/auth";
 
-export async function createEmployee({
+
+export async function updateEmployee({
+    uid,
     email,
-    emailVerified = false,
     phoneNumber,
+    emailVerified,
     password,
     displayName,
     photoURL,
-    disabled = false,
+    disabled,
 }) {
     let result,
         error = null;
 
     try {
-        result = await getAuth().createUser({
+        result = getAuth().updateUser(uid, {
             email,
-            emailVerified,
             phoneNumber,
+            emailVerified,
             password,
             displayName,
             photoURL,
             disabled,
         });
     } catch (e) {
-        error = e?.message || "Error creating employee";
+        error = e;
     }
-
+    if (result) {
+        result = true;
+    }
     return { result, error };
 }

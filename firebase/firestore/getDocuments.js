@@ -8,7 +8,7 @@ export default async function getDocuments(collectionName) {
     try {
         result = await getDocs(collection(db, collectionName));
     } catch (e) {
-        error = e;
+        error = e?.message || "Error getting";
     }
 
     return { result, error };
