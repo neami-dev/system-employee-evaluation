@@ -44,7 +44,7 @@ export default function Menu() {
     const route = useRouter();
 
     useEffect(() => {
-        // const interVal = setInterval(() => {
+        const interVal = setInterval(() => {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 setIslogged(true);
@@ -54,8 +54,8 @@ export default function Menu() {
                 route.push("/login");
             }
         });
-        // }, 1000);
-        // return () => clearInterval(interVal);
+        }, 1000);
+        return () => clearInterval(interVal);
     }, []);
 
     const JSXspan = (
