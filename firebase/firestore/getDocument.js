@@ -14,7 +14,7 @@ export default async function getDocument(collectionName, id) {
     result = await getDoc(docRef);
   } catch (e) {
      
-    error = e;
+    error = e?.message || "Error getting";
   }
    
   return { result, error };
