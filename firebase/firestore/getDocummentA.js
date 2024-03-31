@@ -1,24 +1,22 @@
-import admin from '../admin'; // Adjust the import path to where you initialize Firebase Admin
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase-config";
 
-// Function to retrieve a document from a Firestore collection using Firebase Admin SDK
-export default async function getDocumentA(collectionName, id) {
-  const db = admin.firestore(); // Get the Admin Firestore instance
-  const docRef = db.collection(collectionName).doc(id);
-
-  let result = null, error = null;
+// Function to retrieve a document from a Firestore collection
+export default async function getDocument(collectionName, id) {
+  const docRef = doc(db, collectionName, id);
 
   try {
-    const docSnapshot = await docRef.get();
-    if (docSnapshot.exists) {
-      result = docSnapshot.data(); // Access the document's data if it exists
+    const docSnapshot = await getDoc(docRef);
+    if (docSnapshot.exists()) {
+      // Document found, return its data
+      const result = docSnapshot.data();
+      return { result, error: null };
     } else {
-      console.log('No document found with the given ID.');
-      result = 'No document found'; // Or handle as appropriate for your application
+      // Document not found
+      return { result: null, error: "Document not found" };
     }
   } catch (e) {
-    console.error('Error getting document:', e);
-    error = e;
+    // Handle any errors that occurred during getDoc
+    return { result: null, error: e?.message || "Error fetching document" };
   }
-
-  return { result, error };
 }

@@ -1,4 +1,7 @@
 "use server";
+import getDocument from "@/firebase/firestore/getDocument";
+import getDocumentA from "@/firebase/firestore/getDocummentA";
+import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 // actions.js
 import axios from "axios";
 import { cookies } from "next/headers";
@@ -34,7 +37,7 @@ export const getGitHubUserRepos = async () => {
             // Optional: specify the type of repositories to fetch
             params: {
                 // For example, 'owner', 'public', 'private', 'member'. Default: 'owner'
-                type: "owner",
+                // type: "owner",
                 // Optional: specify sorting method ('created', 'updated', 'pushed', 'full_name'). Default: 'full_name'
                 sort: "created",
                 // Optional: specify sort order if 'sort' parameter is provided ('asc' or 'desc'). Default: 'asc' when using 'full_name', 'desc' otherwise
@@ -61,78 +64,49 @@ export const getGitHubUserRepos = async () => {
     }
 };
 
-// Helper function to fetch user repositories
-async function getUserRepos() {
-    try {
-        const response = await githubApi.get("/user/repos", {
-            params: { per_page: 100 },
-        }); // Adjust per_page as needed
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching user repositories:", error.message);
-        return [];
-    }
-}
 
-// Function to get all commits by the authenticated user for the current day across all repositories
-export const getGithubCommitsForToday = async (userId) => {
-    const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
-    const repos = await getUserRepos();
-    const commitPromises = repos.map((repo) =>
-        githubApi
-            .get(`/repos/${repo.full_name}/commits`, {
-                params: {
-                    since: `${today}T00:00:00Z`,
-                    until: `${today}T23:59:59Z`,
-                    author: userId,
-                },
-            })
-            .then((response) => ({
-                repo: repo.full_name,
-                commits: response.data,
-            }))
-            .catch((error) => {
-                console.error(
-                    `Error fetching commits for repo ${repo.full_name}:`,
-                    error.message
-                );
-                return { repo: repo.full_name, commits: [] };
-            })
-    );
-
-    const commitResults = await Promise.all(commitPromises);
-    // Flatten and filter out repos with no commits
-    const allCommitsToday = commitResults.filter(
-        (result) => result.commits.length > 0
-    );
-    return allCommitsToday;
+// Function to fetch a specific GitHub repository name for a user from Firebase
+export const getRepoFirebase = async (IdFirebase) => {
+    console.log("Id:", IdFirebase);
+    const response = await getDocumentA("userData", IdFirebase);
+    // Assuming `getDocument` returns { result: <document data>, error: null } for successful fetch
+    // and `result` is directly the data of the document.
+    const githubRepo = response.result?.githubRepo;
+    return githubRepo;
 };
 
+
 // Function to get the total number of commits by the authenticated user for the current day across all repositories
-export const getTotalCommitsForToday = async () => {
+export const getTotalCommitsForToday = async (IdFirebase,githubTotalCommits) => {
     const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
     const username = await getGitHubUsername(); // Fetch the authenticated user's username
-    const repos = await getUserRepos(); // Assume getUserRepos function is defined here or imported
+    const TheRepo = await getRepoFirebase(IdFirebase);
+    console.log("TheRepo:", TheRepo);
     let totalCommits = 0;
-  
-    for (const repo of repos) {
-      try {
-        const response = await githubApi.get(`/repos/${repo.full_name}/commits`, {
-          params: {
-            since: `${today}T00:00:00Z`,
-            until: `${today}T23:59:59Z`,
-            author: username,
-          },
+
+    try {
+        const response = await githubApi.get(`/repos/${TheRepo}/commits`, {
+            params: {
+                since: `${today}T00:00:00Z`,
+                until: `${today}T23:59:59Z`,
+                author: username,
+            },
         });
-        totalCommits += response.data.length;
-      } catch (error) {
-        console.error(`Error fetching commits for repo ${repo.full_name}:`, error.message);
-        // Optionally, you could choose to continue accumulating commits even if one repo fails, or handle differently
-      }
+        totalCommits = response.data.length;
+        console.log("totalCommits : ",totalCommits);
+        if (totalCommits !== githubTotalCommits) {
+            updateDocumentA({
+                collectionName: "userData",
+                id: id,
+                data: { commits: githubTotalCommits },
+            });
+        }
+    } catch (error) {
+        console.error(`Error fetching commits for repo ${TheRepo}:`, error.message);
     }
-  
+
     return totalCommits;
-  };
+};
 
 // export const getTotalCommitsForToday = async () => {
 //     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
