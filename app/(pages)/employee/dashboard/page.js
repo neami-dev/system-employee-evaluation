@@ -52,7 +52,6 @@ export default function page() {
             }else{
                 route.push("/login")
             }
-
         });
     }, []);
     // get info the user score department ...
