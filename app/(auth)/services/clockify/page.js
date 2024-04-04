@@ -118,60 +118,7 @@ function ClockifyPage() {
                 Clockify
             </h1>
             <ul className="text-lg text-gray-800 list-none space-y-2 mb-8">
-                <li className="flex items-start mb-3 ">
-                    {
-                        keyValid == "loader" ? (
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="animate-spin h-9 w-9 text-gray-500 mr-2"
-                            >
-                                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                            </svg>
-                        ) : keyValid == false ? (
-                            <AlertOctagon className="h-9 w-9 text-red-500 mr-2" />
-                        ) : (
-                            <CheckCircle2
-                                className={`${
-                                    keyValid
-                                        ? "text-green-500"
-                                        : "text-gray-500"
-                                } min-h-9 min-w-9  mr-2`}
-                            />
-                        ) // "DONE" icon
-                    }
-                    <div className="flex flex-col justify-left">
-                        <input
-                            type="text"
-                            placeholder="Put clockify API-KEY here.."
-                            autoFocus
-                            className="w-full rounded p-2"
-                            onChange={(e) => setApiKey(e.currentTarget.value)}
-                        />
-                        <small className="text-[13px]">
-                            You have to generate your API-KEY manually from
-                            <a href="https://app.clockify.me/user/settings" className="text-blue-700 px-3 font-bold" target="_blank" >
-                              https://app.clockify.me/user/settings
-                            </a>
-                        </small>
-                    </div>
-                    {/* <span className="text-green-600 text-[25px] font-semibold">Token is integrated</span> */}
-                </li>
-                <li className="mt-1 mb-9 ml-[40px]">
-                    <Button
-                        onClick={() => checkApiKey(apiKey)}
-                        className="mb-5"
-                    >
-                        Validate the key{" "}
-                    </Button>
-                </li>
+                
                 <li className="flex items-center mt-5">
                     <CheckCircle2
                         className={`${
@@ -191,15 +138,11 @@ function ClockifyPage() {
                         Choose the workspace you are working in :
                     </span>
                 </li>
-                <li className="mt-1 mb-3 ml-[40px]">
+                <li className="mt-1 mb-1 ml-[40px]">
                     <Dialog>
                         <DialogTrigger asChild>
                             <Button
-                                className={`mt-1 min-w-[160px] px-3 ${
-                                    keyValid
-                                        ? "bg-black hover:bg-black"
-                                        : "bg-gray-400 hover:bg-gray-400"
-                                }`}
+                                className={`mt-1 min-w-[160px] px-3 bg-black hover:bg-black`}
                             >
                                 {/* Choose repositorie */}
                                 {workspaceNameSelected
@@ -275,10 +218,10 @@ function ClockifyPage() {
                         </DialogContent>
                     </Dialog>
                 </li>
-                <li className="flex items-center mb-9">
+                <li className="flex items-start justify-end mb-3">
                     <Button
                         className={`${
-                            firebaseWorkspace == "OK" && keyValid
+                            firebaseWorkspace == "OK" 
                                 ? "bg-black hover:bg-black"
                                 : "bg-gray-400 hover:bg-gray-400"
                         } text-[20px]  font-semibold mt-9`}

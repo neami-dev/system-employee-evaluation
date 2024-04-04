@@ -1,19 +1,24 @@
 "use server";
 import axios from "axios";
+import { cookies } from "next/headers";
 
-const API_KEY = "YTllY2E3YjUtOGVlOS00NDZkLWFmZTctZTRjMzAyYWY5YmEx"; // Assuming the key is stored in an environment variable
+
+const API_KEY = process.env.CLOCKIFY_API_KEY; // Assuming the key is stored in an environment variable
+
 const api = axios.create({
     baseURL: "https://api.clockify.me/api/v1",
     headers: { "X-Api-Key": API_KEY },
 });
 
 // Example function to get user data from Clockify
-export const CheckApiKeyClockify = async (Key) => {
-    console.log("key:", Key);
+export const CheckApiKeyClockify = async () => {
+    console.log("key:", API_KEY);
     try {
-        const response = await axios.get("https://api.clockify.me/api/v1/user", {
-            headers: { "X-Api-Key": Key },
-        });
+        const response = await axios.get("https://api.clockify.me/api/v1/user", 
+        // {
+        //     headers: { "X-Api-Key": Key },
+        // }
+        );
         // console.log("res:", response.data);
         return true; // Assuming you want to return a boolean
     } catch (error) {
