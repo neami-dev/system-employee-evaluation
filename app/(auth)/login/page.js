@@ -161,16 +161,16 @@ export default function login() {
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <div className="text-sm">
-                                            <a
-                                                href="#"
+                                            <Link
+                                                href="/forgot-password"
                                                 className="font-medium text-teal-600 hover:text-teal-500"
                                             >
                                                 Forgot your password?
-                                            </a>
+                                            </Link>
                                         </div>
                                         <Link
                                             href="sign-up"
-                                            className="text-blue-500 hover:underline"
+                                            className="text-blue-700 hover:underline text-sm"
                                         >
                                             create new compte
                                         </Link>

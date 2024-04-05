@@ -53,8 +53,8 @@ export default function Menu() {
                 const res = await getDocument("userData", user.uid);
                 if (
                     !res.result?.data()?.ClockifyWorkspace ||
-                    !res.result?.data()?.clockifyApiKey ||
-                    !res.result?.data()?.clockifyUserId ||
+                    // !res.result?.data()?.clockifyApiKey ||
+                    // !res.result?.data()?.clockifyUserId ||
                     !res.result?.data()?.clickupToken ||
                     !res.result?.data()?.githubToken ||
                     !res.result?.data()?.githubRepo

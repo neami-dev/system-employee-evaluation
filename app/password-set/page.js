@@ -1,29 +1,73 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 import { confirmPassword } from "@/firebase/auth/confirmPassword";
-import { auth } from "@/firebase/firebase-config";
-import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useRef } from "react";
 
 export default function page() {
-    const handleComfirm = () => {
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const queryParams = new URLSearchParams(window.location.search);
-                const code = queryParams.get("oobCode");
-                
-                if (code) {
-                    console.log("Authorization Code:", code);
-                    const res = await confirmPassword(code);
-                    console.log(res);
-                }
-            } else {
-                // Handle scenario when there is no authenticated user
-                router.push("/login");
+    const router = useRouter();
+    const { toast } = useToast();
+    const newPasswordRef = useRef();
+    const confirmNewPasswordRef = useRef();
+
+    const handleComfirm = async (e) => {
+        e.preventDefault();
+
+        const newPassword = newPasswordRef.current?.value;
+        const confirmNewPassword = confirmNewPasswordRef.current?.value;
+
+        if (!newPassword || !confirmNewPassword) {
+            toast({
+                variant: "destructive",
+                description: "fields required",
+            });
+            return;
+        }
+
+        if (newPassword.length < 6 || confirmNewPassword.length < 6) {
+            toast({
+                variant: "destructive",
+                description: "Password must be at least 6 characters long",
+            });
+            return;
+        }
+        if (newPassword !== confirmNewPassword) {
+            toast({
+                variant: "destructive",
+                description: "Passwords do not match",
+            });
+            return;
+        }
+        try {
+            const queryParams = new URLSearchParams(window.location.search);
+            const code = queryParams.get("oobCode");
+
+            if (!code) {
+                router.push("/employee/dashboard");
+                return;
             }
-        });
+
+            const response = await confirmPassword(code, newPassword);
+
+            if (response.error === null) {
+                toast({
+                    description: "Password changed",
+                });
+                router.push("/employee/dashboard");
+            } else {
+                toast({
+                    variant: "destructive",
+                    description: "Error to change password",
+                });
+            }
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                description: "Error to change password",
+            });
+        }
     };
 
     return (
@@ -37,14 +81,16 @@ export default function page() {
                     <Input
                         className=" placeholder:text-[#ddd]"
                         type="password"
-                        placeholder="Retype password"
+                        placeholder="Enter password"
+                        ref={newPasswordRef}
                     />
                 </div>
                 <div>
                     <Input
                         className=""
                         type="password"
-                        placeholder="Enter password"
+                        placeholder="Retype password"
+                        ref={confirmNewPasswordRef}
                     />
                 </div>
                 <Button className="bg-[#3354f4]" onClick={handleComfirm}>

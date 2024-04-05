@@ -1,7 +1,7 @@
 import { getTotalCommitsForToday } from "@/app/api_services/actions/githubActions";
 import getDocument from "@/firebase/firestore/getDocument";
 import updateDocument from "@/firebase/firestore/updateDocument";
-
+//test
 export async function firebaseWithGithub(hanldeChange, id) {
     try {
         if (id !== undefined) {

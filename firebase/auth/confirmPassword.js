@@ -1,17 +1,16 @@
-"use client"
+"use client";
 import { confirmPasswordReset } from "firebase/auth";
 import { auth } from "../firebase-config";
 
-export async function confirmPassword(code,newPassword) {
+export async function confirmPassword(code, newPassword) {
+    let result,
+        error = null;
     if (code) {
-        let result,
-            error = null;
         try {
-            result = await confirmPasswordReset(auth, code,"123456");
-            console.log("result ====", result);
+            result = await confirmPasswordReset(auth, code, newPassword);
         } catch (e) {
             error = e;
-            console.log(e);
         }
     }
+    return { result, error };
 }

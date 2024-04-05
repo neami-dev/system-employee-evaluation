@@ -97,7 +97,7 @@ export default function page() {
     // send verifiction set password in email
     const handleSendVerification = async () => {
         if (userData) {
-            const response = await sendVerifyResetPsw("lorkizegna@gufum.com");
+            const response = await sendVerifyResetPsw("fodaly@imagepoet.net");
             console.log(response);
             if (response.error === null) {
                 toast({
