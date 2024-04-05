@@ -78,37 +78,37 @@ function ClockifyPage() {
         }
     }, [keySelected]);
 
-    useEffect(() => {
-        if (keyValid == true) {
-            auth.onAuthStateChanged((user) => {
-                // setFirebaseWorkspace(setRepofirebaseGithub(workspaceNameSelected, user?.uid))
-                // setFirebaseWorkspace("loading")
-                setApiKeyFirebaseClockify(user?.uid, apiKey)
-                    .then((res) => {
-                        console.log(res);
-                        // setFirebaseWorkspace(res.status)
-                    })
-                    .catch((err) => {
-                        console.log(err.message);
-                        // setFirebaseWorkspace(res.status)
-                    });
-            });
-        }
-    }, [keyValid]);
+    // useEffect(() => {
+    //     if (keyValid == true) {
+    //         auth.onAuthStateChanged((user) => {
+    //             // setFirebaseWorkspace(setRepofirebaseGithub(workspaceNameSelected, user?.uid))
+    //             // setFirebaseWorkspace("loading")
+    //             setApiKeyFirebaseClockify(user?.uid, apiKey)
+    //                 .then((res) => {
+    //                     console.log(res);
+    //                     // setFirebaseWorkspace(res.status)
+    //                 })
+    //                 .catch((err) => {
+    //                     console.log(err.message);
+    //                     // setFirebaseWorkspace(res.status)
+    //                 });
+    //         });
+    //     }
+    // }, [keyValid]);
 
-    function checkApiKey(key) {
-        setKeyValid("loader");
-        CheckApiKeyClockify(key)
-            .then((res) => {
-                setKeyValid(res);
-                console.log("answer", res);
-            })
-            .catch((err) => {
-                setKeyValid(err);
-                console.log("answer", err);
-            });
-        // console.log(keyValid);
-    }
+    // function checkApiKey(key) {
+    //     setKeyValid("loader");
+    //     CheckApiKeyClockify(key)
+    //         .then((res) => {
+    //             setKeyValid(res);
+    //             console.log("answer", res);
+    //         })
+    //         .catch((err) => {
+    //             setKeyValid(err);
+    //             console.log("answer", err);
+    //         });
+    //     // console.log(keyValid);
+    // }
 
     // console.log(userData);
 

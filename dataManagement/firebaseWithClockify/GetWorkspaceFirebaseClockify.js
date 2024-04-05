@@ -5,8 +5,8 @@ export async function GetWorkspaceFirebaseClockify(setClockify, id) {
         console.log("check token");
         if (id !== undefined) {
             const response = await getDocument("userData", id);
-            const clockifyApiKey = response.result.data()?.ClockifyWorkspace;
-            if (clockifyApiKey !== undefined) {
+            const ClockifyWorkspace = response.result.data()?.ClockifyWorkspace;
+            if (ClockifyWorkspace !== undefined) {
                 setClockify(true);
                 return true;
             } else {
