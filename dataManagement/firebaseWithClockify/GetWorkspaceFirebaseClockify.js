@@ -1,11 +1,11 @@
 import getDocument from "@/firebase/firestore/getDocument";
 
-export async function GetApiKeyFirebaseClockify(setClockify, id) {
+export async function GetWorkspaceFirebaseClockify(setClockify, id) {
     try {
         console.log("check token");
         if (id !== undefined) {
             const response = await getDocument("userData", id);
-            const clockifyApiKey = response.result.data()?.clockifyApiKey;
+            const clockifyApiKey = response.result.data()?.ClockifyWorkspace;
             if (clockifyApiKey !== undefined) {
                 setClockify(true);
                 return true;

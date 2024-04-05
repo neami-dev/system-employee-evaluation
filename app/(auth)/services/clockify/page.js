@@ -118,7 +118,13 @@ function ClockifyPage() {
                 Clockify
             </h1>
             <ul className="text-lg text-gray-800 list-none space-y-2 mb-8">
-                
+            <li className="flex items-center mb-9">
+                <CheckCircle2 className="h-9 w-9 text-green-500 mr-2" />{" "}
+                {/* "DONE" icon */}
+                <span className="text-green-600 text-[25px] font-semibold">
+                    Api-key is integrated
+                </span>
+            </li>
                 <li className="flex items-center mt-5">
                     <CheckCircle2
                         className={`${
