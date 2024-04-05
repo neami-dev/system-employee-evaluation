@@ -1,4 +1,5 @@
 "use server";
+import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 import axios from "axios";
 import { cookies } from "next/headers";
 
@@ -78,7 +79,9 @@ const isoDurationToSeconds = (isoDuration) => {
 // Function to get time tracked by an employee today
 export const getTimeTrackedByEmployeeToday = async (
     clockifyUserId,
-    clockifyWorkspaceId
+    clockifyWorkspaceId,
+    IdFirebase,
+    workingTime
 ) => {
     const date = new Date().toISOString().split("T")[0]; // Get today's date
     console.log("date : ", date);
@@ -100,10 +103,17 @@ export const getTimeTrackedByEmployeeToday = async (
 
         console.log("time : ", totalTimeWorkedInSeconds);
 
+        if (totalTimeWorkedInSeconds !== workingTime) {
+            updateDocumentA({
+                collectionName: "userData",
+                id: IdFirebase,
+                data: { workingTime: totalTimeWorkedInSeconds },
+            });
+        }
+
         const hours = Math.floor(totalTimeWorkedInSeconds / 3600);
         const minutes = Math.floor((totalTimeWorkedInSeconds % 3600) / 60);
         const seconds = totalTimeWorkedInSeconds % 60;
-
         return { hours, minutes, seconds };
     } catch (error) {
         console.error("Error fetching time entries:", error);

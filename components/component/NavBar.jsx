@@ -28,6 +28,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "../ui/use-toast";
+import removetokens, { CheckTokens } from "@/app/api_services/actions/removetokens";
 export default function NavBar() {
     const [userData, setUserData] = useState("");
     const [isLogged, setIslogged] = useState(false);
@@ -35,15 +36,25 @@ export default function NavBar() {
     const { toast } = useToast();
 
     useEffect(() => {
+        CheckTokens().then((checkTk) => {
+            console.log("checkTk :", checkTk);
+        });
+        
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 setIslogged(true);
                 setUserData(user);
             } else {
-                route.push("/login");
+                removetokens().then((tokenRemoved) => {
+                    console.log("tokenRemoved :", tokenRemoved);
+                    if (tokenRemoved) {
+                        route.push("/login");
+                    }
+                });
             }
         });
     }, []);
+    
     async function logout() {
         signOut(auth)
             .then(() => {
@@ -56,6 +67,7 @@ export default function NavBar() {
                     variant: "destructive",
                     description: "logged out error",
                 });
+                // removetokens()
                 console.log(err);
             });
     }

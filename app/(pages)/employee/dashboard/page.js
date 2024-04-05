@@ -27,6 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { firebaseWithGithub } from "@/dataManagement/firebaseGithub/GetCommitsFirebaseWithGithub";
 import { GetUserIdfirebaseClockify } from "@/dataManagement/firebaseClockify/firebaseWithClockify";
 import { onAuthStateChanged } from "firebase/auth";
+import { getTotalTimeFirebaseClockify } from "@/dataManagement/firebaseWithClockify/getTotalTimeFirebaseClockify";
 
 export default function page() {
     const [tasksCompleted, setTasksCompleted] = useState([]);
@@ -44,11 +45,20 @@ export default function page() {
 
      // get last commits from github and check is logged
      useEffect(() => {
+        // function to get information from clockify
+        // const ClockifyUserData = await getClockifyUserData();
+        // console.log("ClockifyUserData", ClockifyUserData);
+
+        // const id2 = "65f45d9f5489a9380ca9c849";
+        // const resTimeTrackedByEmployeeToday =
+        //     await getTimeTrackedByEmployeeToday(ClockifyUserData?.id, id2);
+        // setTimeTrackedByEmployeeToday(resTimeTrackedByEmployeeToday);    
         onAuthStateChanged(auth,(user) => {
             if (user) {
                 setIsLogged(true);
                 firebaseWithGithub(setCommits, user?.uid);
                 GetUserIdfirebaseClockify(user?.uid);
+                getTotalTimeFirebaseClockify(setTimeTrackedByEmployeeToday,user?.uid)
             }else{
                 route.push("/login")
             }
@@ -81,14 +91,7 @@ export default function page() {
         setTasksOnHold(responseTasksOpen);
         setTasksPending(responseTasksPending);
 
-        // function to get information from clockify
-        const ClockifyUserData = await getClockifyUserData();
-        console.log("ClockifyUserData", ClockifyUserData);
-
-        const id2 = "65f45d9f5489a9380ca9c849";
-        const resTimeTrackedByEmployeeToday =
-            await getTimeTrackedByEmployeeToday(ClockifyUserData?.id, id2);
-        setTimeTrackedByEmployeeToday(resTimeTrackedByEmployeeToday);
+        
     };
    
     // useEffect(() => {
@@ -163,6 +166,9 @@ export default function page() {
         }
     };
     const progressPercentageTimeWork = () => {
+        if (timeTrackedByEmployeeToday == NaN) {
+            return 0
+        }
         if (timeTrackedByEmployeeToday !== undefined) {
             return Math.round((timeTrackedByEmployeeToday?.hours * 100) / 8);
         }

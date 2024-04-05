@@ -23,7 +23,14 @@ export default async function ClickupTokenHandler(code,uid) {
       if (tokenData.access_token) {
         
         console.log("the token is here : ", tokenData.access_token);
-        cookies().set("tokenClickup", tokenData.access_token)
+        
+        const oneMonthFromNow = new Date();
+        oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+        cookies().set("tokenClickup", tokenData.access_token, {
+          httpOnly: true, // Makes the cookie inaccessible to the client-side JS
+          expires: oneMonthFromNow, // Set the cookie to expire after a month
+        })
+
         
         const setToken = await SetTokenfirebaseClickup(uid,tokenData.access_token)
         console.log("setTOken : ",setToken);

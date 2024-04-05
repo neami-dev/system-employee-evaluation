@@ -172,7 +172,7 @@ function GithubPage() {
                         </DialogContent>
                     </Dialog>
                 </li>
-                <li className="flex items-center mb-9">
+                <li className="flex items-center justify-end mb-3">
                     <Button
                         className={`${
                             firebaseRepo == "OK"

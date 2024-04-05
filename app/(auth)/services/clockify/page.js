@@ -78,37 +78,37 @@ function ClockifyPage() {
         }
     }, [keySelected]);
 
-    useEffect(() => {
-        if (keyValid == true) {
-            auth.onAuthStateChanged((user) => {
-                // setFirebaseWorkspace(setRepofirebaseGithub(workspaceNameSelected, user?.uid))
-                // setFirebaseWorkspace("loading")
-                setApiKeyFirebaseClockify(user?.uid, apiKey)
-                    .then((res) => {
-                        console.log(res);
-                        // setFirebaseWorkspace(res.status)
-                    })
-                    .catch((err) => {
-                        console.log(err.message);
-                        // setFirebaseWorkspace(res.status)
-                    });
-            });
-        }
-    }, [keyValid]);
+    // useEffect(() => {
+    //     if (keyValid == true) {
+    //         auth.onAuthStateChanged((user) => {
+    //             // setFirebaseWorkspace(setRepofirebaseGithub(workspaceNameSelected, user?.uid))
+    //             // setFirebaseWorkspace("loading")
+    //             setApiKeyFirebaseClockify(user?.uid, apiKey)
+    //                 .then((res) => {
+    //                     console.log(res);
+    //                     // setFirebaseWorkspace(res.status)
+    //                 })
+    //                 .catch((err) => {
+    //                     console.log(err.message);
+    //                     // setFirebaseWorkspace(res.status)
+    //                 });
+    //         });
+    //     }
+    // }, [keyValid]);
 
-    function checkApiKey(key) {
-        setKeyValid("loader");
-        CheckApiKeyClockify(key)
-            .then((res) => {
-                setKeyValid(res);
-                console.log("answer", res);
-            })
-            .catch((err) => {
-                setKeyValid(err);
-                console.log("answer", err);
-            });
-        // console.log(keyValid);
-    }
+    // function checkApiKey(key) {
+    //     setKeyValid("loader");
+    //     CheckApiKeyClockify(key)
+    //         .then((res) => {
+    //             setKeyValid(res);
+    //             console.log("answer", res);
+    //         })
+    //         .catch((err) => {
+    //             setKeyValid(err);
+    //             console.log("answer", err);
+    //         });
+    //     // console.log(keyValid);
+    // }
 
     // console.log(userData);
 
@@ -118,7 +118,13 @@ function ClockifyPage() {
                 Clockify
             </h1>
             <ul className="text-lg text-gray-800 list-none space-y-2 mb-8">
-                
+            <li className="flex items-center mb-9">
+                <CheckCircle2 className="h-9 w-9 text-green-500 mr-2" />{" "}
+                {/* "DONE" icon */}
+                <span className="text-green-600 text-[25px] font-semibold">
+                    Api-key is integrated
+                </span>
+            </li>
                 <li className="flex items-center mt-5">
                     <CheckCircle2
                         className={`${

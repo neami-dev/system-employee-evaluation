@@ -2,7 +2,7 @@
 import Loading from "@/components/component/Loading";
 import { GetTokenFirebaseGithub } from "@/dataManagement/firebaseGithub/GetTokenFIrebaseGithub";
 import { GetTokenfirebaseClickup } from "@/dataManagement/firebaseWithClickup/GetTokenfirebaseClickup";
-import { GetApiKeyFirebaseClockify } from "@/dataManagement/firebaseWithClockify/GetApiKeyFirebaseClockify";
+import { GetApiKeyFirebaseClockify, GetWorkspaceFirebaseClockify } from "@/dataManagement/firebaseWithClockify/GetWorkspaceFirebaseClockify";
 
 import { auth } from "@/firebase/firebase-config";
 import { ArrowBigRightDash, CheckCircle2 } from "lucide-react";
@@ -21,10 +21,16 @@ const IntegrationPage = () => {
 
     useEffect(() => {
         auth.onAuthStateChanged((user) => {
+<<<<<<< HEAD
             setIsEmailValid(user.emailVerified);
             GetTokenfirebaseClickup(setClickup, user?.uid);
             GetTokenFirebaseGithub(setGithub, user?.uid);
             GetApiKeyFirebaseClockify(setClockify, user?.uid);
+=======
+            GetTokenfirebaseClickup(setClickup,user?.uid)
+            GetTokenFirebaseGithub(setGithub,user?.uid)
+            GetWorkspaceFirebaseClockify(setClockify,user?.uid)
+>>>>>>> 0c5f8210c64809997038b254621eb0081bbbd015
         });
     }, []);
     const jsxAccordingCondictions = () => {
