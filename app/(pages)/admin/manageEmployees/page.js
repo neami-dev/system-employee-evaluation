@@ -67,11 +67,12 @@ import { employeeToAdmin } from "@/firebase/firebase-admin/employeeToAdmin";
 import { adminToEmployee } from "@/firebase/firebase-admin/adminToEmployee";
 import { useToast } from "@/components/ui/use-toast";
 import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
-import { onAuthStateChanged} from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
 import emailjs from "@emailjs/browser";
 import { updateEmployee } from "@/firebase/firebase-admin/updateEmployee";
+import { Switch } from "@/components/ui/switch";
 const jsxElement = (
     <>
         <Skeleton className=" h-10 w-[100%] rounded-sm mb-2" />
@@ -122,8 +123,8 @@ export default function DataTableDemo() {
                     if (response.result !== null && response.error == null) {
                         if (
                             user?.uid == response.result.id &&
-                            response.result?.data() !== undefined
-                            //  && user?.emailVerified == showEmailVerified
+                            response.result?.data() !== undefined &&
+                            user?.emailVerified === showEmailVerified
                         ) {
                             newData.push({
                                 ...user,
@@ -137,6 +138,8 @@ export default function DataTableDemo() {
                                 ).toLocaleDateString(),
                                 ...response.result?.data(),
                             });
+                        } else {
+                            setTextNoResults(<p>No Results!</p>);
                         }
                     } else if (res.error) {
                         setTextNoResults(<p>No Results!</p>);
@@ -150,7 +153,6 @@ export default function DataTableDemo() {
     };
 
     const sendEmail = async (email, name) => {
-        console.log(email, name);
         let result,
             error = null;
         try {
@@ -179,7 +181,7 @@ export default function DataTableDemo() {
 
     useEffect(() => {
         getData();
-    }, []);
+    }, [showEmailVerified]);
     const hahdleDelete = async (uid) => {
         const res = await deleteEmployee(uid);
         res.error == null &&
@@ -319,6 +321,7 @@ export default function DataTableDemo() {
                                                 if (res.error == null) {
                                                     getData();
                                                     toast({
+                                                        
                                                         description:
                                                             "Sccessfully transformed into a employee",
                                                     });
@@ -573,7 +576,7 @@ export default function DataTableDemo() {
             <>
                 <section className="flex justify-center">
                     <div className="w-[94%] mt-32 min-[426px]:w-[80%] min-[426px]:ml-[76px] sm:w-[80%] sm:ml-[84px] lg:w-[82%] lg:ml-[96px] mx-3 px-4 bg-white rounded-lg">
-                        <div className="w-full flex p-4">
+                        <div className="w-full flex py-4 justify-between">
                             <Input
                                 placeholder="Filter Full Names..."
                                 value={
@@ -588,44 +591,61 @@ export default function DataTableDemo() {
                                 }
                                 className="max-w-sm"
                             />
-                            <div onClick={getData} className="">
-                                refresh
-                            </div>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        className="ml-auto"
+
+                            <div className="flex items-center gap-3 ml-1 ">
+                                <div className="flex items-center gap-0.5 ">
+                                    <Switch
+                                        id="Email-verified"
+                                        onCheckedChange={(bool) => {
+                                            setShowEmailVerified(!bool);
+                                        }}
+                                    />
+
+                                    <label
+                                        className="text-[14px] hidden lg:block"
+                                        htmlFor="Email-verified"
                                     >
-                                        Columns{" "}
-                                        <ChevronDown className="ml-4 h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    {table
-                                        .getAllColumns()
-                                        .filter((column) => column.getCanHide())
-                                        .map((column) => {
-                                            return (
-                                                <DropdownMenuCheckboxItem
-                                                    key={column.id}
-                                                    className="capitalize"
-                                                    checked={column.getIsVisible()}
-                                                    onCheckedChange={(value) =>
-                                                        column.toggleVisibility(
-                                                            !!value
-                                                        )
-                                                    }
-                                                >
-                                                    {column.id}
-                                                </DropdownMenuCheckboxItem>
-                                            );
-                                        })}
-                                    <DropdownMenuCheckboxItem>
-                                        later...
-                                    </DropdownMenuCheckboxItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                        Emails not validated
+                                    </label>
+                                </div>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className="ml-auto"
+                                        >
+                                            Columns{" "}
+                                            <ChevronDown className="ml-4 h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        {table
+                                            .getAllColumns()
+                                            .filter((column) =>
+                                                column.getCanHide()
+                                            )
+                                            .map((column) => {
+                                                return (
+                                                    <DropdownMenuCheckboxItem
+                                                        key={column.id}
+                                                        className="capitalize"
+                                                        checked={column.getIsVisible()}
+                                                        onCheckedChange={(
+                                                            value
+                                                        ) =>
+                                                            column.toggleVisibility(
+                                                                !!value
+                                                            )
+                                                        }
+                                                    >
+                                                        {column.id}
+                                                    </DropdownMenuCheckboxItem>
+                                                );
+                                            })}
+                                        <DropdownMenuCheckboxItem></DropdownMenuCheckboxItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
                         </div>
                         <div className="rounded-md border">
                             <Table>

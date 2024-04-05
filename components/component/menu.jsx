@@ -1,27 +1,29 @@
 "use client";
 import { auth } from "@/firebase/firebase-config";
 import getDocument from "@/firebase/firestore/getDocument";
-// import {
-//     Menubar,
-//     MenubarCheckboxItem,
-//     MenubarContent,
-//     MenubarItem,
-//     MenubarMenu,
-//     MenubarRadioGroup,
-//     MenubarRadioItem,
-//     MenubarSeparator,
-//     MenubarShortcut,
-//     MenubarSub,
-//     MenubarSubContent,
-//     MenubarSubTrigger,
-//     MenubarTrigger,
-//   } from "@/components/ui/menubar"
+import {
+    Menubar,
+    MenubarCheckboxItem,
+    MenubarContent,
+    MenubarItem,
+    MenubarMenu,
+    MenubarRadioGroup,
+    MenubarRadioItem,
+    MenubarSeparator,
+    MenubarShortcut,
+    MenubarSub,
+    MenubarSubContent,
+    MenubarSubTrigger,
+    MenubarTrigger,
+} from "@/components/ui/menubar";
 import {
     Blocks,
     MessageSquareText,
     UserPlus,
     History,
     Users,
+    ShieldHalf,
+    User,
 } from "lucide-react";
 import {
     Select,
@@ -44,7 +46,7 @@ export default function Menu() {
     const route = useRouter();
 
     useEffect(() => {
-        // const interVal = setInterval(() => {
+        const interVal = setInterval(() => {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 setIslogged(true);
@@ -57,7 +59,7 @@ export default function Menu() {
                     !res.result?.data()?.githubToken ||
                     !res.result?.data()?.githubRepo
                 ) {
-                    route.push("/services")
+                    route.push("/services");
                 }
                 const response = await checkRoleAdmin(user.uid);
                 setIsAdmin(response?.result);
@@ -65,8 +67,8 @@ export default function Menu() {
                 route.push("/login");
             }
         });
-        // }, 1000);
-        // return () => clearInterval(interVal);
+        }, 1000);
+        return () => clearInterval(interVal);
     }, []);
 
     const JSXspan = (
@@ -77,73 +79,52 @@ export default function Menu() {
             <>
                 <div className=" menu fixed w-10  z-10 top-36 left-[4%] max-[865px]:left-[2%] max-[425px]:w-[100%]">
                     <ul className="bg-white text-[#A3AED0] rounded-xl flex flex-wrap  gap-8 flex-col max-[425px]:flex-row justify-around items-center  w-[68px] max-[425px]:w-[100%]  max-[425px]:rounded-b-none py-5 max-[425px]:py-3 max-[425px]:px-5 shadow-[0_8px_28px_0px_#4859660D]">
-                        {/* <li>
-                    <Menubar>
-      <MenubarMenu>
-        <MenubarTrigger>File</MenubarTrigger>
-        <MenubarContent>
-          <MenubarItem>
-            New Tab <MenubarShortcut>⌘T</MenubarShortcut>
-          </MenubarItem>
-          <MenubarItem>
-            New Window <MenubarShortcut>⌘N</MenubarShortcut>
-          </MenubarItem>
-          <MenubarItem disabled>New Incognito Window</MenubarItem>
-          <MenubarSeparator />
-          <MenubarSub>
-            <MenubarSubTrigger>Share</MenubarSubTrigger>
-            <MenubarSubContent>
-              <MenubarItem>Email link</MenubarItem>
-              <MenubarItem>Messages</MenubarItem>
-              <MenubarItem>Notes</MenubarItem>
-            </MenubarSubContent>
-          </MenubarSub>
-          <MenubarSeparator />
-          <MenubarItem>
-            Print... <MenubarShortcut>⌘P</MenubarShortcut>
-          </MenubarItem>
-        </MenubarContent>
-      </MenubarMenu>
-      </Menubar>
-
-                    </li> */}
                         <li
                             className={`relative hover:text-[#3354F4]  cursor-pointer ${
-                                pathname ==
-                                ("/employee/dashboard" || "/admin/dashboard")
+                                pathname === "/employee/dashboard" ||
+                                pathname === "/admin/dashboard"
                                     ? "text-[#3354F4]"
                                     : "text-[#A3AED0]"
                             }`}
                         >
+                            {pathname === "/employee/dashboard" ||
+                            pathname === "/admin/dashboard"
+                                ? JSXspan
+                                : null}
                             {isAdmin ? (
-                                <Select>
-                                    <SelectTrigger className=" border-none w-6 hover:outline-none ">
-                                        {pathname ==
-                                            ("/employee/dashboard" ||
-                                                "/admin/dashboard") && JSXspan}
-
-                                        <Blocks className=" absolute left-[3px] top-[5px]" />
-                                    </SelectTrigger>
-                                    <SelectContent className="flex justify-center absolute left-[40px] top-[-50px]">
-                                        <div className="text-center text-[#767d8e] hover:text-[#4c4a4a]">
+                                <Menubar className="border-0 h-5 w-[24px] cursor-pointer">
+                                    <MenubarMenu className="border-0 cursor-pointer ">
+                                        <MenubarTrigger>
+                                            <Blocks className="cursor-pointer mt-1" />
+                                        </MenubarTrigger>
+                                        <MenubarContent>
                                             <Link href="/admin/dashboard">
-                                                Admin
+                                                <MenubarItem className="px-1">
+                                                    <ShieldHalf className="text-[#9a9696]" />
+                                                    <span className="px-3">
+                                                        admin
+                                                    </span>
+                                                </MenubarItem>
                                             </Link>
-                                        </div>
-                                        <hr />
-                                        <div className="text-center text-[#767d8e] hover:text-[#4c4a4a]">
+                                            <MenubarSeparator />
                                             <Link href="/employee/dashboard">
-                                                Employee
+                                                <MenubarItem className="px-1">
+                                                    <User className="text-[#9a9696]" />
+                                                    <span className="px-3">
+                                                        employee
+                                                    </span>
+                                                </MenubarItem>
                                             </Link>
-                                        </div>
-                                    </SelectContent>
-                                </Select>
+                                        </MenubarContent>
+                                    </MenubarMenu>
+                                </Menubar>
                             ) : (
                                 <Link href="/employee/dashboard">
-                                    <Blocks className=" absolute left-[3px] top-[5px]" />
+                                    <Blocks className="cursor-pointer" />
                                 </Link>
                             )}
                         </li>
+
                         <li
                             className={`relative hover:text-[#3354F4] cursor-pointer ${
                                 pathname == "/"

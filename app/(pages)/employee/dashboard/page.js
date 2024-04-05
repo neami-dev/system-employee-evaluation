@@ -172,7 +172,7 @@ export default function page() {
         if (isLogged) {
             return (
                 <>
-                    <section className=" grid justify-center w-full mx-auto pt-32">
+                    <section className="grid justify-center w-full mx-auto pt-32">
                         <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:ml-[80px] lg:grid-cols-3 xl:grid-cols-4 ">
                             <li className="w-[260px] md:row-span-2 lg:row-span-3 xl:row-span-2">
                                 <Weather />
@@ -401,7 +401,7 @@ export default function page() {
                         </ul>
                     </section>
                     <section>
-                        <div className="flex w-full flex-wrap gap-4 lg:w-[86%] lg:ml-[106px] xl:w-[90%]  mt-8 xl:px-8">
+                        <div className="flex w-full flex-wrap gap-4 lg:w-[86%] lg:ml-[106px] xl:w-[86%]  mt-8 xl:px-8 xl:ml-[135px]">
                             <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[52%]  xl:w-[56%] mx-auto h-[350px] p-3  bg-white rounded-lg">
                                 <ul className="flex justify-between items-center ">
                                     <li>General performance</li>

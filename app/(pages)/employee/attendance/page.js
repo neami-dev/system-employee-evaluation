@@ -48,6 +48,7 @@ import Loading from "@/components/component/Loading";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/firebase/firebase-config";
 import { useRouter } from "next/navigation";
+import { Switch } from "@/components/ui/switch";
 
 function parseTimeToMinutes(timeString) {
     

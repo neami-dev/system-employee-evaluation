@@ -9,16 +9,16 @@ export async function firebaseWithGithub(hanldeChange, id) {
             const totalCommits = response.result.data()?.commits;
             hanldeChange(totalCommits);
 
-            getTotalCommitsForToday().then((githubTotalCommits) => {
-                if (totalCommits !== githubTotalCommits) {
-                    updateDocument({
-                        collectionName: "userData",
-                        id: id,
-                        data: { commits: githubTotalCommits },
-                    });
+            // const interval = setInterval(() => {
+            getTotalCommitsForToday(id, totalCommits).then(
+                (githubTotalCommits) => {
                     return hanldeChange(githubTotalCommits);
                 }
-            });
+            );
+            // }, 2000);
+            // return () => {
+            //     clearInterval(interval);
+            // };
         }
     } catch (error) {
         console.log("error", error);

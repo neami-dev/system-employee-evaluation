@@ -9,6 +9,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { auth } from "@/firebase/firebase-config";
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
     Dialog,
     DialogContent,
     DialogDescription,
@@ -20,6 +31,10 @@ import {
 import getDocument from "@/firebase/firestore/getDocument";
 import { editEmail } from "@/firebase/firebase-admin/editEmail";
 import { onAuthStateChanged } from "firebase/auth";
+import { updateEmployee } from "@/firebase/firebase-admin/updateEmployee";
+import { test } from "@/firebase/firebase-admin/test";
+import { sendVerifyResetPsw } from "@/firebase/auth/sendVerifyResetPsw";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function page() {
     const route = useRouter();
@@ -32,6 +47,7 @@ export default function page() {
     const [keySelected, setKeySelected] = useState(null);
     const [userData, setUserData] = useState({});
     const [isLogged, setIsLogged] = useState(false);
+    const { toast } = useToast();
 
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
@@ -50,14 +66,13 @@ export default function page() {
             // console.log("repos", response);
         };
         getRepos();
-        const getyWorkSpaces = async () => {
-            const response = await getClockifyWorkSpaces();
-            setWorkspaces(response);
-            console.log("workspaces", response);
-        };
-        getyWorkSpaces();
+        // const getyWorkSpaces = async () => {
+        //     const response = await getClockifyWorkSpaces();
+        //     setWorkspaces(response);
+        //     console.log("workspaces", response);
+        // };
+        // getyWorkSpaces();
     }, []);
-    console.log(userData);
 
     const handleInfoChange = async (e) => {
         e.preventDefault();
@@ -65,9 +80,35 @@ export default function page() {
         const newFullName = newFullNameRef.current.value;
         const newPassword = newPasswordRef.current.value;
         const password = "123456";
-        console.log(newEmail);
-        if (newEmail !== undefined) {
-            editEmail(newEmail);
+        console.log(newFullName);
+        if (newEmail && userData) {
+            updateEmployee({ uid: userData?.uid, email: newEmail });
+        }
+        if (newFullName && userData) {
+            console.log("uid", userData?.uid);
+
+            const response = await updateEmployee({
+                uid: userData?.uid,
+                displayName: newFullName,
+            });
+            console.log(response, userData);
+        }
+    };
+    // send verifiction set password in email
+    const handleSendVerification = async () => {
+        if (userData) {
+            const response = await sendVerifyResetPsw("lorkizegna@gufum.com");
+            console.log(response);
+            if (response.error === null) {
+                toast({
+                    description: "Sccessfully to send verification",
+                });
+            } else {
+                toast({
+                    variant: "destructive",
+                    description: "Error to send verification !",
+                });
+            }
         }
     };
     if (isLogged) {
@@ -158,43 +199,66 @@ export default function page() {
                                             ref={newEmailRef}
                                         />
                                     </div>
-                                    <div className="w-[100%] mx-auto  flex">
-                                        <label
-                                            htmlFor="password"
-                                            className="w-[40%] relative hidden sm:block"
-                                        >
-                                            <span className=" absolute left-[30%]">
-                                                New Password
-                                            </span>
-                                        </label>
-                                        <input
-                                            id="password"
-                                            name="password"
-                                            type="password"
-                                            autoComplete="current-password"
-                                            required
-                                            className="rounded relative block w-full sm:w-[60%] px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                            placeholder="New Password"
-                                            ref={newPasswordRef}
-                                        />
-                                    </div>
                                     <Button
                                         onClick={handleInfoChange}
                                         className="mt-6 w-[160px]"
                                     >
                                         save change
                                     </Button>
+                                    <div className="w-[100%] mx-auto  flex items-center justify-between">
+                                        <label className="w-[40%] relative hidden sm:block">
+                                            <span className="absolute left-[30%]">
+                                                set Password
+                                            </span>
+                                        </label>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className="mt-6 w-[160px]"
+                                                >
+                                                    set Password
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>
+                                                        Set password
+                                                    </AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        By clicking "Set
+                                                        Password", an email will
+                                                        be sent to{" "}
+                                                        {userData?.email} for
+                                                        password setup.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>
+                                                        Cancel
+                                                    </AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        onClick={
+                                                            handleSendVerification
+                                                        }
+                                                    >
+                                                        Set password
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
                                 </div>
                             </div>
                         </form>
                     </div>
-                    <div className="bg-white rounded-lg py-2 px-6">
+                    {/* <div className="bg-white rounded-lg py-2 px-6">
                         <h3 className="text-[#212b36] my-3">
                             Basic information
                         </h3>
                         <form className="">
                             <div className="mt-8 ">
-                                {/* <input type="hidden" name="remember" defaultValue="true" /> */}
+                                // {/* <input type="hidden" name="remember" defaultValue="true" /> 
                                 <div className="rounded-md flex flex-col items-end justify-end ">
                                     <div className=" w-[100%] mx-auto flex">
                                         <label
@@ -246,7 +310,7 @@ export default function page() {
                                 </div>
                             </div>
                         </form>
-                    </div>
+                    </div> */}
                     <div className="bg-white rounded-lg  p-4 my-4">
                         <h3>changing your workspace in clickUp</h3>
 
@@ -285,7 +349,7 @@ export default function page() {
                                             </h4>
                                             <hr />
 
-                                            {workspaces !== undefined &&
+                                            {/* {workspaces !== undefined &&
                                                 workspaces?.map((workspace) => (
                                                     <div
                                                         key={workspace?.name}
@@ -313,7 +377,7 @@ export default function page() {
                                                         </p>
                                                         <hr />
                                                     </div>
-                                                ))}
+                                                ))} */}
                                         </div>
                                     </ScrollArea>
                                 </div>

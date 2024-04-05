@@ -1,7 +1,6 @@
 "use server";
 import { getAuth } from "firebase-admin/auth";
 
-
 export async function updateEmployee({
     uid,
     email,
@@ -12,11 +11,11 @@ export async function updateEmployee({
     photoURL,
     disabled,
 }) {
-    let result,
-        error = null;
+    let result = false;
+    let error = null;
 
     try {
-        result = getAuth().updateUser(uid, {
+        result = !!getAuth().updateUser(uid, {
             email,
             phoneNumber,
             emailVerified,
@@ -28,8 +27,6 @@ export async function updateEmployee({
     } catch (e) {
         error = e;
     }
-    if (result) {
-        result = true;
-    }
+
     return { result, error };
 }
