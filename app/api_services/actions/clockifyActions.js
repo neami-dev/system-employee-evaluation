@@ -85,12 +85,17 @@ export const getTimeTrackedByEmployeeToday = async (
 ) => {
     const date = new Date().toISOString().split("T")[0]; // Get today's date
     console.log("date : ", date);
+    console.log("api key : ",API_KEY);
+    console.log("user id : ", clockifyUserId);
+    console.log("workspace id : ", clockifyWorkspaceId);
+    console.log("IdFirebase id : ", IdFirebase);
 
     try {
         const response = await api.get(
             `/workspaces/${clockifyWorkspaceId}/user/${clockifyUserId}/time-entries?start=${date}T00:00:00Z&end=${date}T23:59:59Z`
         );
 
+        // console.log("response : ",response.data);
         const timeEntries = response.data;
         // console.log(timeEntries);
         let totalTimeWorkedInSeconds = 0;
@@ -151,6 +156,9 @@ export const getCheckInOutTimes = async (
     specificDate
 ) => {
     const formattedDate = specificDate.split("T")[0]; // Ensure the date is in YYYY-MM-DD format
+    console.log("api key : ",API_KEY);
+    console.log("user id : ", clockifyUserId);
+    console.log("workspace id : ", clockifyWorkspaceId);
     console.log(formattedDate);
     try {
         // Fetch time entries for the user for the specified date
@@ -183,7 +191,7 @@ export const getCheckInOutTimes = async (
     } catch (error) {
         console.error(
             `Error fetching check-in/out times for ${formattedDate}:`,
-            error
+            error.message
         );
         return null;
     }

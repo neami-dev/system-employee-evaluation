@@ -43,7 +43,7 @@ export default function page() {
     const [workspaces, setWorkspaces] = useState([]);
     const newFullNameRef = useRef();
     const newEmailRef = useRef();
-    const newPasswordRef = useRef();
+
     const [keySelected, setKeySelected] = useState(null);
     const [userData, setUserData] = useState({});
     const [isLogged, setIsLogged] = useState(false);
@@ -78,8 +78,8 @@ export default function page() {
         e.preventDefault();
         const newEmail = newEmailRef.current.value;
         const newFullName = newFullNameRef.current.value;
-        const newPassword = newPasswordRef.current.value;
-        const password = "123456";
+        
+        // const password = "123456";
         console.log(newFullName);
         if (newEmail && userData) {
             updateEmployee({ uid: userData?.uid, email: newEmail });

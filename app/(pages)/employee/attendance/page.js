@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/table";
 import { useState } from "react";
 import { DatePickerWithRange } from "@/components/component/DateRangePicker";
-import { addDays, format } from "date-fns";
+import { addDays,subDays, format } from "date-fns";
 import { useEffect } from "react";
 import {
     getCheckInOutTimes,
@@ -49,6 +49,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/firebase/firebase-config";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
+import { GetWorkspaceFirebaseClockify } from "@/dataManagement/firebaseWithClockify/GetWorkspaceFirebaseClockify";
 
 function parseTimeToMinutes(timeString) {
     
@@ -304,10 +305,16 @@ export const columns = [
 ];
 
 export default function DataTableDemo() {
-    const [dateRange, setDate] = useState({
-        from: new Date(2024, 2, 18),
-        to: addDays(new Date(2024, 2, 21), 1),
+    const [dateRange, setDate] = useState(() => {
+        const today = new Date();
+        const fiveDaysAgo = subDays(today, 3);
+    
+        return {
+            from: fiveDaysAgo,
+            to: today,
+        };
     });
+    
 
     const [timeEntries, setTimeEntries] = useState([]);
 
@@ -316,15 +323,20 @@ export default function DataTableDemo() {
     const [columnVisibility, setColumnVisibility] = useState({});
     const [rowSelection, setRowSelection] = useState({});
     const [isLogged, setIsLogged] = useState(false);
+
+    const [ClockifyWorkspaceId,setClockifyWorkspaceId] = useState()
     const route = useRouter();
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 setIsLogged(true);
+                GetWorkspaceFirebaseClockify(setClockifyWorkspaceId,user?.uid)
+                console.log("ClockifyWorkspaceId : ",ClockifyWorkspaceId);
             } else {
                 route.push("/login");
             }
         });
+        
     }, []);
 
 
@@ -338,13 +350,9 @@ export default function DataTableDemo() {
     useEffect(() => {
         const fetchAndSetTimeEntries = async () => {
             try {
-                const [ClockifyUserData, ClockifyWorkSpaces] =
-                    await Promise.all([
-                        getClockifyUserData(),
-                        getClockifyWorkSpaces(),
-                    ]);
+                const [ClockifyUserData] = await getClockifyUserData()
                 // console.log("ClockifyUserData : ", ClockifyUserData.id);
-                // console.log("ClockifyWorkSpaces : ", ClockifyWorkSpaces.id);
+                console.log("ClockifyWorkspaceId : ", ClockifyWorkspaceId);
 
                 const entries = [];
                 for (
@@ -356,7 +364,7 @@ export default function DataTableDemo() {
                     const formattedDate = format(date, "yyyy-MM-dd");
                     const dailyEntries = await getCheckInOutTimes(
                         ClockifyUserData.id,
-                        ClockifyWorkSpaces.id,
+                        ClockifyWorkspaceId,
                         formattedDate
                     );
                     // console.log("dailyEntries: ",Object.keys(dailyEntries).length);
