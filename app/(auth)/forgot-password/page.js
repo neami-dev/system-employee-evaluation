@@ -25,9 +25,9 @@ export default function forgotPassword() {
 
             })
         }
-        console.log(email);
+        // console.log(email);
         const response = await getEmployeeByEmail(email);
-        console.log(response);
+        // console.log(response);
     };
     return (
         <Card className="w-[350px]">

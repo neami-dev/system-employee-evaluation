@@ -61,6 +61,7 @@ export default function page() {
                 getTotalTimeFirebaseClockify(setTimeTrackedByEmployeeToday,user?.uid)
             }else{
                 route.push("/login")
+                console.log("logout from dashboard employee");
             }
         });
     }, []);

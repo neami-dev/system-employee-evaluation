@@ -36,9 +36,11 @@ export default function page() {
                 setsIsdmin(response?.result);
                 if (!response?.result) {
                     route.push("/Not-Found");
+                    console.log("your role is not admin");
                 }
             } else {
                 route.push("/login");
+                console.log("logout from dashboard admin"); 
             }
         });
         getEmployees();

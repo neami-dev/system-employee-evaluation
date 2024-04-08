@@ -14,13 +14,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/firebase-config";
-import {
-    EmailAuthProvider,
-    onAuthStateChanged,
-    reauthenticateWithCredential,
-    updateEmail,
-    verifyBeforeUpdateEmail,
-} from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import getDocument from "@/firebase/firestore/getDocument";
@@ -124,7 +118,7 @@ function GithubPage() {
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
-                                {firebaseRepo == "loading" ? (
+                                {firebaseRepo !== "loading" ? (
                                     <Loading />
                                 ) : (
                                     <ScrollArea className="h-[200px] w-full rounded-md border">
@@ -134,7 +128,7 @@ function GithubPage() {
                                             </h4>
                                             <hr />
 
-                                            {repos.map((repo, index) => (
+                                            {repos?.map((repo, index) => (
                                                 <div key={index} className="">
                                                     <p
                                                         onClick={() => {
@@ -164,9 +158,17 @@ function GithubPage() {
                             </div>
                             <DialogFooter>
                                 <DialogClose asChild>
-                                  <Button type="button" onClick={() => console.log("repoSelected : ",repoSelected)}>
-                                    Close
-                                  </Button>
+                                    <Button
+                                        type="button"
+                                        onClick={() =>
+                                            console.log(
+                                                "repoSelected : ",
+                                                repoSelected
+                                            )
+                                        }
+                                    >
+                                        Close
+                                    </Button>
                                 </DialogClose>
                             </DialogFooter>
                         </DialogContent>

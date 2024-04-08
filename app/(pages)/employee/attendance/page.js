@@ -323,6 +323,7 @@ export default function DataTableDemo() {
                 setIsLogged(true);
             } else {
                 route.push("/login");
+                console.log("logout from attendance employee");
             }
         });
     }, []);

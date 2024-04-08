@@ -104,9 +104,12 @@ export default function DataTableDemo() {
                 setIsAdmin(response?.result);
                 if (!response?.result) {
                     route.push("/Not-Found");
+                    console.log("your role is not admin");
+
                 }
             } else {
                 route.push("/login");
+                console.log("logout from manageEmployee ");
             }
         });
     }, []);

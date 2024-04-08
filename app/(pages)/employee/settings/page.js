@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
@@ -35,20 +36,52 @@ import { updateEmployee } from "@/firebase/firebase-admin/updateEmployee";
 import { test } from "@/firebase/firebase-admin/test";
 import { sendVerifyResetPsw } from "@/firebase/auth/sendVerifyResetPsw";
 import { useToast } from "@/components/ui/use-toast";
+import Loading from "@/components/component/Loading";
+import { setRepofirebaseGithub } from "@/dataManagement/firebaseGithub/setRepoFirebaseGithub";
+import { setWorkSpaceIdfirebaseClockify } from "@/dataManagement/firebaseWithClockify/setWorkspaceFirebaseClockify";
 
 export default function page() {
     const route = useRouter();
     const [repos, setRepos] = useState([]);
-    const [repoSelected, setRepoSelected] = useState({});
-    const [workspaces, setWorkspaces] = useState([]);
+    const [repoSelected, setRepoSelected] = useState();
+    const [workspacesGithub, setWorkspacesGithub] = useState([]);
     const newFullNameRef = useRef();
     const newEmailRef = useRef();
-    const newPasswordRef = useRef();
+
+    const [firebaseRepo, setFirebaseRepo] = useState();
+    const [keySelectedGithub, setKeySelectedGithub] = useState(null);
+    const [firebaseWorkspaceClockify, setFirebaseWorkspaceClockify] =
+        useState();
+    const [keySelectedClockify, setKeySelectedClockify] = useState(null);
+    const [workspacesClockify, setWorkspacesClockify] = useState([]);
+    const [workspaceNameSelectedClockify, setWorkspaceNameSelectedClockify] =
+        useState();
+
     const [keySelected, setKeySelected] = useState(null);
     const [userData, setUserData] = useState({});
     const [isLogged, setIsLogged] = useState(false);
     const { toast } = useToast();
 
+    useEffect(() => {
+        console.log("key : ", keySelectedClockify);
+        console.log("workspace : ", workspaceNameSelectedClockify);
+
+        if (keySelected !== null) {
+            auth.onAuthStateChanged((user) => {
+                // setFirebaseWorkspace(setRepofirebaseGithub(workspaceNameSelected, user?.uid))
+                setFirebaseWorkspaceClockify("loading");
+                setWorkSpaceIdfirebaseClockify(keySelectedClockify, user?.uid)
+                    .then((res) => {
+                        console.log(res);
+                        setFirebaseWorkspaceClockify(res.status);
+                    })
+                    .catch((err) => {
+                        console.log(err.message);
+                        setFirebaseWorkspaceClockify(res.status);
+                    });
+            });
+        }
+    }, [keySelectedClockify]);
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -58,28 +91,46 @@ export default function page() {
                 });
             } else {
                 route.push("/login");
+                console.log("logout from setting");
             }
         });
         const getRepos = async () => {
             const response = await getGitHubUserRepos();
             setRepos(response);
-            // console.log("repos", response);
+            console.log("repos", response);
         };
         getRepos();
-        // const getyWorkSpaces = async () => {
-        //     const response = await getClockifyWorkSpaces();
-        //     setWorkspaces(response);
-        //     console.log("workspaces", response);
-        // };
-        // getyWorkSpaces();
+        const getyWorkSpacesClockify = async () => {
+            const response = await getClockifyWorkSpaces();
+            setWorkspacesClockify(response);
+            console.log("workspaces", response);
+        };
+        getyWorkSpacesClockify();
     }, []);
+    console.log(userData);
+    useEffect(() => {
+        if (repoSelected !== undefined) {
+            auth.onAuthStateChanged((user) => {
+                // setFirebaseRepo(setRepofirebaseGithub(repoSelected, user?.uid))
+                setFirebaseRepo("loading");
+                setRepofirebaseGithub(repoSelected, user?.uid)
+                    .then((res) => {
+                        console.log(res);
+                        setFirebaseRepo(res.status);
+                    })
+                    .catch((err) => {
+                        console.log(err.message);
+                        setFirebaseRepo(res.status);
+                    });
+            });
+        }
+    }, [repoSelected]);
 
     const handleInfoChange = async (e) => {
         e.preventDefault();
         const newEmail = newEmailRef.current.value;
         const newFullName = newFullNameRef.current.value;
-        const newPassword = newPasswordRef.current.value;
-        const password = "123456";
+
         console.log(newFullName);
         if (newEmail && userData) {
             updateEmployee({ uid: userData?.uid, email: newEmail });
@@ -97,7 +148,7 @@ export default function page() {
     // send verifiction set password in email
     const handleSendVerification = async () => {
         if (userData) {
-            const response = await sendVerifyResetPsw("fodaly@imagepoet.net");
+            const response = await sendVerifyResetPsw(userData?.email);
             console.log(response);
             if (response.error === null) {
                 toast({
@@ -205,10 +256,10 @@ export default function page() {
                                     >
                                         save change
                                     </Button>
-                                    <div className="w-[100%] mx-auto  flex items-center justify-between">
+                                    <div className="w-[100%] mx-auto  flex items-center justify-end sm:justify-between">
                                         <label className="w-[40%] relative hidden sm:block">
                                             <span className="absolute left-[30%]">
-                                                set Password
+                                                Set password
                                             </span>
                                         </label>
                                         <AlertDialog>
@@ -217,7 +268,7 @@ export default function page() {
                                                     variant="outline"
                                                     className="mt-6 w-[160px]"
                                                 >
-                                                    set Password
+                                                    Set password
                                                 </Button>
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
@@ -326,73 +377,111 @@ export default function page() {
                         </Button>
                     </div>
                     <div className="bg-white rounded-lg  p-4 my-4">
-                        <h3>changing your workspace in clockify</h3>
+                        <h3>
+                            changing your workspace in clockify{" "}
+                            <span>
+                                {workspaceNameSelectedClockify
+                                    ? workspaceNameSelectedClockify
+                                    : userData?.githubRepo}
+                            </span>
+                        </h3>
                         <Dialog>
                             <DialogTrigger asChild>
-                                <Button className="mt-6 w-[160px]">
-                                    change workspace
+                                <Button
+                                    className={`mt-1 min-w-[160px] px-3`}
+                                >
+                                    Change workspace
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[425px]">
                                 <DialogHeader>
-                                    <DialogTitle>Edit workspace</DialogTitle>
+                                    <DialogTitle>Edit Workspace</DialogTitle>
                                     <DialogDescription>
                                         Make changes to your profile here. Click
                                         save when you're done.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="grid gap-4 py-4">
-                                    <ScrollArea className="h-[200px] w-full rounded-md border">
-                                        <div className="p-4">
-                                            <h4 className="mb-4 text-sm font-medium leading-none">
-                                                workspace
-                                            </h4>
-                                            <hr />
+                                    {firebaseWorkspaceClockify == "loading" ? (
+                                        <Loading />
+                                    ) : (
+                                        <ScrollArea className="h-[200px] w-full rounded-md border">
+                                            <div className="p-4">
+                                                <h4 className="mb-4 text-sm font-medium leading-none">
+                                                    workspace
+                                                </h4>
 
-                                            {/* {workspaces !== undefined &&
-                                                workspaces?.map((workspace) => (
-                                                    <div
-                                                        key={workspace?.name}
-                                                        className=""
-                                                    >
-                                                        <p
-                                                            onClick={() => {
-                                                                console.log(
-                                                                    workspace
-                                                                );
-                                                                setRepoSelected(
-                                                                    workspace
-                                                                );
-                                                                setKeySelected(
+                                                <hr />
+
+                                                {workspacesClockify !==
+                                                    undefined &&
+                                                    workspacesClockify?.map(
+                                                        (workspace) => (
+                                                            <div
+                                                                key={
                                                                     workspace?.name
-                                                                );
-                                                            }}
-                                                            className={`text-sm cursor-pointer ${
-                                                                workspace?.name ==
-                                                                    keySelected &&
-                                                                "bg-[#b4b5b6]"
-                                                            } hover:bg-[#ddd]  p-2 my-1 rounded-lg`}
-                                                        >
-                                                            {workspace?.name}
-                                                        </p>
-                                                        <hr />
-                                                    </div>
-                                                ))} */}
-                                        </div>
-                                    </ScrollArea>
+                                                                }
+                                                            >
+                                                                <p
+                                                                    onClick={() => {
+                                                                        // console.log("workspace : ",workspace?.name);
+                                                                        setWorkspaceNameSelectedClockify(
+                                                                            workspace?.name
+                                                                        );
+                                                                        setKeySelectedClockify(
+                                                                            workspace?.id
+                                                                        );
+                                                                    }}
+                                                                    className={`text-sm cursor-pointer ${
+                                                                        workspace?.name ==
+                                                                            workspaceNameSelectedClockify &&
+                                                                        "bg-[#b4b5b6]"
+                                                                    } hover:bg-[#ddd]  p-2 my-1 rounded-lg`}
+                                                                >
+                                                                    {
+                                                                        workspace?.name
+                                                                    }
+                                                                </p>
+                                                                <hr />
+                                                            </div>
+                                                        )
+                                                    )}
+                                            </div>
+                                        </ScrollArea>
+                                    )}
                                 </div>
                                 <DialogFooter>
-                                    <Button>Save changes</Button>
+                                    <DialogClose asChild>
+                                        <Button
+                                            type="button"
+                                            onClick={() =>
+                                                console.log(
+                                                    "workspaceNameSelected : ",
+                                                    workspaceNameSelectedClockify
+                                                )
+                                            }
+                                        >
+                                            Close
+                                        </Button>
+                                    </DialogClose>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
                     </div>
                     <div className="bg-white rounded-lg  p-4 my-4">
-                        <h3>changing your repositorie in github</h3>
+                        <h3>
+                            changing your repositorie in github ,
+                            <span>
+                                {repoSelected
+                                    ? repoSelected
+                                    : userData?.githubRepo}
+                            </span>
+                        </h3>
+
                         <Dialog>
                             <DialogTrigger asChild>
-                                <Button className="mt-6 w-[160px]">
-                                    change repositorie
+                                <Button className="mt-6 min-w-[160px] px-3">
+                                    Change repository
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[425px]">
@@ -404,15 +493,17 @@ export default function page() {
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="grid gap-4 py-4">
-                                    <ScrollArea className="h-[200px] w-full rounded-md border">
-                                        <div className="p-4">
-                                            <h4 className="mb-4 text-sm font-medium leading-none">
-                                                repos
-                                            </h4>
-                                            <hr />
+                                    {firebaseRepo == "loading" ? (
+                                        <Loading />
+                                    ) : (
+                                        <ScrollArea className="h-[200px] w-full rounded-md border">
+                                            <div className="p-4">
+                                                <h4 className="mb-4 text-sm font-medium leading-none">
+                                                    repos
+                                                </h4>
+                                                <hr />
 
-                                            {repos !== undefined &&
-                                                repos?.map((repo, index) => (
+                                                {repos?.map((repo, index) => (
                                                     <div
                                                         key={index}
                                                         className=""
@@ -423,15 +514,16 @@ export default function page() {
                                                                     repo
                                                                 );
                                                                 setRepoSelected(
-                                                                    repo
+                                                                    repo.name
                                                                 );
-                                                                setKeySelected(
+                                                                setKeySelectedGithub(
                                                                     index
                                                                 );
+                                                                // setRepofirebaseGithub(repo.name)
                                                             }}
                                                             className={`text-sm cursor-pointer ${
                                                                 index ==
-                                                                    keySelected &&
+                                                                    keySelectedGithub &&
                                                                 "bg-[#b4b5b6]"
                                                             } hover:bg-[#ddd]  p-2 my-1 rounded-lg`}
                                                         >
@@ -440,11 +532,24 @@ export default function page() {
                                                         <hr />
                                                     </div>
                                                 ))}
-                                        </div>
-                                    </ScrollArea>
+                                            </div>
+                                        </ScrollArea>
+                                    )}
                                 </div>
                                 <DialogFooter>
-                                    <Button>Save changes</Button>
+                                    <DialogClose asChild>
+                                        <Button
+                                            type="button"
+                                            onClick={() =>
+                                                console.log(
+                                                    "repoSelected : ",
+                                                    repoSelected
+                                                )
+                                            }
+                                        >
+                                            Close
+                                        </Button>
+                                    </DialogClose>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
