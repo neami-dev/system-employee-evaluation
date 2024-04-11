@@ -27,7 +27,7 @@ import getDocument from "@/firebase/firestore/getDocument";
 
 // import { setRepofirebaseGithub } from '@/dataManagement/firebaseWithGithub/setRepoFirebaseGithub';
 import Loading from "@/components/component/Loading";
-import { SetWorkSpaceIdfirebaseClockify } from "@/dataManagement/firebaseWithClockify/setWorkspaceFirebaseClockify";
+import { setWorkSpaceIdfirebaseClockify } from "@/dataManagement/firebaseWithClockify/setWorkspaceFirebaseClockify";
 import { setApiKeyFirebaseClockify } from "@/dataManagement/firebaseWithClockify/setApiKeyFirebaseClockify";
 import { CheckApiKeyClockify, getClockifyWorkSpaces } from "@/app/api_services/actions/clockifyActions";
 
@@ -65,7 +65,7 @@ function ClockifyPage() {
             auth.onAuthStateChanged((user) => {
                 // setFirebaseWorkspace(setRepofirebaseGithub(workspaceNameSelected, user?.uid))
                 setFirebaseWorkspace("loading");
-                SetWorkSpaceIdfirebaseClockify(keySelected, user?.uid)
+                setWorkSpaceIdfirebaseClockify(keySelected, user?.uid)
                     .then((res) => {
                         console.log(res);
                         setFirebaseWorkspace(res.status);

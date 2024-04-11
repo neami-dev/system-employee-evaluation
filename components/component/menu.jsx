@@ -60,11 +60,13 @@ export default function Menu() {
                     !res.result?.data()?.githubRepo
                 ) {
                     route.push("/services");
+                    console.log("lack of information");
                 }
                 const response = await checkRoleAdmin(user.uid);
                 setIsAdmin(response?.result);
             } else {
                 route.push("/login");
+                console.log("logout from menu");
             }
         });
         }, 1000);
