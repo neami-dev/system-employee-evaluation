@@ -7,7 +7,7 @@ export async function GetWorkspaceFirebaseClockify(setClockify, id) {
             const response = await getDocument("userData", id);
             const ClockifyWorkspace = response.result.data()?.ClockifyWorkspace;
             if (ClockifyWorkspace !== undefined) {
-                setClockify(true);
+                setClockify(ClockifyWorkspace);
                 console.log("firebase workspace : " , ClockifyWorkspace); // work just with return without set..., and change the file : services/page.js
                 return ClockifyWorkspace;
             } else {

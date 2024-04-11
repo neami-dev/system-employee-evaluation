@@ -324,14 +324,17 @@ export default function DataTableDemo() {
     const [rowSelection, setRowSelection] = useState({});
     const [isLogged, setIsLogged] = useState(false);
 
-    const [ClockifyWorkspaceId,setClockifyWorkspaceId] = useState()
+    const [ClockifyWorkspaceId,setClockifyWorkspaceId] = useState([])
     const route = useRouter();
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 setIsLogged(true);
-                GetWorkspaceFirebaseClockify(setClockifyWorkspaceId,user?.uid)
-                console.log("ClockifyWorkspaceId : ",ClockifyWorkspaceId);
+                GetWorkspaceFirebaseClockify(setClockifyWorkspaceId,user?.uid).then((res) => {
+                    console.log("res : ",res);
+                    setClockifyWorkspaceId(res)
+                    console.log("ClockifyWorkspaceId : ",ClockifyWorkspaceId);
+                })
             } else {
                 route.push("/login");
             }
@@ -349,10 +352,11 @@ export default function DataTableDemo() {
     //     });
     useEffect(() => {
         const fetchAndSetTimeEntries = async () => {
+            console.log("hey i'm fetchAndSetTimeEntries function");
+            const [ClockifyUserData] = await getClockifyUserData() ?? []
+            console.log("ClockifyUserData : ", ClockifyUserData.id);
+            console.log("ClockifyWorkspaceId : ", ClockifyWorkspaceId);
             try {
-                const [ClockifyUserData] = await getClockifyUserData()
-                // console.log("ClockifyUserData : ", ClockifyUserData.id);
-                console.log("ClockifyWorkspaceId : ", ClockifyWorkspaceId);
 
                 const entries = [];
                 for (
