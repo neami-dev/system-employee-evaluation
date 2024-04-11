@@ -9,7 +9,6 @@ import { ToastAction } from "@/components/ui/toast";
 import Loading from "@/components/component/Loading";
 import { auth } from "@/firebase/firebase-config";
 import Link from "next/link";
-// import {} from "env"
 
 export default function login() {
     const emailRef = useRef();
@@ -60,7 +59,7 @@ export default function login() {
             setIsLoading(false); // Stop loading after auth attempt
         } else {
             console.log("Authentication successful: ", auth);
-            route.push("/services");
+            // route.push("/services");
         }
     };
 

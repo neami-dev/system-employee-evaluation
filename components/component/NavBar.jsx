@@ -30,7 +30,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "../ui/use-toast";
 import removetokens, { CheckTokens } from "@/app/api_services/actions/removetokens";
 export default function NavBar() {
-    const [userData, setUserData] = useState("");
+    const [userData, setUserData] = useState({});
     const [isLogged, setIslogged] = useState(false);
     const route = useRouter();
     const { toast } = useToast();
@@ -111,7 +111,7 @@ export default function NavBar() {
                                                 <Avatar className="cursor-pointer">
                                                     <AvatarImage
                                                         alt="User"
-                                                        src="https://github.com/shadcn.png"
+                                                        src={userData?.photoURL}
                                                     />
                                                     <AvatarFallback className="capitalize">
                                                         {

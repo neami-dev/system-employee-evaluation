@@ -30,23 +30,29 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import getDocument from "@/firebase/firestore/getDocument";
-import { editEmail } from "@/firebase/firebase-admin/editEmail";
+import { editEmail } from "@/firebase/auth/editEmail";
 import { onAuthStateChanged } from "firebase/auth";
-import { updateEmployee } from "@/firebase/firebase-admin/updateEmployee";
-import { test } from "@/firebase/firebase-admin/test";
+
 import { sendVerifyResetPsw } from "@/firebase/auth/sendVerifyResetPsw";
 import { useToast } from "@/components/ui/use-toast";
 import Loading from "@/components/component/Loading";
 import { setRepofirebaseGithub } from "@/dataManagement/firebaseGithub/setRepoFirebaseGithub";
 import { setWorkSpaceIdfirebaseClockify } from "@/dataManagement/firebaseWithClockify/setWorkspaceFirebaseClockify";
+import { Input } from "@/components/ui/input";
+import { editProfile } from "@/firebase/auth/editProfile";
+import { uploadImage } from "@/firebase/storage/uploadImage";
+import { deleteImage } from "@/firebase/storage/deleteImage";
+import NavBar from "@/components/component/NavBar";
 
 export default function page() {
     const route = useRouter();
     const [repos, setRepos] = useState([]);
     const [repoSelected, setRepoSelected] = useState();
     const [workspacesGithub, setWorkspacesGithub] = useState([]);
+    const imageRef = useRef();
     const newFullNameRef = useRef();
     const newEmailRef = useRef();
+    const passwordRef = useRef();
 
     const [firebaseRepo, setFirebaseRepo] = useState();
     const [keySelectedGithub, setKeySelectedGithub] = useState(null);
@@ -63,8 +69,8 @@ export default function page() {
     const { toast } = useToast();
 
     useEffect(() => {
-        console.log("key : ", keySelectedClockify);
-        console.log("workspace : ", workspaceNameSelectedClockify);
+        // console.log("key : ", keySelectedClockify);
+        // console.log("workspace : ", workspaceNameSelectedClockify);
 
         if (keySelected !== null) {
             auth.onAuthStateChanged((user) => {
@@ -82,32 +88,35 @@ export default function page() {
             });
         }
     }, [keySelectedClockify]);
-    useEffect(() => {
+    const getUserData = () => {
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 setIsLogged(true);
                 getDocument("userData", user?.uid).then((response) => {
-                    setUserData({ ...user, ...response.result.data() });
+                    setUserData({ ...user, ...response?.result?.data() });
                 });
             } else {
                 route.push("/login");
                 console.log("logout from setting");
             }
         });
+    };
+    useEffect(() => {
+        getUserData();
         const getRepos = async () => {
             const response = await getGitHubUserRepos();
             setRepos(response);
-            console.log("repos", response);
+            // console.log("repos", response);
         };
         getRepos();
         const getyWorkSpacesClockify = async () => {
             const response = await getClockifyWorkSpaces();
             setWorkspacesClockify(response);
-            console.log("workspaces", response);
+            // console.log("workspaces", response);
         };
         getyWorkSpacesClockify();
     }, []);
-    console.log(userData);
+
     useEffect(() => {
         if (repoSelected !== undefined) {
             auth.onAuthStateChanged((user) => {
@@ -125,24 +134,30 @@ export default function page() {
             });
         }
     }, [repoSelected]);
+    const handleChangeProfilePhoto = async () => {
+        const image = imageRef.current?.files[0];
+        await uploadImage(userData?.uid, image);
+        getUserData();
+    };
+    const deleteProfilePhoto = async () => {
+        await deleteImage(`ProfilePhoto/${userData?.uid}`);
+        getUserData();
+    };
 
-    const handleInfoChange = async (e) => {
+    const handleChangeFullName = async () => {
+        const newFullName = newFullNameRef.current.value;
+        if (!newFullName) return;
+        const res = await editProfile({ displayName: newFullName });
+        console.log("full name", res);
+    };
+    const hanldeChangeEmail = async (e) => {
         e.preventDefault();
         const newEmail = newEmailRef.current.value;
-        const newFullName = newFullNameRef.current.value;
+        const password = passwordRef.current.value;
 
-        console.log(newFullName);
-        if (newEmail && userData) {
-            updateEmployee({ uid: userData?.uid, email: newEmail });
-        }
-        if (newFullName && userData) {
-            console.log("uid", userData?.uid);
-
-            const response = await updateEmployee({
-                uid: userData?.uid,
-                displayName: newFullName,
-            });
-            console.log(response, userData);
+        if (newEmail && userData && password) {
+            const res = await editEmail(userData?.email, newEmail, password);
+            console.log(res);
         }
     };
     // send verifiction set password in email
@@ -184,9 +199,10 @@ export default function page() {
                             </li>
 
                             <li className="flex items-center justify-around w-[100%] sm:w-[60%]">
-                                <Avatar className=" border-2 w-[60px] h-[60px] md:w-[70px] md:h-[70px] ">
+                                <Avatar className=" border-2 w-[90px] h-[90px]">
                                     <AvatarImage
                                         alt="User"
+                                        className=""
                                         src={userData?.photoURL}
                                     />
                                     <AvatarFallback className="capitalize font-bold text-3xl">
@@ -194,12 +210,21 @@ export default function page() {
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex ml-3 gap-2">
-                                    <button className="border-2 px-3 py-1 rounded-lg">
-                                        change
-                                    </button>
-                                    <button className="border-2 px-3 py-1 rounded-lg">
-                                        remove
-                                    </button>
+                                    <Input
+                                        type="file"
+                                        ref={imageRef}
+                                        className=" cursor-pointer  px-3 py-1 w-[160px] "
+                                        onChange={handleChangeProfilePhoto}
+                                    />
+
+                                    {userData?.photoURL && (
+                                        <button
+                                            onClick={deleteProfilePhoto}
+                                            className="border-2 px-3 py-1 rounded-lg"
+                                        >
+                                            remove
+                                        </button>
+                                    )}
                                 </div>
                             </li>
                         </ul>
@@ -208,7 +233,7 @@ export default function page() {
                             <div className="mt-8 ">
                                 {/* <input type="hidden" name="remember" defaultValue="true" /> */}
                                 <div className="rounded-md flex flex-col items-end justify-end ">
-                                    <div className=" w-[100%] mx-auto flex">
+                                    <div className=" w-[100%] mx-auto flex items-center justify-end sm:justify-between">
                                         <label
                                             htmlFor="full-name"
                                             className="w-[40%] relative hidden sm:block"
@@ -224,13 +249,14 @@ export default function page() {
                                             name="fullName"
                                             type="username"
                                             required
-                                            className="rounded relative block w-full sm:w-[60%]  px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                            className="rounded relative block w-[160px]  px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                             placeholder="New Full Name"
                                             ref={newFullNameRef}
+                                            onBlur={handleChangeFullName}
                                         />
                                     </div>
 
-                                    <div className="w-[100%] mx-auto  flex">
+                                    <div className="w-[100%] mx-auto  flex items-center justify-end sm:justify-between">
                                         <label
                                             htmlFor="email-address"
                                             className="w-[40%] relative hidden sm:block"
@@ -239,23 +265,73 @@ export default function page() {
                                                 New Email address
                                             </span>
                                         </label>
-                                        <input
-                                            id="email-address"
-                                            name="email"
-                                            type="email"
-                                            autoComplete="email"
-                                            required
-                                            className=" rounded relative block w-full sm:w-[60%] px-3 py-2 mb-8 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                            placeholder="New  Email address"
-                                            ref={newEmailRef}
-                                        />
+
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    className=" w-[160px]"
+                                                >
+                                                    Edit email
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent className="sm:max-w-[425px]">
+                                                <DialogHeader>
+                                                    <DialogTitle>
+                                                        Edit email
+                                                    </DialogTitle>
+                                                    <DialogDescription>
+                                                        Make changes to your
+                                                        email here. Click save
+                                                        when you're done.
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <div className="grid gap-4 py-4">
+                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                        <label
+                                                            htmlFor="newEmail"
+                                                            className="text-right"
+                                                        >
+                                                            New email
+                                                        </label>
+                                                        <Input
+                                                            id="newEmail"
+                                                            defaultValue={`${userData?.email}`}
+                                                            className="col-span-3"
+                                                            ref={newEmailRef}
+                                                            autoComplete="email"
+                                                            type="email"
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-4 items-center gap-4">
+                                                        <label
+                                                            htmlFor="username"
+                                                            className="text-right"
+                                                        >
+                                                            Password
+                                                        </label>
+                                                        <Input
+                                                            id="password"
+                                                            type="password"
+                                                            className="col-span-3"
+                                                            ref={passwordRef}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <DialogFooter>
+                                                    <Button
+                                                        onClick={
+                                                            hanldeChangeEmail
+                                                        }
+                                                    >
+                                                        Save changes
+                                                    </Button>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
                                     </div>
-                                    <Button
-                                        onClick={handleInfoChange}
-                                        className="mt-6 w-[160px]"
-                                    >
-                                        save change
-                                    </Button>
+
                                     <div className="w-[100%] mx-auto  flex items-center justify-end sm:justify-between">
                                         <label className="w-[40%] relative hidden sm:block">
                                             <span className="absolute left-[30%]">
@@ -387,9 +463,7 @@ export default function page() {
                         </h3>
                         <Dialog>
                             <DialogTrigger asChild>
-                                <Button
-                                    className={`mt-1 min-w-[160px] px-3`}
-                                >
+                                <Button className={`mt-1 min-w-[160px] px-3`}>
                                     Change workspace
                                 </Button>
                             </DialogTrigger>
@@ -504,10 +578,7 @@ export default function page() {
                                                 <hr />
 
                                                 {repos?.map((repo, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className=""
-                                                    >
+                                                    <div key={index}>
                                                         <p
                                                             onClick={() => {
                                                                 console.log(

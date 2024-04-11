@@ -21,14 +21,15 @@ const IntegrationPage = () => {
 
     useEffect(() => {
         auth.onAuthStateChanged((user) => {
-            setIsEmailValid(user.emailVerified);
+            console.log(user);
+            setIsEmailValid(user?.emailVerified);
             GetTokenfirebaseClickup(setClickup, user?.uid);
             GetTokenFirebaseGithub(setGithub, user?.uid);
             GetWorkspaceFirebaseClockify(setClockify, user?.uid);
         });
     }, []);
     const jsxAccordingCondictions = () => {
-        console.log(isEmailValid);
+        console.log("isEmailValid",isEmailValid);
         if (isAllIntegrated && isEmailValid) {
             return (
                 <button
