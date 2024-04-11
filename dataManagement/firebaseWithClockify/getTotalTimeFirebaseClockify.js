@@ -5,6 +5,7 @@ import updateDocument from "@/firebase/firestore/updateDocument";
 //test
 export async function getTotalTimeFirebaseClockify(hanldeChange, id) {
     try {
+        console.log("i'm getTotalTime func");
         if (id !== undefined) {
             const response = await getDocument("userData", id);
             const workingTime = response.result.data()?.workingTime;
