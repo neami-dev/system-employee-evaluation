@@ -3,13 +3,13 @@ import { cookies } from "next/headers";
 
 export async function CheckTokens() {
     try {
-        const Tokengithub = cookies().get("tokenGithub");
-        const TokenClickup = cookies().get("tokenClickup");
-        const clockifyApiKey = cookies().get("clockifyApiKey");
-        const ClockifyWorkspace = cookies().get("ClockifyWorkspace");
-        const clockifyUserId = cookies().get("clockifyUserId");
-        const githubRepo = cookies().get("githubRepo");
-        const isAdmin = cookies().get("isAdmin");
+        const Tokengithub = cookies().get("tokenGithub").value;
+        const TokenClickup = cookies().get("tokenClickup").value;
+        const clockifyApiKey = cookies().get("clockifyApiKey").value;
+        const ClockifyWorkspace = cookies().get("ClockifyWorkspace").value;
+        const clockifyUserId = cookies().get("clockifyUserId").value;
+        const githubRepo = cookies().get("githubRepo").value;
+        const isAdmin = cookies().get("isAdmin").value;
         if (!Tokengithub && !TokenClickup && !clockifyApiKey && !ClockifyWorkspace 
             && !clockifyUserId && !githubRepo && !isAdmin) {
             console.log("Cookies are empty");
@@ -64,6 +64,16 @@ export async function deleteCookies() {
         return false;
     }
 }
+export const getClockifyUserIdCookies = () => {
+    try {
+        const clockifyUserId = cookies().get("clockifyUserId").value;
+        return clockifyUserId
+    } catch (error) {
+        console.log(error.message);
+        return error.message
+    }
+    
+};
 export const addCookies = (key, value) => {
     const oneMonthFromNow = new Date();
     oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);

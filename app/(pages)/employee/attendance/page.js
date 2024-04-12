@@ -50,6 +50,8 @@ import { auth } from "@/firebase/firebase-config";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { GetWorkspaceFirebaseClockify } from "@/dataManagement/firebaseWithClockify/GetWorkspaceFirebaseClockify";
+import getDocument from "@/firebase/firestore/getDocument";
+import { getClockifyUserIdCookies } from "@/app/api_services/actions/handleCookies";
 
 function parseTimeToMinutes(timeString) {
     
@@ -327,82 +329,84 @@ export default function DataTableDemo() {
     const [ClockifyWorkspaceId,setClockifyWorkspaceId] = useState([])
     const route = useRouter();
     useEffect(() => {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setIsLogged(true);
-                GetWorkspaceFirebaseClockify(setClockifyWorkspaceId,user?.uid).then((res) => {
-                    console.log("res : ",res);
-                    setClockifyWorkspaceId(res)
-                    console.log("ClockifyWorkspaceId : ",ClockifyWorkspaceId);
-                })
-            } else {
-                route.push("/login");
-                console.log("logout from attendance employee");
-            }
-        });
-        
-    }, []);
-
-
-    // Simulated function to fetch time entries (replace with your actual Clockify API call)
-
-    //   const TimeTrackingTable = ({ userId, workspaceId }) => {
-    //     const [dateRange, setDateRange] = useState({
-    //       from: new Date(),
-    //       to: addDays(new Date(), 5),
-    //     });
-    useEffect(() => {
-        const fetchAndSetTimeEntries = async () => {
-            console.log("hey i'm fetchAndSetTimeEntries function");
-            const [ClockifyUserData] = await getClockifyUserData() ?? []
-            console.log("ClockifyUserData : ", ClockifyUserData.id);
-            console.log("ClockifyWorkspaceId : ", ClockifyWorkspaceId);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            setIsLogged(true);
             try {
-
-                const entries = [];
-                for (
-                    let date = dateRange.from;
-                    date <= dateRange.to;
-                    date = addDays(date, 1)
-                ) {
-                    // console.log("date : ", date);
-                    const formattedDate = format(date, "yyyy-MM-dd");
-                    const dailyEntries = await getCheckInOutTimes(
-                        ClockifyUserData.id,
-                        ClockifyWorkspaceId,
-                        formattedDate
-                    );
-                    // console.log("dailyEntries: ",Object.keys(dailyEntries).length);
-                    // Check if dailyEntries is not null and has elements
-                    if (dailyEntries && Object.keys(dailyEntries).length > 0) {
-                        // console.log("yes");
-                        const checkIn = dailyEntries.checkInTime;
-                        const checkOut = dailyEntries.checkOutTime;
-                        entries.push({
-                            date: formattedDate,
-                            checkIn: checkIn,
-                            checkOut: checkOut,
-                        });
-                    } else {
-                        // Handle the case where there are no entries or dailyEntries is null
-                        // console.log("no");
-                        entries.push({
-                            date: formattedDate,
-                            checkIn: "---",
-                            checkOut: "---",
-                        });
-                    }
+                const response = await getDocument("userData", user.uid); // Assuming user?.uid is always defined here
+                const workspaceId = response?.result.data()?.ClockifyWorkspace; // Safely access ClockifyWorkspace
+                if (workspaceId) {
+                    setClockifyWorkspaceId(workspaceId);
+                } else {
+                    console.log("No workspace ID found");
                 }
-                setTimeEntries(entries);
+            } catch (error) {
+                console.error("Failed to fetch user data:", error);
+            }
+        } else {
+            route.push("/login");
+            console.log("Logged out from attendance employee");
+        }
+    });
+
+    return () => unsubscribe(); // Cleanup function to unsubscribe from the auth listener
+}, []);
+
+
+
+// Simulated function to fetch time entries (replace with your actual Clockify API call)
+
+//   const TimeTrackingTable = ({ userId, workspaceId }) => {
+    //     const [dateRange, setDateRange] = useState({
+        //       from: new Date(),
+        //       to: addDays(new Date(), 5),
+        //     });
+        useEffect(() => {
+            const fetchAndSetTimeEntries = async () => {
+            console.log("hey i'm fetchAndSetTimeEntries function");
+            console.log("ClockifyWorkspaceId: ", ClockifyWorkspaceId);
+    
+            try {
+                const ClockifyUserId = await getClockifyUserIdCookies();
+                if (ClockifyUserId) {
+                    console.log("ClockifyUserId ID: ", ClockifyUserId);
+                    const entries = [];
+                    for (let date = dateRange.from; date <= dateRange.to; date = addDays(date, 1)) {
+                        const formattedDate = format(date, "yyyy-MM-dd");
+                        const dailyEntries = await getCheckInOutTimes(
+                            ClockifyUserId,
+                            ClockifyWorkspaceId,
+                            formattedDate
+                        );
+                        if (dailyEntries && Object.keys(dailyEntries).length > 0) {
+                            entries.push({
+                                date: formattedDate,
+                                checkIn: dailyEntries.checkInTime,
+                                checkOut: dailyEntries.checkOutTime,
+                            });
+                        } else {
+                            entries.push({
+                                date: formattedDate,
+                                checkIn: "---",
+                                checkOut: "---",
+                            });
+                        }
+                    }
+                    // Sort entries by date in descending order
+                    entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    setTimeEntries(entries);
+                } else {
+                    console.error("No user data available from Clockify");
+                }
             } catch (error) {
                 console.error("Error in fetchAndSetTimeEntries:", error);
             }
         };
-
-        // Now call the async function
+    
         fetchAndSetTimeEntries();
-        console.log("dateRange : ", dateRange);
-    }, [dateRange]);
+        console.log("dateRange: ", dateRange);
+    }, [dateRange, ClockifyWorkspaceId]); // Include all relevant dependencies
+    
 
     useEffect(() => {
         console.log("timeEntries : ", timeEntries);
