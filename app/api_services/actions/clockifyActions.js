@@ -12,7 +12,7 @@ const api = axios.create({
 
 // Example function to get user data from Clockify
 export const CheckApiKeyClockify = async () => {
-    console.log("key:", API_KEY);
+    console.log("key:", API_KEY?.value);
     try {
         const response = await axios.get(
             "https://api.clockify.me/api/v1/user"
@@ -132,15 +132,15 @@ export const getTimeTrackedByEmployeeToday = async (
 };
 
 export const getAllUserIds = async (clockifyWorkspaceId) => {
+    console.log("i'm getAllUserIds, workspace :", clockifyWorkspaceId );
     try {
         const response = await api.get(
             `/workspaces/${clockifyWorkspaceId}/users`
         );
         const users = response.data;
-        const userIds = users.map((user) => user.id); // Extracting the user IDs
-        return userIds;
+        return users;
     } catch (error) {
-        console.error("Error fetching user IDs:", error);
+        console.error("Error fetching user IDs:", error.message);
         return [];
     }
 };
@@ -161,7 +161,7 @@ export const getCheckInOutTimes = async (
     specificDate
 ) => {
     const formattedDate = specificDate.split("T")[0]; // Ensure the date is in YYYY-MM-DD format
-    console.log("api key : ", API_KEY);
+    console.log("api key : ", API_KEY?.value);
     console.log("user id : ", clockifyUserId);
     console.log("workspace id : ", clockifyWorkspaceId);
     console.log(formattedDate);

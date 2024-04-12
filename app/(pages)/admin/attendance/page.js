@@ -40,6 +40,7 @@ import { DatePickerWithRange } from "@/components/component/DateRangePicker";
 import { addDays,subDays, format } from "date-fns";
 import { useEffect } from "react";
 import {
+    getAllUserIds,
     getCheckInOutTimes,
     getClockifyUserData,
     getClockifyWorkSpaces,
@@ -52,6 +53,13 @@ import { Switch } from "@/components/ui/switch";
 import { GetWorkspaceFirebaseClockify } from "@/dataManagement/firebaseWithClockify/GetWorkspaceFirebaseClockify";
 import getDocument from "@/firebase/firestore/getDocument";
 import { getClockifyUserIdCookies } from "@/app/api_services/actions/handleCookies";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon } from "lucide-react"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from "@/components/ui/popover"
 
 function parseTimeToMinutes(timeString) {
     
@@ -144,6 +152,30 @@ function getDayName(dateString) {
 }
 
 export const columns = [
+    {
+        accessorKey: "name",
+        header: ({ column }) => (
+            <div
+                className="text-center flex justify-center items-center cursor-pointer hover:bg-gray-200"
+                variant="ghost"
+                onClick={() =>
+                    column.toggleSorting(column.getIsSorted() === "asc")
+                }
+            >
+                Full name
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+            </div>
+        ),
+        cell: ({ row }) => {
+            return (
+                <>
+                    <div className="capitalize text-[#a9a7a7] text-center text-[12px] md:text-[14px]">
+                        {row.getValue("name") || "null"}
+                    </div>
+                </>
+            );
+        },
+    },
     {
         accessorKey: "date",
         header: ({ column }) => (
@@ -307,15 +339,18 @@ export const columns = [
 ];
 
 export default function DataTableDemo() {
-    const [dateRange, setDate] = useState(() => {
-        const today = new Date();
-        const fiveDaysAgo = subDays(today, 3);
+    // const [dateRange, setDate] = useState(() => {
+    //     const today = new Date();
+    //     const fiveDaysAgo = subDays(today, 3);
     
-        return {
-            from: fiveDaysAgo,
-            to: today,
-        };
-    });
+    //     return {
+    //         from: fiveDaysAgo,
+    //         to: today,
+    //     };
+    // });
+    const [date, setDate] = useState(()=> {
+        return new Date()
+    })
     
 
     const [timeEntries, setTimeEntries] = useState([]);
@@ -367,33 +402,36 @@ export default function DataTableDemo() {
             console.log("ClockifyWorkspaceId: ", ClockifyWorkspaceId);
     
             try {
-                const ClockifyUserId = await getClockifyUserIdCookies();
-                if (ClockifyUserId) {
-                    console.log("ClockifyUserId ID: ", ClockifyUserId);
+                // const ClockifyUserId = await getClockifyUserIdCookies();
+                const ClockifyUsers = await getAllUserIds(ClockifyWorkspaceId);
+                console.log("ClockifyUsers :", ClockifyUsers);
+                if (ClockifyUsers.length > 0) {
+                    // console.log("ClockifyUserId ID: ", ClockifyUserId);
                     const entries = [];
-                    for (let date = dateRange.from; date <= dateRange.to; date = addDays(date, 1)) {
+                    for (const user of ClockifyUsers) {
                         const formattedDate = format(date, "yyyy-MM-dd");
                         const dailyEntries = await getCheckInOutTimes(
-                            ClockifyUserId,
+                            user.id,
                             ClockifyWorkspaceId,
                             formattedDate
                         );
                         if (dailyEntries && Object.keys(dailyEntries).length > 0) {
                             entries.push({
+                                name : user.name,
                                 date: formattedDate,
                                 checkIn: dailyEntries.checkInTime,
                                 checkOut: dailyEntries.checkOutTime,
                             });
                         } else {
                             entries.push({
+                                name : user.name,
                                 date: formattedDate,
                                 checkIn: "---",
                                 checkOut: "---",
                             });
                         }
                     }
-                    // Sort entries by date in descending order
-                    entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    entries.sort((a, b) => a.name.localeCompare(b.name)); // Example: Sort by user name
                     setTimeEntries(entries);
                 } else {
                     console.error("No user data available from Clockify");
@@ -404,8 +442,8 @@ export default function DataTableDemo() {
         };
     
         fetchAndSetTimeEntries();
-        console.log("dateRange: ", dateRange);
-    }, [dateRange, ClockifyWorkspaceId]); // Include all relevant dependencies
+        console.log("date: ", date);
+    }, [date, ClockifyWorkspaceId]); // Include all relevant dependencies
     
 
     useEffect(() => {
@@ -436,10 +474,33 @@ export default function DataTableDemo() {
                 <div className="w-[94%] mt-32 min-[426px]:w-[80%] min-[426px]:ml-[76px] sm:w-[80%] sm:ml-[84px] lg:w-[82%] lg:ml-[96px] mx-3 px-4 bg-white rounded-lg">
                     <div className="flex flex-wrap items-center p-1 justify-end ">
                         <div className="m-1">
-                            <DatePickerWithRange
-                                date={dateRange}
+                            {/* <DatePickerWithRange
+                                date={date}
                                 setDate={setDate}
-                            />
+                            /> */}
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                    variant={"outline"}
+                                    className={`${
+                                        "w-[280px] justify-start text-left font-normal",
+                                        !date && "text-muted-foreground"}`
+                                    }
+                                    >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                    mode="single"
+                                    selected={date}
+                                    onSelect={setDate}
+                                    initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            
                         </div>
                         <div className="m-1">
                             <DropdownMenu>
