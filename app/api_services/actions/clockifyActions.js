@@ -3,11 +3,11 @@ import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 import axios from "axios";
 import { cookies } from "next/headers";
 
-const API_KEY = process.env.CLOCKIFY_API_KEY; // Assuming the key is stored in an environment variable
-
+const API_KEY= cookies().get("clockifyApiKey");
+console.log(API_KEY);
 const api = axios.create({
     baseURL: "https://api.clockify.me/api/v1",
-    headers: { "X-Api-Key": API_KEY },
+    headers: { "X-Api-Key": API_KEY?.value},
 });
 
 // Example function to get user data from Clockify

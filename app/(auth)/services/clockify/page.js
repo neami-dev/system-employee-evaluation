@@ -55,7 +55,6 @@ function ClockifyPage() {
 
     useEffect(() => {
         console.log("key : ", keySelected);
-      
 
         const addKeySelected = async () => {
             if (keySelected !== null) {
@@ -95,26 +94,25 @@ function ClockifyPage() {
             toast({
                 description: "key is valid ,choose workspace",
             });
-
+            addCookies("clockifyUserId", result?.id);
+            addCookies("clockifyApiKey", apiKey);
             await updateDocumentA({
                 collectionName: "userData",
                 id: userData?.uid,
                 data: { clockifyApiKey: apiKey, clockifyUserId: result?.id },
             });
 
-            addCookies("clockifyApiKey", apiKey);
-            addCookies("clockifyUserId", result?.id);
-
             const spacesResponse = await getClockifyWorkSpaces();
             setWorkspaces(spacesResponse);
         } catch (error) {
-            
+            console.log( error.message);
             toast({
                 variant: "destructive",
-                description: "api key is not valid",
+                description: error.message,
             });
         }
     }
+    console.log("spacesResponse", workspaces);
 
     console.log(userData);
 
@@ -144,7 +142,8 @@ function ClockifyPage() {
                         <Input type="text" className="m-0" ref={apiKeyRef} />
                         <Link
                             className="text-[12px] text-blue-700"
-                            href="https://app.clockify.me/user/settings" target="_blank"
+                            href="https://app.clockify.me/user/settings"
+                            target="_blank"
                         >
                             https://app.clockify.me/user/settings
                         </Link>
