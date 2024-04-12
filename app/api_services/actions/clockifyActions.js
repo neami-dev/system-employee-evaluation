@@ -132,15 +132,15 @@ export const getTimeTrackedByEmployeeToday = async (
 };
 
 export const getAllUserIds = async (clockifyWorkspaceId) => {
+    console.log("i'm getAllUserIds, workspace :", clockifyWorkspaceId );
     try {
         const response = await api.get(
             `/workspaces/${clockifyWorkspaceId}/users`
         );
         const users = response.data;
-        const userIds = users.map((user) => user.id); // Extracting the user IDs
-        return userIds;
+        return users;
     } catch (error) {
-        console.error("Error fetching user IDs:", error);
+        console.error("Error fetching user IDs:", error.message);
         return [];
     }
 };
