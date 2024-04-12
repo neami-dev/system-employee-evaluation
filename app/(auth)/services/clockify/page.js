@@ -55,7 +55,7 @@ function ClockifyPage() {
 
     useEffect(() => {
         console.log("key : ", keySelected);
-        console.log("workspace : ", workspaceNameSelected);
+      
 
         const addKeySelected = async () => {
             if (keySelected !== null) {
@@ -209,7 +209,7 @@ function ClockifyPage() {
                                             </h4>
                                             <hr />
 
-                                            {workspaces !== undefined &&
+                                            {workspaces.length > 0 &&
                                                 workspaces?.map((workspace) => (
                                                     <div
                                                         key={workspace?.name}
