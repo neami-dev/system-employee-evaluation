@@ -87,7 +87,6 @@ function ClockifyPage() {
                 });
                 return;
             }
-
             const result = await getClockifyUserData(apiKey);
 
             setKeyValid(true);
@@ -212,7 +211,7 @@ function ClockifyPage() {
                                                 workspaces?.map((workspace) => (
                                                     <div
                                                         key={workspace?.name}
-                                                        className=""
+                                                        
                                                     >
                                                         <p
                                                             onClick={() => {

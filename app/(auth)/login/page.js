@@ -39,9 +39,9 @@ export default function login() {
             ) {
                 console.log("tokens or ids not found");
                 toast({
-                    variant: "destructive" ,
-                    description: "tokens or ids not found"
-                })
+                    variant: "destructive",
+                    description: "tokens or ids not found",
+                });
                 route.push("/services");
                 return;
             }
@@ -58,18 +58,19 @@ export default function login() {
                 "clockifyUserId",
                 response.result?.data()?.clockifyUserId
             );
-            addCookies(
-                "clickupToken",
-                response.result?.data()?.clickupToken
-            );
-            addCookies(
-                "githubRepo",
-                response.result?.data()?.githubRepo
-            );
+            addCookies("clickupToken", response.result?.data()?.clickupToken);
+            addCookies("githubRepo", response.result?.data()?.githubRepo);
+            addCookies("totalCommit", 0);
+            addCookies("workTime", 0);
+            addCookies("tasks", 0);
+            addCookies("tasksCompleted", 0);
+            addCookies("tasksProgress", 0);
+            addCookies("TasksOpen", 0);
+            addCookies("tasksPending", 0);
             addCookies("isAdmin", (await checkRoleAdmin(user?.uid)).result);
             toast({
-                description: "Authentication successful"
-            })
+                description: "Authentication successful",
+            });
             route.push("/employee/dashboard");
             console.log(data);
         });

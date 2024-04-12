@@ -75,15 +75,12 @@ export const getRepoFirebase = async (IdFirebase) => {
 };
 
 // Function to get the total number of commits by the authenticated user for the current day across all repositories
-export const getTotalCommitsForToday = async (
-    IdFirebase,
-    githubTotalCommits
-) => {
+export const getTotalCommitsForToday = async (IdFirebase) => {
     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
     const username = await getGitHubUsername(); // Fetch the authenticated user's username
     const TheRepo = await getRepoFirebase(IdFirebase);
-    console.log("TheRepo:", TheRepo);
-    let totalCommits = 0;
+
+    let totalCommits = null;
 
     try {
         const response = await githubApi.get(`/repos/${TheRepo}/commits`, {
@@ -93,7 +90,7 @@ export const getTotalCommitsForToday = async (
                 author: username,
             },
         });
-        totalCommits = response.data.length;
+        totalCommits = response?.data.length;
         console.log("totalCommits : ", totalCommits);
         if (totalCommits !== githubTotalCommits) {
             updateDocumentA({
@@ -103,10 +100,7 @@ export const getTotalCommitsForToday = async (
             });
         }
     } catch (error) {
-        console.error(
-            `Error fetching commits for repo ${TheRepo}:`,
-            error.message
-        );
+        console.error(`Error fetching commits for repo :`, error.message);
     }
 
     return totalCommits;
