@@ -16,7 +16,6 @@ const api = axios.create({
   },
 });
 
-
 // Function to get the authenticated user's details
 export const getAuthenticatedUserDetails = async () => {
   console.log("i'm user func");

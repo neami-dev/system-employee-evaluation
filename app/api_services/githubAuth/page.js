@@ -24,7 +24,7 @@ export default function ClickupCallback() {
                 }
             } else {
                 // Handle scenario when there is no authenticated user
-                router.push("/auth-process");
+                router.push("/services");
             }
         };
 
@@ -45,6 +45,4 @@ export default function ClickupCallback() {
             router.push("/login");
         }
     }
-
-    return <Loading />;
 }

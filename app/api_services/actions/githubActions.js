@@ -1,17 +1,17 @@
 "use server";
-import getDocument from "@/firebase/firestore/getDocument";
+
 import getDocumentA from "@/firebase/firestore/getDocummentA";
 import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 // actions.js
 import axios from "axios";
 import { cookies } from "next/headers";
 
-const GITHUB_TOKEN = cookies().get("tokenGithub"); // github API token
+const GITHUB_TOKEN = cookies().get("githubToken"); // github API token
 console.log("GITHUB_TOKEN", GITHUB_TOKEN);
 const githubApi = axios.create({
     baseURL: "https://api.github.com",
     headers: {
-        Authorization: `token ${GITHUB_TOKEN?.value}`,
+        Authorization: `token  ${GITHUB_TOKEN?.value}`,
         Accept: "application/vnd.github.v3+json",
     },
 });
@@ -21,7 +21,7 @@ export const getGitHubUsername = async () => {
     try {
         // The '/user' endpoint returns data about the authenticated user
         const response = await githubApi.get("/user");
-        const username = response.data.login; // The 'login' field contains the username
+        const username = response?.data?.login; // The 'login' field contains the username
         return username;
     } catch (error) {
         console.error("Error fetching GitHub user data:", error.message);
@@ -45,7 +45,7 @@ export const getGitHubUserRepos = async () => {
             },
         });
         // Process the response to extract necessary repository information
-        const repos = response.data.map((repo) => ({
+        const repos = response?.data?.map((repo) => ({
             name: repo.full_name,
             url: repo.html_url,
             description: repo.description,
@@ -70,7 +70,7 @@ export const getRepoFirebase = async (IdFirebase) => {
     const response = await getDocumentA("userData", IdFirebase);
     // Assuming `getDocument` returns { result: <document data>, error: null } for successful fetch
     // and `result` is directly the data of the document.
-    const githubRepo = response.result?.githubRepo;
+    const githubRepo = response?.result?.githubRepo;
     return githubRepo;
 };
 

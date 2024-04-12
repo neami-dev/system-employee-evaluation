@@ -14,17 +14,14 @@ import {
     getTeams,
 } from "@/app/api_services/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
-import {
-    getClockifyUserData,
-    getTimeTrackedByEmployeeToday,
-} from "@/app/api_services/actions/clockifyActions";
+ 
 import { AlignCenter } from "lucide-react";
 import Weather from "@/components/component/weather";
 import ChangingProgressProvider from "@/components/component/ChangingProgressProvider";
 import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
 import { Skeleton } from "@/components/ui/skeleton";
-import { firebaseWithGithub } from "@/dataManagement/firebaseGithub/GetCommitsFirebaseWithGithub";
+ 
 import { GetUserIdfirebaseClockify } from "@/dataManagement/firebaseClockify/firebaseWithClockify";
 import { onAuthStateChanged } from "firebase/auth";
 import { getTotalTimeFirebaseClockify } from "@/dataManagement/firebaseWithClockify/getTotalTimeFirebaseClockify";
@@ -35,7 +32,7 @@ export default function page() {
     const [tasksPending, setTasksPending] = useState([]);
     const [allTasks, setAllTasks] = useState([]);
     const [tasksOnHold, setTasksOnHold] = useState([]);
-    const [commits, setCommits] = useState(undefined);
+    const [commits, setCommits] = useState(3);
     const [isLogged, setIsLogged] = useState(false);
     // const [oldCommits, setOldCommits] = useState(undefined);
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
@@ -56,7 +53,7 @@ export default function page() {
         onAuthStateChanged(auth,(user) => {
             if (user) {
                 setIsLogged(true);
-                firebaseWithGithub(setCommits, user?.uid);
+                // firebaseWithGithub(setCommits, user?.uid);
                 GetUserIdfirebaseClockify(user?.uid);
                 getTotalTimeFirebaseClockify(setTimeTrackedByEmployeeToday,user?.uid)
             }else{

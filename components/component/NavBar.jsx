@@ -28,7 +28,8 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "../ui/use-toast";
-import removetokens, { CheckTokens } from "@/app/api_services/actions/removetokens";
+import  {  getAllCookies } from "@/app/api_services/actions/handleCookies";
+import {deleteCookies} from "@/app/api_services/actions/handleCookies";
 export default function NavBar() {
     const [userData, setUserData] = useState({});
     const [isLogged, setIslogged] = useState(false);
@@ -36,8 +37,8 @@ export default function NavBar() {
     const { toast } = useToast();
 
     useEffect(() => {
-        CheckTokens().then((checkTk) => {
-            console.log("checkTk :", checkTk);
+        getAllCookies().then((cookies) => {
+            console.log("cookies:", cookies);
         });
         
         onAuthStateChanged(auth, (user) => {
@@ -45,7 +46,7 @@ export default function NavBar() {
                 setIslogged(true);
                 setUserData(user);
             } else {
-                removetokens().then((tokenRemoved) => {
+                deleteCookies().then((tokenRemoved) => {
                     console.log("tokenRemoved :", tokenRemoved);
                     if (tokenRemoved) {
                         route.push("/login");
@@ -61,13 +62,14 @@ export default function NavBar() {
                 toast({
                     description: "logged out sccessfully",
                 });
+                deleteCookies()
             })
             .catch((err) => {
                 toast({
                     variant: "destructive",
                     description: "logged out error",
                 });
-                // removetokens()
+              
                 console.log(err);
             });
     }

@@ -1,10 +1,9 @@
 "use client";
 import Loading from "@/components/component/Loading";
-import { GetTokenFirebaseGithub } from "@/dataManagement/firebaseGithub/GetTokenFIrebaseGithub";
-import { GetTokenfirebaseClickup } from "@/dataManagement/firebaseWithClickup/GetTokenfirebaseClickup";
-import { GetWorkspaceFirebaseClockify } from "@/dataManagement/firebaseWithClockify/GetWorkspaceFirebaseClockify";
 
 import { auth } from "@/firebase/firebase-config";
+import getDocument from "@/firebase/firestore/getDocument";
+import { onAuthStateChanged } from "firebase/auth";
 import { ArrowBigRightDash, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -20,16 +19,41 @@ const IntegrationPage = () => {
     const isAllIntegrated = Clickup && Github && Clockify;
 
     useEffect(() => {
-        auth.onAuthStateChanged((user) => {
-            console.log(user);
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) route.push("/login");
+            // console.log(user);
             setIsEmailValid(user?.emailVerified);
-            GetTokenfirebaseClickup(setClickup, user?.uid);
-            GetTokenFirebaseGithub(setGithub, user?.uid);
-            GetWorkspaceFirebaseClockify(setClockify, user?.uid);
+            const response = await getDocument("userData", user?.uid);
+            if (response.error) return;
+
+            if (response.result?.data()?.clickupToken) {
+                setClickup(true);
+            } else {
+                setClickup(false);
+            }
+            if (
+                response.result?.data()?.clockifyUserId &&
+                response.result?.data()?.ClockifyWorkspace &&
+                response.result?.data()?.clockifyApiKey
+            ) {
+                setClockify(true);
+            } else {
+                setClockify(false);
+            }
+            if (
+                response.result?.data()?.githubRepo &&
+                response.result?.data()?.githubToken
+            ) {
+                setGithub(true);
+            } else {
+                setGithub(false);
+            }
+
+            console.log({ ...user, ...response.result?.data() });
         });
     }, []);
     const jsxAccordingCondictions = () => {
-        console.log("isEmailValid",isEmailValid);
+        console.log("isEmailValid", isEmailValid);
         if (isAllIntegrated && isEmailValid) {
             return (
                 <button

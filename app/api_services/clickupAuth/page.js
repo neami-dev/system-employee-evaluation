@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import ClickupTokenHandler from "./ClickupTokenHandler";
+import {ClickupTokenHandler} from "./ClickupTokenHandler";
 import Loading from "@/components/component/Loading";
 import { auth } from "@/firebase/firebase-config";
 
@@ -35,7 +35,7 @@ export default function ClickupCallback() {
         console.log("UID:", uid);
         const dataToken = await ClickupTokenHandler(code, uid);
 
-        if (dataToken === true) {
+        if (dataToken) {
             console.log("Access token obtained successfully.");
             router.push("/services");
         } else {

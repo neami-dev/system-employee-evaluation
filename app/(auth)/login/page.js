@@ -9,6 +9,10 @@ import { ToastAction } from "@/components/ui/toast";
 import Loading from "@/components/component/Loading";
 import { auth } from "@/firebase/firebase-config";
 import Link from "next/link";
+import { onAuthStateChanged } from "firebase/auth";
+import getDocument from "@/firebase/firestore/getDocument";
+import { addCookies } from "@/app/api_services/actions/handleCookies";
+import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
 
 export default function login() {
     const emailRef = useRef();
@@ -20,6 +24,56 @@ export default function login() {
 
     const [isLoading, setIsLoading] = useState(false); // Add a loading state
 
+    const handleInfo = async () => {
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) return;
+            const response = await getDocument("userData", user?.uid);
+            const data = response?.result?.data();
+            if (
+                !response.result?.data()?.ClockifyWorkspace ||
+                !response.result?.data()?.clockifyApiKey ||
+                !response.result?.data()?.clockifyUserId ||
+                !response.result?.data()?.clickupToken ||
+                !response.result?.data()?.githubToken ||
+                !response.result?.data()?.githubRepo
+            ) {
+                console.log("tokens or ids not found");
+                toast({
+                    variant: "destructive" ,
+                    description: "tokens or ids not found"
+                })
+                route.push("/services");
+                return;
+            }
+
+            addCookies(
+                "ClockifyWorkspace",
+                response.result?.data()?.ClockifyWorkspace
+            );
+            addCookies(
+                "clockifyApiKey",
+                response.result?.data()?.clockifyApiKey
+            );
+            addCookies(
+                "clockifyUserId",
+                response.result?.data()?.clockifyUserId
+            );
+            addCookies(
+                "clickupToken",
+                response.result?.data()?.clickupToken
+            );
+            addCookies(
+                "githubRepo",
+                response.result?.data()?.githubRepo
+            );
+            addCookies("isAdmin", (await checkRoleAdmin(user?.uid)).result);
+            toast({
+                description: "Authentication successful"
+            })
+            route.push("/employee/dashboard");
+            console.log(data);
+        });
+    };
     useEffect(() => {
         // lanch the alert toast if there is an error
         errors.forEach((error) => {
@@ -58,8 +112,7 @@ export default function login() {
             setErrors([result.error?.code?.split("/")[1]]);
             setIsLoading(false); // Stop loading after auth attempt
         } else {
-            console.log("Authentication successful: ", auth);
-            // route.push("/services");
+            handleInfo();
         }
     };
 

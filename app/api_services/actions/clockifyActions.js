@@ -3,7 +3,6 @@ import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 import axios from "axios";
 import { cookies } from "next/headers";
 
-
 const API_KEY = process.env.CLOCKIFY_API_KEY; // Assuming the key is stored in an environment variable
 
 const api = axios.create({
@@ -15,39 +14,45 @@ const api = axios.create({
 export const CheckApiKeyClockify = async () => {
     console.log("key:", API_KEY);
     try {
-        const response = await axios.get("https://api.clockify.me/api/v1/user", 
-        // {
-        //     headers: { "X-Api-Key": Key },
-        // }
+        const response = await axios.get(
+            "https://api.clockify.me/api/v1/user"
+            // {
+            //     headers: { "X-Api-Key": Key },
+            // }
         );
         // console.log("res:", response.data);
         return true; // Assuming you want to return a boolean
     } catch (error) {
-        console.error('Error fetching user data from Clockify:', error.message);
+        console.error("Error fetching user data from Clockify:", error.message);
         return false;
     }
 };
 
-
 // Example function to get user data from Clockify
-export const getClockifyUserData = async () => {
-  try {
-    const response = await api.get('/user');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching user data from Clockify:', error);
-    return 'invalid';
-  }
+export const getClockifyUserData = async (api_key) => {
+    try {
+        if (api_key) {
+            return (
+                await axios.get("https://api.clockify.me/api/v1/user", {
+                    headers: { "X-Api-Key": api_key },
+                })
+            ).data;
+        }
+        return (await api.get("/user")).data;
+    } catch (error) {
+        console.error("Error fetching user data from Clockify:", error);
+        return error;
+    }
 };
 
 export const getClockifyWorkSpaces = async () => {
-  try {
-    const response = await api.get('/workspaces');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching user data from Clockify:', error);
-    return 'invalid';
-  }
+    try {
+        const response = await api.get("/workspaces");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching user data from Clockify:", error);
+        return "invalid";
+    }
 };
 
 // export const getClockifyWorkSpaces = async () => {
@@ -85,7 +90,7 @@ export const getTimeTrackedByEmployeeToday = async (
 ) => {
     const date = new Date().toISOString().split("T")[0]; // Get today's date
     console.log("date : ", date);
-    console.log("api key : ",API_KEY);
+    console.log("api key : ", API_KEY);
     console.log("user id : ", clockifyUserId);
     console.log("workspace id : ", clockifyWorkspaceId);
     console.log("IdFirebase id : ", IdFirebase);
@@ -156,7 +161,7 @@ export const getCheckInOutTimes = async (
     specificDate
 ) => {
     const formattedDate = specificDate.split("T")[0]; // Ensure the date is in YYYY-MM-DD format
-    console.log("api key : ",API_KEY);
+    console.log("api key : ", API_KEY);
     console.log("user id : ", clockifyUserId);
     console.log("workspace id : ", clockifyWorkspaceId);
     console.log(formattedDate);

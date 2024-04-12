@@ -1,3 +1,4 @@
+"use server"
 import admin from "../admin"; // Adjust this path if necessary
 
 export default async function updateDocumentA({ collectionName, id, data }) {
@@ -9,7 +10,8 @@ export default async function updateDocumentA({ collectionName, id, data }) {
         const ref = db.collection(collectionName).doc(id);
         
         // Using the set method with {merge: true} to mimic updateDoc behavior
-        result = await ref.set(data, { merge: true });
+         await ref.set(data, { merge: true });
+         result = true;
     } catch (e) {
         console.error("Error updating document:", e);
         error = e;
