@@ -48,6 +48,7 @@ export default function Menu() {
     useEffect(() => {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
+                if(!user?.emailVerified) route.push("/not-found")
                 setIslogged(true);
                 const res = await getDocument("userData", user.uid);
                 if (
