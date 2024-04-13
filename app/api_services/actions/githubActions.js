@@ -5,7 +5,7 @@ import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 // actions.js
 import axios from "axios";
 import { cookies } from "next/headers";
-import { addCookies, getCookie } from "./handleCookies";
+import { addCookie, getCookie } from "./handleCookies";
 
 const GITHUB_TOKEN = cookies().get("githubToken"); // github API token
 const GITHUB_REPO = cookies().get("githubRepo"); // github API token
@@ -98,7 +98,7 @@ export const getTotalCommitsForToday = async () => {
         console.log("totalCommits==", totalCommits);
 
         if (totalCommits !== getCookie("totalCommits")?.value) {
-            addCookies("totalCommits", totalCommits);
+            addCookie("totalCommits", totalCommits);
         }
 
         return totalCommits;
