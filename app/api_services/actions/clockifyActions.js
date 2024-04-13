@@ -115,7 +115,7 @@ export const getTimeTrackedByEmployeeToday = async (
         const hours = Math.floor(totalTimeWorkedInSeconds / 3600);
         const minutes = Math.floor((totalTimeWorkedInSeconds % 3600) / 60);
         const seconds = totalTimeWorkedInSeconds % 60;
-        
+        console.log("hours",hours);
         if (hours !== getCookie("workTime")) {
             addCookie("workTime", hours);
         }

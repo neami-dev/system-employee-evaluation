@@ -22,89 +22,72 @@ import CurvedlineChart from "@/components/component/curvedLineChart";
 import BarChart from "@/components/component/barChart";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { GetUserIdfirebaseClockify } from "@/dataManagement/firebaseClockify/firebaseWithClockify";
 import { onAuthStateChanged } from "firebase/auth";
-import { getTotalTimeFirebaseClockify } from "@/dataManagement/firebaseWithClockify/getTotalTimeFirebaseClockify";
-import getDocument from "@/firebase/firestore/getDocument";
 import { getTotalCommitsForToday } from "@/app/api_services/actions/githubActions";
-import {
-    getClockifyUserData,
-    getClockifyWorkSpaces,
-    getTimeTrackedByEmployeeToday,
-} from "@/app/api_services/actions/clockifyActions";
-import { getCookies } from "@/app/api_services/actions/handleCookies";
+import { getTimeTrackedByEmployeeToday } from "@/app/api_services/actions/clockifyActions";
+
 import { getCookie } from "cookies-next";
 
 export default function page() {
-    const [tasksCompleted, setTasksCompleted] = useState([]);
-    const [tasksInProgress, setTasksInProgress] = useState([]);
-    const [tasksPending, setTasksPending] = useState([]);
-    const [allTasks, setAllTasks] = useState([]);
-    const [tasksOnHold, setTasksOnHold] = useState([]);
+    const [tasksCompleted, setTasksCompleted] = useState(
+        getCookie("tasksCompleted") || null
+    );
+    const [tasksInProgress, setTasksInProgress] = useState(
+        getCookie("tasksProgress") || null
+    );
+    const [tasksPending, setTasksPending] = useState(
+        getCookie("tasksPending") || null
+    );
+    const [allTasks, setAllTasks] = useState(getCookie("tasks") || null);
+    const [tasksOnHold, setTasksOnHold] = useState(
+        getCookie("tasksOnHold") || null
+    );
     const [commits, setCommits] = useState(getCookie("totalCommits") || null);
     const [isLogged, setIsLogged] = useState(false);
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
-        useState(null);
-    const [userData, setUserData] = useState({});
+        useState(getCookie("workTime") || null);
+
     const route = useRouter();
-    // get last commits from github and check is logged
-    console.log(commits);
+
     useEffect(() => {
-       console.log(getCookie("totalCommits"));
-        setCommits(getCookie("totalCommits"));
-        setTimeTrackedByEmployeeToday(getCookie("workTime"));
-        setAllTasks(getCookie("tasks"));
-        setTasksCompleted(getCookie("tasksCompleted"));
-        setTasksInProgress(getCookie("tasksProgress"));
-        setTasksOnHold(getCookie("tasksOnHold"));
-        setTasksPending(getCookie("tasksPending"));
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 setIsLogged(true);
-                const response = await getDocument("userData", user?.uid);
-                setUserData({ ...response.result.data(), ...user });
-
-                // getTimeTrackedByEmployeeToday(getCookies("clockifyUserId"),getCookies("ClockifyWorkspace")).then((response) => {console.log(response)});
-
-                
             } else {
                 route.push("/login");
                 console.log("logout from dashboard employee");
             }
         });
-    }, []);
-
-    // get info the user score department ...
-    const getInfo = async () => {
-        console.log(commits);
-        getTotalCommitsForToday();
-
-        // function to get information from clickUp
-        const [team, userCickupDetails] = await Promise.all([
-            getTeams(),
-            getAuthenticatedUserDetails(),
-        ]);
-        getCompletedTasksByEmployee(team?.id, userCickupDetails?.id);
-        getInProgressTasksByEmployee(team?.id, userCickupDetails?.id);
-        getOpenTasksByEmployee(team?.id, userCickupDetails?.id);
-        getPendingTasksByEmployee(team?.id, userCickupDetails?.id);
-        getAllTasksByEmployee(team?.id, userCickupDetails?.id);
-    };
-
-    useEffect(() => {
-        // Listen for auth state changes
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            if (!user) {
-                // Redirect if not authenticated
-                route.push("/login");
-            }
-        });
-        // Cleanup subscription on component unmount
-        return () => unsubscribe();
-    }, []); // Removed data from dependencies to avoid re-triggering
-
-    useEffect(() => {
-        getInfo();
+        const getInfo = async () => {
+            getTimeTrackedByEmployeeToday(
+                getCookie("clockifyUserId"),
+                getCookie("ClockifyWorkspace")
+            );
+            getTotalCommitsForToday();
+            // function to get information from clickUp
+            const [team, userCickupDetails] = await Promise.all([
+                getTeams(),
+                getAuthenticatedUserDetails(),
+            ]);
+            getCompletedTasksByEmployee(team?.id, userCickupDetails?.id);
+            getInProgressTasksByEmployee(team?.id, userCickupDetails?.id);
+            getOpenTasksByEmployee(team?.id, userCickupDetails?.id);
+            getPendingTasksByEmployee(team?.id, userCickupDetails?.id);
+            getAllTasksByEmployee(team?.id, userCickupDetails?.id);
+            setAllTasks(getCookie("tasks"));
+            setTasksCompleted(getCookie("tasksCompleted"));
+            setTasksInProgress(getCookie("tasksProgress"));
+            setTasksPending(getCookie("tasksPending"));
+            setCommits(getCookie("totalCommits"));
+            setTimeTrackedByEmployeeToday(getCookie("workTime"));
+        };
+        const id = setInterval(() => {
+            console.log("tick");
+            getInfo();
+        }, 2000);
+        return () => {
+            clearInterval(id);
+        };
     }, []);
 
     const dataChart = [
@@ -132,19 +115,11 @@ export default function page() {
     const progressPercentageTask = () => {
         if (allTasks !== null) {
             return {
-                tasksInProgress: Math.round(
-                    (tasksInProgress * 100) / allTasks
-                ),
-                tasksPending: Math.round(
-                    (tasksPending * 100) / allTasks
-                ),
-                tasksCompleted: Math.round(
-                    (tasksCompleted * 100) / allTasks
-                ),
+                tasksInProgress: Math.round((tasksInProgress * 100) / allTasks),
+                tasksPending: Math.round((tasksPending * 100) / allTasks),
+                tasksCompleted: Math.round((tasksCompleted * 100) / allTasks),
 
-                tasksOnHold: Math.round(
-                    (tasksOnHold * 100) / allTasks
-                ),
+                tasksOnHold: Math.round((tasksOnHold * 100) / allTasks),
             };
         }
     };
@@ -155,7 +130,7 @@ export default function page() {
     };
     const progressPercentageTimeWork = () => {
         if (timeTrackedByEmployeeToday !== null) {
-            return Math.round((timeTrackedByEmployeeToday?.hours * 100) / 8);
+            return Math.round((timeTrackedByEmployeeToday * 100) / 8);
         }
     };
     const itemStyle =
@@ -169,7 +144,7 @@ export default function page() {
                             <Weather />
                         </li>
                         <li className={`${itemStyle} `}>
-                            {allTasks?.length > 0 ? (
+                            {allTasks !== null ? (
                                 <>
                                     <div className="w-[65px]">
                                         <ChangingProgressProvider
@@ -182,7 +157,7 @@ export default function page() {
                                             {(percentage) => (
                                                 <CircularProgressbar
                                                     value={percentage}
-                                                    text={`${tasksCompleted?.length}/${allTasks?.length}`}
+                                                    text={`${tasksCompleted}/${allTasks}`}
                                                     styles={buildStyles({
                                                         pathTransition:
                                                             percentage === 0
@@ -206,7 +181,7 @@ export default function page() {
                             )}
                         </li>
                         <li className={`${itemStyle}`}>
-                            {allTasks?.length > 0 ? (
+                            {allTasks !== null ? (
                                 <>
                                     <div className="w-[65px]">
                                         <ChangingProgressProvider
@@ -219,7 +194,7 @@ export default function page() {
                                             {(percentage) => (
                                                 <CircularProgressbar
                                                     value={percentage}
-                                                    text={`${tasksInProgress?.length}/${allTasks?.length}`}
+                                                    text={`${tasksInProgress}/${allTasks}`}
                                                     styles={buildStyles({
                                                         pathTransition:
                                                             percentage === 0
@@ -243,7 +218,7 @@ export default function page() {
                             )}
                         </li>
                         <li className={`${itemStyle}`}>
-                            {allTasks?.length > 0 ? (
+                            {allTasks !== null ? (
                                 <>
                                     <div className="w-[65px]">
                                         <ChangingProgressProvider
@@ -257,7 +232,7 @@ export default function page() {
                                                 <CircularProgressbar
                                                     value={percentage}
                                                     responseTasksOnHold
-                                                    text={`${tasksOnHold?.length}/${allTasks?.length}`}
+                                                    text={`${tasksOnHold}/${allTasks}`}
                                                     styles={buildStyles({
                                                         pathTransition:
                                                             percentage === 0
@@ -281,7 +256,7 @@ export default function page() {
                             )}
                         </li>
                         <li className={`${itemStyle}`}>
-                            {allTasks?.length > 0 ? (
+                            {allTasks !== null ? (
                                 <>
                                     <div className="w-[65px]">
                                         <ChangingProgressProvider
@@ -294,7 +269,7 @@ export default function page() {
                                             {(percentage) => (
                                                 <CircularProgressbar
                                                     value={percentage}
-                                                    text={`${tasksPending.length}/${allTasks?.length}`}
+                                                    text={`${tasksPending}/${allTasks}`}
                                                     styles={buildStyles({
                                                         pathTransition:
                                                             percentage === 0
@@ -354,7 +329,7 @@ export default function page() {
                             )}
                         </li>
                         <li className={`${itemStyle}`}>
-                            {commits !== undefined ? (
+                            {commits !== null ? (
                                 <>
                                     <div className="w-[65px]">
                                         <ChangingProgressProvider

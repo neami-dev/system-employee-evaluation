@@ -46,7 +46,7 @@ export default function login() {
                 return;
             }
 
-            addCookieServer(
+            addCookie(
                 "ClockifyWorkspace",
                 response.result?.data()?.ClockifyWorkspace
             );
@@ -54,7 +54,7 @@ export default function login() {
                 "clockifyApiKey",
                 response.result?.data()?.clockifyApiKey
             );
-            addCookieServer(
+            addCookie(
                 "clockifyUserId",
                 response.result?.data()?.clockifyUserId
             );
@@ -67,8 +67,9 @@ export default function login() {
             addCookie("TasksOpen", 0);
             addCookie("tasksPending", 0);
             addCookie("tasksOnHold", 0);
-
-            addCookieServer("isAdmin", (await checkRoleAdmin(user?.uid)).result);
+            addCookie("tasks", 0);
+            addCookie("isAdmin", (await checkRoleAdmin(user?.uid)).result);
+            addCookie("isLogged",true);
             toast({
                 description: "Authentication successful",
             });

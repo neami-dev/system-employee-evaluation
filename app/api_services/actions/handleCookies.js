@@ -57,8 +57,8 @@ export async function CheckTokens() {
 }
 export async function deleteCookies() {
     try {
-        cookies().delete("tokenGithub");
-        cookies().delete("tokenClickup");
+        cookies().delete("githubToken");
+        cookies().delete("clickupToken");
         cookies().delete("ClockifyWorkspace");
         cookies().delete("clockifyApiKey");
         cookies().delete("clockifyUserId");
@@ -70,7 +70,10 @@ export async function deleteCookies() {
         cookies().delete("TasksOpen");
         cookies().delete("tasksPending");
         cookies().delete("tasksOnHold");
+        cookies().delete("tasks");
         cookies().delete("isAdmin");
+        cookies().delete("isLogged");
+        
        
         return true;
     } catch (error) {
