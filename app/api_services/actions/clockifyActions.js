@@ -2,12 +2,13 @@
 import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 import axios from "axios";
 import { cookies } from "next/headers";
+import { addCookie, getCookie } from "./handleCookies";
 
-const API_KEY= cookies().get("clockifyApiKey");
+const API_KEY = cookies().get("clockifyApiKey");
 console.log(API_KEY);
 const api = axios.create({
     baseURL: "https://api.clockify.me/api/v1",
-    headers: { "X-Api-Key": API_KEY?.value},
+    headers: { "X-Api-Key": API_KEY?.value },
 });
 
 // Example function to get user data from Clockify
@@ -84,23 +85,20 @@ const isoDurationToSeconds = (isoDuration) => {
 // Function to get time tracked by an employee today
 export const getTimeTrackedByEmployeeToday = async (
     clockifyUserId,
-    clockifyWorkspaceId,
-    IdFirebase,
-    workingTime
+    clockifyWorkspaceId
 ) => {
     const date = new Date().toISOString().split("T")[0]; // Get today's date
     console.log("date : ", date);
     console.log("api key : ", API_KEY);
     console.log("user id : ", clockifyUserId);
     console.log("workspace id : ", clockifyWorkspaceId);
-    console.log("IdFirebase id : ", IdFirebase);
 
     try {
         const response = await api.get(
             `/workspaces/${clockifyWorkspaceId}/user/${clockifyUserId}/time-entries?start=${date}T00:00:00Z&end=${date}T23:59:59Z`
         );
 
-        // console.log("response : ",response.data);
+        console.log("response ==: ",response.data);
         const timeEntries = response.data;
         // console.log(timeEntries);
         let totalTimeWorkedInSeconds = 0;
@@ -112,18 +110,15 @@ export const getTimeTrackedByEmployeeToday = async (
         });
 
         console.log("time : ", totalTimeWorkedInSeconds);
-
-        if (totalTimeWorkedInSeconds !== workingTime) {
-            updateDocumentA({
-                collectionName: "userData",
-                id: IdFirebase,
-                data: { workingTime: totalTimeWorkedInSeconds },
-            });
-        }
+        
 
         const hours = Math.floor(totalTimeWorkedInSeconds / 3600);
         const minutes = Math.floor((totalTimeWorkedInSeconds % 3600) / 60);
         const seconds = totalTimeWorkedInSeconds % 60;
+        
+        if (hours !== getCookie("workTime")) {
+            addCookie("workTime", hours);
+        }
         return { hours, minutes, seconds };
     } catch (error) {
         console.error("Error fetching time entries:", error);
@@ -132,7 +127,7 @@ export const getTimeTrackedByEmployeeToday = async (
 };
 
 export const getAllUserIds = async (clockifyWorkspaceId) => {
-    console.log("i'm getAllUserIds, workspace :", clockifyWorkspaceId );
+    console.log("i'm getAllUserIds, workspace :", clockifyWorkspaceId);
     try {
         const response = await api.get(
             `/workspaces/${clockifyWorkspaceId}/users`

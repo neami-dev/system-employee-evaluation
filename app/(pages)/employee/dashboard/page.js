@@ -27,6 +27,13 @@ import { onAuthStateChanged } from "firebase/auth";
 import { getTotalTimeFirebaseClockify } from "@/dataManagement/firebaseWithClockify/getTotalTimeFirebaseClockify";
 import getDocument from "@/firebase/firestore/getDocument";
 import { getTotalCommitsForToday } from "@/app/api_services/actions/githubActions";
+import {
+    getClockifyUserData,
+    getClockifyWorkSpaces,
+    getTimeTrackedByEmployeeToday,
+} from "@/app/api_services/actions/clockifyActions";
+import { getCookies } from "@/app/api_services/actions/handleCookies";
+import { getCookie } from "cookies-next";
 
 export default function page() {
     const [tasksCompleted, setTasksCompleted] = useState([]);
@@ -34,59 +41,54 @@ export default function page() {
     const [tasksPending, setTasksPending] = useState([]);
     const [allTasks, setAllTasks] = useState([]);
     const [tasksOnHold, setTasksOnHold] = useState([]);
-    const [commits, setCommits] = useState(3);
+    const [commits, setCommits] = useState(getCookie("totalCommits") || null);
     const [isLogged, setIsLogged] = useState(false);
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
-        useState({});
+        useState(null);
     const [userData, setUserData] = useState({});
     const route = useRouter();
-
     // get last commits from github and check is logged
+    console.log(commits);
     useEffect(() => {
+       console.log(getCookie("totalCommits"));
+        setCommits(getCookie("totalCommits"));
+        setTimeTrackedByEmployeeToday(getCookie("workTime"));
+        setAllTasks(getCookie("tasks"));
+        setTasksCompleted(getCookie("tasksCompleted"));
+        setTasksInProgress(getCookie("tasksProgress"));
+        setTasksOnHold(getCookie("tasksOnHold"));
+        setTasksPending(getCookie("tasksPending"));
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 setIsLogged(true);
                 const response = await getDocument("userData", user?.uid);
                 setUserData({ ...response.result.data(), ...user });
-                console.log({ ...response.result.data(), ...user });
-                getTotalCommitsForToday(user?.uid).then(res=>console.log("res",res))
-                GetUserIdfirebaseClockify(user?.uid);
-                getTotalTimeFirebaseClockify(
-                    setTimeTrackedByEmployeeToday,
-                    user?.uid
-                );
+
+                // getTimeTrackedByEmployeeToday(getCookies("clockifyUserId"),getCookies("ClockifyWorkspace")).then((response) => {console.log(response)});
+
+                
             } else {
                 route.push("/login");
                 console.log("logout from dashboard employee");
             }
         });
     }, []);
+
     // get info the user score department ...
     const getInfo = async () => {
+        console.log(commits);
+        getTotalCommitsForToday();
+
         // function to get information from clickUp
         const [team, userCickupDetails] = await Promise.all([
             getTeams(),
             getAuthenticatedUserDetails(),
         ]);
-        const [
-            responseAllTasks,
-            responseTasksCompleted,
-            responseTasksProgress,
-            responseTasksOpen,
-            responseTasksPending,
-        ] = await Promise.all([
-            getAllTasksByEmployee(team?.id, userCickupDetails?.id),
-            getCompletedTasksByEmployee(team?.id, userCickupDetails?.id),
-            getInProgressTasksByEmployee(team?.id, userCickupDetails?.id),
-            getOpenTasksByEmployee(team?.id, userCickupDetails?.id),
-            getPendingTasksByEmployee(team?.id, userCickupDetails?.id),
-        ]);
-        // useState function
-        setAllTasks(responseAllTasks);
-        setTasksCompleted(responseTasksCompleted);
-        setTasksInProgress(responseTasksProgress);
-        setTasksOnHold(responseTasksOpen);
-        setTasksPending(responseTasksPending);
+        getCompletedTasksByEmployee(team?.id, userCickupDetails?.id);
+        getInProgressTasksByEmployee(team?.id, userCickupDetails?.id);
+        getOpenTasksByEmployee(team?.id, userCickupDetails?.id);
+        getPendingTasksByEmployee(team?.id, userCickupDetails?.id);
+        getAllTasksByEmployee(team?.id, userCickupDetails?.id);
     };
 
     useEffect(() => {
@@ -128,34 +130,31 @@ export default function page() {
     ];
 
     const progressPercentageTask = () => {
-        if (allTasks?.length > 0) {
+        if (allTasks !== null) {
             return {
                 tasksInProgress: Math.round(
-                    (tasksInProgress?.length * 100) / allTasks?.length
+                    (tasksInProgress * 100) / allTasks
                 ),
                 tasksPending: Math.round(
-                    (tasksPending?.length * 100) / allTasks?.length
+                    (tasksPending * 100) / allTasks
                 ),
                 tasksCompleted: Math.round(
-                    (tasksCompleted?.length * 100) / allTasks?.length
+                    (tasksCompleted * 100) / allTasks
                 ),
 
                 tasksOnHold: Math.round(
-                    (tasksOnHold?.length * 100) / allTasks?.length
+                    (tasksOnHold * 100) / allTasks
                 ),
             };
         }
     };
     const progressPercentageCommits = () => {
-        if (commits !== undefined) {
+        if (commits !== null) {
             return Math.round((commits * 100) / 3);
         }
     };
     const progressPercentageTimeWork = () => {
-        if (timeTrackedByEmployeeToday == NaN) {
-            return 0;
-        }
-        if (timeTrackedByEmployeeToday !== undefined) {
+        if (timeTrackedByEmployeeToday !== null) {
             return Math.round((timeTrackedByEmployeeToday?.hours * 100) / 8);
         }
     };
@@ -319,7 +318,7 @@ export default function page() {
                             )}
                         </li>
                         <li className={`${itemStyle}`}>
-                            {timeTrackedByEmployeeToday?.hours !== undefined ? (
+                            {timeTrackedByEmployeeToday !== null ? (
                                 <>
                                     <div className="w-[65px]">
                                         <ChangingProgressProvider
@@ -331,7 +330,7 @@ export default function page() {
                                             {(percentage) => (
                                                 <CircularProgressbar
                                                     value={percentage}
-                                                    text={`${timeTrackedByEmployeeToday?.hours}/8H`}
+                                                    text={`${timeTrackedByEmployeeToday}/8H`}
                                                     styles={buildStyles({
                                                         pathTransition:
                                                             percentage === 0

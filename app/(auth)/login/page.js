@@ -11,7 +11,7 @@ import { auth } from "@/firebase/firebase-config";
 import Link from "next/link";
 import { onAuthStateChanged } from "firebase/auth";
 import getDocument from "@/firebase/firestore/getDocument";
-import { addCookies } from "@/app/api_services/actions/handleCookies";
+import { addCookie, addCookieServer} from "@/app/api_services/actions/handleCookies";
 import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
 
 export default function login() {
@@ -46,28 +46,29 @@ export default function login() {
                 return;
             }
 
-            addCookies(
+            addCookieServer(
                 "ClockifyWorkspace",
                 response.result?.data()?.ClockifyWorkspace
             );
-            addCookies(
+            addCookieServer(
                 "clockifyApiKey",
                 response.result?.data()?.clockifyApiKey
             );
-            addCookies(
+            addCookieServer(
                 "clockifyUserId",
                 response.result?.data()?.clockifyUserId
             );
-            addCookies("clickupToken", response.result?.data()?.clickupToken);
-            addCookies("githubRepo", response.result?.data()?.githubRepo);
-            addCookies("totalCommit", 0);
-            addCookies("workTime", 0);
-            addCookies("tasks", 0);
-            addCookies("tasksCompleted", 0);
-            addCookies("tasksProgress", 0);
-            addCookies("TasksOpen", 0);
-            addCookies("tasksPending", 0);
-            addCookies("isAdmin", (await checkRoleAdmin(user?.uid)).result);
+            addCookieServer("clickupToken", response.result?.data()?.clickupToken);
+            addCookie("githubRepo", response.result?.data()?.githubRepo);
+            addCookie("totalCommits", 0);
+            addCookie("workTime", 0);
+            addCookie("tasksCompleted", 0);
+            addCookie("tasksProgress", 0);
+            addCookie("TasksOpen", 0);
+            addCookie("tasksPending", 0);
+            addCookie("tasksOnHold", 0);
+
+            addCookieServer("isAdmin", (await checkRoleAdmin(user?.uid)).result);
             toast({
                 description: "Authentication successful",
             });

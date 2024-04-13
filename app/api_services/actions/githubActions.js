@@ -5,8 +5,10 @@ import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 // actions.js
 import axios from "axios";
 import { cookies } from "next/headers";
+import { addCookies, getCookie } from "./handleCookies";
 
 const GITHUB_TOKEN = cookies().get("githubToken"); // github API token
+const GITHUB_REPO = cookies().get("githubRepo"); // github API token
 console.log("GITHUB_TOKEN", GITHUB_TOKEN);
 const githubApi = axios.create({
     baseURL: "https://api.github.com",
@@ -74,38 +76,38 @@ export const getRepoFirebase = async (IdFirebase) => {
     return githubRepo;
 };
 
-// Function to get the total number of commits by the authenticated user for the current day across all repositories
-export const getTotalCommitsForToday = async (IdFirebase) => {
+// Function to get the total number of commits by the authenticated user for the current day
+export const getTotalCommitsForToday = async () => {
     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
     const username = await getGitHubUsername(); // Fetch the authenticated user's username
-    const TheRepo = await getRepoFirebase(IdFirebase);
-
-    let totalCommits = null;
 
     try {
-        const response = await githubApi.get(`/repos/${TheRepo}/commits`, {
-            params: {
-                since: `${today}T00:00:00Z`,
-                until: `${today}T23:59:59Z`,
-                author: username,
-            },
-        });
-        totalCommits = response?.data.length;
+        const response = await githubApi.get(
+            `/repos/${GITHUB_REPO?.value}/commits`,
+            {
+                params: {
+                    since: `${today}T00:00:00Z`,
+                    until: `${today}T23:59:59Z`,
+                    author: username,
+                },
+            }
+        );
+
+        const totalCommits = response?.data?.length;
         console.log("totalCommits : ", totalCommits);
-        if (totalCommits !== githubTotalCommits) {
-            updateDocumentA({
-                collectionName: "userData",
-                id: IdFirebase,
-                data: { commits: githubTotalCommits },
-            });
+        console.log("totalCommits==", totalCommits);
+
+        if (totalCommits !== getCookie("totalCommits")?.value) {
+            addCookies("totalCommits", totalCommits);
         }
+
+        return totalCommits;
     } catch (error) {
         console.error(`Error fetching commits for repo :`, error.message);
+        return error.message;
     }
-
-    return totalCommits;
 };
-
+getTotalCommitsForToday();
 // export const getTotalCommitsForToday = async () => {
 //     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
 //     const username = await getGitHubUsername(); // Fetch the authenticated user's username

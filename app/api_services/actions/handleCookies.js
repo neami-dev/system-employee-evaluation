@@ -3,15 +3,22 @@ import { cookies } from "next/headers";
 
 export async function CheckTokens() {
     try {
-        const Tokengithub = cookies().get("tokenGithub").value;
-        const TokenClickup = cookies().get("tokenClickup").value;
-        const clockifyApiKey = cookies().get("clockifyApiKey").value;
-        const ClockifyWorkspace = cookies().get("ClockifyWorkspace").value;
-        const clockifyUserId = cookies().get("clockifyUserId").value;
-        const githubRepo = cookies().get("githubRepo").value;
-        const isAdmin = cookies().get("isAdmin").value;
-        if (!Tokengithub && !TokenClickup && !clockifyApiKey && !ClockifyWorkspace 
-            && !clockifyUserId && !githubRepo && !isAdmin) {
+        const Tokengithub = cookies().get("tokenGithub")?.value;
+        const TokenClickup = cookies().get("tokenClickup")?.value;
+        const clockifyApiKey = cookies().get("clockifyApiKey")?.value;
+        const ClockifyWorkspace = cookies().get("ClockifyWorkspace")?.value;
+        const clockifyUserId = cookies().get("clockifyUserId")?.value;
+        const githubRepo = cookies().get("githubRepo")?.value;
+        const isAdmin = cookies().get("isAdmin")?.value;
+        if (
+            !Tokengithub &&
+            !TokenClickup &&
+            !clockifyApiKey &&
+            !ClockifyWorkspace &&
+            !clockifyUserId &&
+            !githubRepo &&
+            !isAdmin
+        ) {
             console.log("Cookies are empty");
             return "Cookies are empty";
         }
@@ -44,8 +51,8 @@ export async function CheckTokens() {
             return "tokenClickup not found";
         }
         return "All cookies are good";
-    } catch(error) {
-        return error
+    } catch (error) {
+        return error;
     }
 }
 export async function deleteCookies() {
@@ -56,8 +63,15 @@ export async function deleteCookies() {
         cookies().delete("clockifyApiKey");
         cookies().delete("clockifyUserId");
         cookies().delete("githubRepo");
+        cookies().delete("totalCommits");
+        cookies().delete("workTime");
+        cookies().delete("tasksCompleted");
+        cookies().delete("tasksProgress");
+        cookies().delete("TasksOpen");
+        cookies().delete("tasksPending");
+        cookies().delete("tasksOnHold");
         cookies().delete("isAdmin");
-
+       
         return true;
     } catch (error) {
         console.error("Failed to delete tokens:", error);
@@ -66,15 +80,14 @@ export async function deleteCookies() {
 }
 export const getClockifyUserIdCookies = () => {
     try {
-        const clockifyUserId = cookies().get("clockifyUserId").value;
-        return clockifyUserId
+        const clockifyUserId = cookies().get("clockifyUserId")?.value;
+        return clockifyUserId;
     } catch (error) {
         console.log(error.message);
-        return error.message
+        return error.message;
     }
-    
 };
-export const addCookies = (key, value) => {
+export const addCookieServer = (key, value) => {
     const oneMonthFromNow = new Date();
     oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
     cookies().set(key, value, {
@@ -82,6 +95,16 @@ export const addCookies = (key, value) => {
         expires: oneMonthFromNow, // Set the cookie to expire after a month
     });
 };
+export const addCookie = (key, value) => {
+    const oneMonthFromNow = new Date();
+    oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+    cookies().set(key, value, {
+        expires: oneMonthFromNow, // Set the cookie to expire after a month
+    });
+};
 export const getAllCookies = () => {
     return cookies().getAll();
+};
+export const getCookie = (name) => {
+    return cookies().get(name);
 };

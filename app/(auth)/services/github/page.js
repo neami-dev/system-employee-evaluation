@@ -21,7 +21,7 @@ import getDocument from "@/firebase/firestore/getDocument";
 import { getGitHubUserRepos } from "@/app/api_services/actions/githubActions";
 import Loading from "@/components/component/Loading";
 import {
-    addCookies,
+    addCookie,
     getAllCookies,
 } from "@/app/api_services/actions/handleCookies";
 import updateDocumentA from "@/firebase/firestore/updateDocumentA";
@@ -65,7 +65,7 @@ function GithubPage() {
                 toast({
                     description: "you choosed " + repoSelected,
                 });
-                addCookies("githubRepo", repoSelected);
+                addCookie("githubRepo", repoSelected);
             }
         };
         addRepoSelected();

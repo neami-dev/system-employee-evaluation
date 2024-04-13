@@ -3,11 +3,11 @@ import { getTotalCommitsForToday } from "@/app/api_services/actions/githubAction
 import getDocument from "@/firebase/firestore/getDocument";
 import updateDocument from "@/firebase/firestore/updateDocument";
 //test
-export async function getTotalTimeFirebaseClockify(hanldeChange, id) {
+export async function getTotalTimeFirebaseClockify(hanldeChange, uid) {
     try {
         console.log("i'm getTotalTime func");
-        if (id !== undefined) {
-            const response = await getDocument("userData", id);
+        if (uid !== undefined) {
+            const response = await getDocument("userData", uid);
             const workingTime = response.result.data()?.workingTime;
             const hours = Math.floor(workingTime / 3600);
             const minutes = Math.floor((workingTime % 3600) / 60);
