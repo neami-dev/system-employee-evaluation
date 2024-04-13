@@ -61,13 +61,13 @@ function ClockifyPage() {
                 const response = await updateDocumentA({
                     collectionName: "userData",
                     id: userData?.uid,
-                    data: { ClockifyWorkspace: keySelected },
+                    data: { clockifyWorkspace: keySelected },
                 });
                 if (response?.error) {
                     console.log(response?.error);
                     return;
                 }
-                addCookie("ClockifyWorkspace", keySelected);
+                addCookie("clockifyWorkspace", keySelected);
                 console.log(keySelected);
                 toast({
                     description: "workspace is valid",

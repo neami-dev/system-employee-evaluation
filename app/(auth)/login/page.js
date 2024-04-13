@@ -47,7 +47,7 @@ export default function login() {
             }
 
             addCookie(
-                "ClockifyWorkspace",
+                "clockifyWorkspace",
                 response.result?.data()?.ClockifyWorkspace
             );
             addCookieServer(
@@ -59,12 +59,13 @@ export default function login() {
                 response.result?.data()?.clockifyUserId
             );
             addCookieServer("clickupToken", response.result?.data()?.clickupToken);
+            addCookieServer("githubToken", response.result?.data()?.githubToken);
             addCookie("githubRepo", response.result?.data()?.githubRepo);
             addCookie("totalCommits", 0);
             addCookie("workTime", 0);
             addCookie("tasksCompleted", 0);
             addCookie("tasksProgress", 0);
-            addCookie("TasksOpen", 0);
+            addCookie("tasksOpen", 0);
             addCookie("tasksPending", 0);
             addCookie("tasksOnHold", 0);
             addCookie("tasks", 0);

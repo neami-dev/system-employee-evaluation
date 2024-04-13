@@ -1,7 +1,7 @@
 "use server";
 
 import updateDocumentA from "@/firebase/firestore/updateDocumentA";
-import { addCookies } from "../actions/handleCookies";
+import { addCookie} from "../actions/handleCookies";
 
 export default async function GithubTokenHandler(code, uid) {
     try {
@@ -36,7 +36,7 @@ export default async function GithubTokenHandler(code, uid) {
             id: uid,
             data: { githubToken: tokenData.access_token },
         });
-        addCookies("githubToken", tokenData.access_token);
+        addCookie("githubToken", tokenData.access_token);
 
         console.log(" setting the token in firebase");
         return true;

@@ -59,7 +59,7 @@ export async function deleteCookies() {
     try {
         cookies().delete("githubToken");
         cookies().delete("clickupToken");
-        cookies().delete("ClockifyWorkspace");
+        cookies().delete("clockifyWorkspace");
         cookies().delete("clockifyApiKey");
         cookies().delete("clockifyUserId");
         cookies().delete("githubRepo");
@@ -67,7 +67,7 @@ export async function deleteCookies() {
         cookies().delete("workTime");
         cookies().delete("tasksCompleted");
         cookies().delete("tasksProgress");
-        cookies().delete("TasksOpen");
+        cookies().delete("tasksOpen");
         cookies().delete("tasksPending");
         cookies().delete("tasksOnHold");
         cookies().delete("tasks");

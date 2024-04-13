@@ -13,7 +13,7 @@ console.log("GITHUB_TOKEN", GITHUB_TOKEN);
 const githubApi = axios.create({
     baseURL: "https://api.github.com",
     headers: {
-        Authorization: `token  ${GITHUB_TOKEN?.value}`,
+        Authorization: `token ${GITHUB_TOKEN?.value}`,
         Accept: "application/vnd.github.v3+json",
     },
 });

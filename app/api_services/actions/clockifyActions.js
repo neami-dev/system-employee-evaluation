@@ -1,5 +1,5 @@
 "use server";
-import updateDocumentA from "@/firebase/firestore/updateDocumentA";
+
 import axios from "axios";
 import { cookies } from "next/headers";
 import { addCookie, getCookie } from "./handleCookies";
@@ -52,7 +52,7 @@ export const getClockifyWorkSpaces = async () => {
         return response.data;
     } catch (error) {
         console.error("Error fetching user data from Clockify:", error);
-        return "invalid";
+        return error.message;
     }
 };
 

@@ -45,7 +45,7 @@ function GithubPage() {
         const getRepos = async () => {
             const response = await getGitHubUserRepos();
             setRepos(response);
-            // console.log("repos", response);
+            console.log("repos", response);
         };
         getRepos();
     }, []);

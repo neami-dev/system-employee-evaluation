@@ -1,7 +1,7 @@
 "use server";
 
 import updateDocumentA from "@/firebase/firestore/updateDocumentA";
-import { addCookies } from "../actions/handleCookies";
+import { addCookie } from "../actions/handleCookies";
 
 export async function ClickupTokenHandler(code, uid) {
     try {
@@ -30,7 +30,7 @@ export async function ClickupTokenHandler(code, uid) {
             id: uid,
             data: { clickupToken: tokenData.access_token },
         });
-        addCookies("clickupToken", tokenData.access_token);
+        addCookie("clickupToken", tokenData.access_token);
         console.log(" setting the token in firebase");
         return true;
     } catch (error) {
