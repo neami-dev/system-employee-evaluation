@@ -7,22 +7,25 @@ import axios from "axios";
 import { cookies } from "next/headers";
 import { addCookie, getCookie } from "./handleCookies";
 
-const GITHUB_TOKEN = cookies().get("githubToken"); // github API token
-const GITHUB_REPO = cookies().get("githubRepo"); // github API token
-console.log("GITHUB_TOKEN", GITHUB_TOKEN);
-const githubApi = axios.create({
-    baseURL: "https://api.github.com",
-    headers: {
-        Authorization: `token ${GITHUB_TOKEN?.value}`,
-        Accept: "application/vnd.github.v3+json",
-    },
-});
+
+const githubApi = () => {
+    const GITHUB_TOKEN = cookies()?.get("githubToken"); // github API token
+    console.log("GITHUB_TOKEN", GITHUB_TOKEN);
+  const api = axios.create({
+        baseURL: "https://api.github.com",
+        headers: {
+            Authorization: `token ${GITHUB_TOKEN?.value}`,
+            Accept: "application/vnd.github.v3+json",
+        },
+    });
+    return api;
+};
 
 // Function to get authenticated GitHub user's username
 export const getGitHubUsername = async () => {
     try {
         // The '/user' endpoint returns data about the authenticated user
-        const response = await githubApi.get("/user");
+        const response = await githubApi().get("/user");
         const username = response?.data?.login; // The 'login' field contains the username
         return username;
     } catch (error) {
@@ -35,7 +38,7 @@ export const getGitHubUsername = async () => {
 export const getGitHubUserRepos = async () => {
     try {
         // The '/user/repos' endpoint returns repositories for the authenticated user
-        const response = await githubApi.get("/user/repos", {
+        const response = await githubApi().get("/user/repos", {
             // Optional: specify the type of repositories to fetch
             params: {
                 // For example, 'owner', 'public', 'private', 'member'. Default: 'owner'
@@ -80,9 +83,10 @@ export const getRepoFirebase = async (IdFirebase) => {
 export const getTotalCommitsForToday = async () => {
     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
     const username = await getGitHubUsername(); // Fetch the authenticated user's username
+    const GITHUB_REPO = cookies().get("githubRepo"); // github API token
 
     try {
-        const response = await githubApi.get(
+        const response = await githubApi().get(
             `/repos/${GITHUB_REPO?.value}/commits`,
             {
                 params: {
@@ -95,7 +99,6 @@ export const getTotalCommitsForToday = async () => {
 
         const totalCommits = response?.data?.length;
         console.log("totalCommits : ", totalCommits);
-        console.log("totalCommits==", totalCommits);
 
         if (totalCommits !== getCookie("totalCommits")?.value) {
             addCookie("totalCommits", totalCommits);
@@ -116,7 +119,7 @@ getTotalCommitsForToday();
 
 //     for (const repo of repos) {
 //         try {
-//             const response = await githubApi.get(
+//             const response = await githubApi().get(
 //                 `/repos/${repo.full_name}/commits`,
 
 //                 {

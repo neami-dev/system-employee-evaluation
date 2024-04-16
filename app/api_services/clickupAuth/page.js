@@ -1,49 +1,51 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {ClickupTokenHandler} from "./ClickupTokenHandler";
+import { ClickupTokenHandler } from "./ClickupTokenHandler";
 import Loading from "@/components/component/Loading";
 import { auth } from "@/firebase/firebase-config";
+import getDocument from "@/firebase/firestore/getDocument";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function ClickupCallback() {
     const router = useRouter(); // Corrected variable name based on import
-    const [uid, setUid] = useState(null);
+
+    const [userData, setUserData] = useState({});
 
     useEffect(() => {
-        const handleAuthStateChange = (user) => {
-            if (user?.uid) {
-                setUid(user.uid);
-                console.log(user.uid);
-
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
                 const queryParams = new URLSearchParams(window.location.search);
                 const code = queryParams.get("code");
                 if (code) {
                     console.log("Authorization Code:", code);
-                    exchangeCodeForToken(code, user.uid); // Pass UID directly
+                    exchangeCodeForToken(code, user?.uid); // Pass UID directly
                 }
-            } else {
-                // Handle scenario when there is no authenticated user
-                router.push("/login");
             }
-        };
-
-        const unsubscribe = auth.onAuthStateChanged(handleAuthStateChange);
-        return () => unsubscribe(); // Cleanup subscription
-    }, [router]); // router added to the dependency array
+        });
+    }, []); // router added to the dependency array
 
     async function exchangeCodeForToken(code, uid) {
         console.log("UID:", uid);
+        console.log("code", code);
         const dataToken = await ClickupTokenHandler(code, uid);
-
-        if (dataToken) {
+        console.log("1", dataToken?.result);
+        if (dataToken?.result) {
             console.log("Access token obtained successfully.");
-            router.push("/services");
+            
+            if (auth?.currentUser?.emailVerified) {
+                router.push("/employee/dashboard");
+            } else {
+                router.push("/services");
+            }
+            return;
         } else {
-            console.error("Failed to obtain access token:", dataToken);
-            router.push("/login");
+        
+            console.log("Failed to obtain access token:");
+            // router.push("/login");
         }
     }
-    
+
     return (
         <>
             <Loading />

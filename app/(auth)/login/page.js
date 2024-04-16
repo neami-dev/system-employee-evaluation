@@ -14,7 +14,7 @@ import getDocument from "@/firebase/firestore/getDocument";
 import { addCookie, addCookieServer} from "@/app/api_services/actions/handleCookies";
 import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
 
-export default function login() {
+export default function loginPage() {
     const emailRef = useRef();
     const passwordRef = useRef();
     const route = useRouter();
@@ -35,7 +35,7 @@ export default function login() {
                 !response.result?.data()?.clockifyUserId ||
                 !response.result?.data()?.clickupToken ||
                 !response.result?.data()?.githubToken ||
-                !response.result?.data()?.githubRepo
+                !response.result?.data()?.githubRepo 
             ) {
                 console.log("tokens or ids not found");
                 toast({
@@ -61,16 +61,9 @@ export default function login() {
             addCookieServer("clickupToken", response.result?.data()?.clickupToken);
             addCookieServer("githubToken", response.result?.data()?.githubToken);
             addCookie("githubRepo", response.result?.data()?.githubRepo);
-            addCookie("totalCommits", 0);
-            addCookie("workTime", 0);
-            addCookie("tasksCompleted", 0);
-            addCookie("tasksProgress", 0);
-            addCookie("tasksOpen", 0);
-            addCookie("tasksPending", 0);
-            addCookie("tasksOnHold", 0);
-            addCookie("tasks", 0);
-            addCookie("isAdmin", (await checkRoleAdmin(user?.uid)).result);
             addCookie("isLogged",true);
+            addCookie("isAdmin", (await checkRoleAdmin(user?.uid)).result);
+
             toast({
                 description: "Authentication successful",
             });
@@ -78,6 +71,7 @@ export default function login() {
             console.log(data);
         });
     };
+    
     useEffect(() => {
         // lanch the alert toast if there is an error
         errors.forEach((error) => {

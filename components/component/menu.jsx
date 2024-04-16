@@ -25,45 +25,44 @@ import {
     ShieldHalf,
     User,
 } from "lucide-react";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
 import { onAuthStateChanged } from "firebase/auth";
+import { useToast } from "../ui/use-toast";
+import { getAuthenticatedUserDetails } from "@/app/api_services/actions/clickupActions";
+import { getGitHubUsername } from "@/app/api_services/actions/githubActions";
+import { getClockifyUserData } from "@/app/api_services/actions/clockifyActions";
+import { checkDataExistsInFirebase } from "@/app/api_services/actions/ckeckDbAndCookies";
 
 export default function Menu() {
     const pathname = usePathname();
     const [isAdmin, setIsAdmin] = useState(false);
-    const [isLogged, setIslogged] = useState(false);
+    const [isLogged, setIsLogged] = useState(false);
     const route = useRouter();
+    const { toast } = useToast();
 
     useEffect(() => {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                if(!user?.emailVerified) route.push("/not-found")
-                setIslogged(true);
-                const res = await getDocument("userData", user.uid);
-                if (
-                    !res.result?.data()?.ClockifyWorkspace ||
-                    // !res.result?.data()?.clockifyApiKey ||
-                    // !res.result?.data()?.clockifyUserId ||
-                    !res.result?.data()?.clickupToken ||
-                    !res.result?.data()?.githubToken ||
-                    !res.result?.data()?.githubRepo
-                ) {
-                    route.push("/services");
-                    console.log("lack of information");
-                }
+                if (!user?.emailVerified) route.push("/not-found");
+                setIsLogged(true);
                 const response = await checkRoleAdmin(user.uid);
                 setIsAdmin(response?.result);
+                const checkResponse = await checkDataExistsInFirebase();
+                console.log(checkResponse);
+                console.log(!!checkResponse?.link);
+                if (!!checkResponse?.link) route.push(checkResponse?.link);
+                if (!!checkResponse?.errorMsg) {
+                    toast({
+                        description: checkResponse?.errorMsg,
+                        variant: "destructive",
+                    });
+                }
+
+               
             } else {
                 route.push("/login");
                 console.log("logout from menu");
@@ -74,7 +73,7 @@ export default function Menu() {
     const JSXspan = (
         <span className="before:absolute before:h-10   before:w-[6px]  before:bg-[#3354F4] before:left-[-21px]  before:top-[-8px]  before:rounded-r-lg menu-line "></span>
     );
-    if (isLogged) {
+    if (isLogged == true) {
         return (
             <>
                 <div className=" menu fixed w-10  z-10 top-36 left-[4%] max-[865px]:left-[2%] max-[425px]:w-[100%]">

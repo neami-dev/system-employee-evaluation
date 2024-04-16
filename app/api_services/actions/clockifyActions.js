@@ -4,33 +4,19 @@ import axios from "axios";
 import { cookies } from "next/headers";
 import { addCookie, getCookie } from "./handleCookies";
 
-const API_KEY = cookies().get("clockifyApiKey");
-console.log(API_KEY);
-const api = axios.create({
-    baseURL: "https://api.clockify.me/api/v1",
-    headers: { "X-Api-Key": API_KEY?.value },
-});
-
-// Example function to get user data from Clockify
-export const CheckApiKeyClockify = async () => {
-    console.log("key:", API_KEY?.value);
-    try {
-        const response = await axios.get(
-            "https://api.clockify.me/api/v1/user"
-            // {
-            //     headers: { "X-Api-Key": Key },
-            // }
-        );
-        // console.log("res:", response.data);
-        return true; // Assuming you want to return a boolean
-    } catch (error) {
-        console.error("Error fetching user data from Clockify:", error.message);
-        return false;
-    }
+const api = () => {
+    const API_KEY = cookies().get("clockifyApiKey");
+    const api = axios.create({
+        baseURL: "https://api.clockify.me/api/v1",
+        headers: { "X-Api-Key": cookies().get("clockifyApiKey").value },
+    });
+    return api;
 };
 
-// Example function to get user data from Clockify
+// function to get user data from Clockify
 export const getClockifyUserData = async (api_key) => {
+    console.log("api-key==1", cookies().get("clockifyApiKey"));
+
     try {
         if (api_key) {
             return (
@@ -39,31 +25,39 @@ export const getClockifyUserData = async (api_key) => {
                 })
             ).data;
         }
-        return (await api.get("/user")).data;
+
+        return (await api().get("/user")).data;
     } catch (error) {
-        console.error("Error fetching user data from Clockify:", error);
-        return error;
+        console.error("Error fetching user data from Clockify:", error.message);
+        return null;
     }
 };
 
-export const getClockifyWorkSpaces = async () => {
+export const getClockifyWorkSpaces = async (api_key) => {
+    addCookie("clockifyApiKey", api_key);
+
     try {
-        const response = await api.get("/workspaces");
+        if (api_key) {
+            return (
+                await axios.get("https://api.clockify.me/api/v1/workspaces", {
+                    headers: { "X-Api-Key": api_key },
+                })
+            ).data;
+        }
+        console.log(api_key);
+
+        const response = await api().get("/workspaces");
+        console.log("workspaces===", response);
         return response.data;
     } catch (error) {
-        console.error("Error fetching user data from Clockify:", error);
-        return error.message;
+        console.error(
+            "Error fetching workspaces data from Clockify:",
+            error.message
+        );
+        console.log(api_key);
+        return [];
     }
 };
-
-// export const getClockifyWorkSpaces = async () => {
-//     try {
-//       const response = await api.get('/workspaces');
-//       return response.data[0];
-//     } catch (error) {
-//       console.error('Error fetching user data from Clockify:', error);
-//     }
-//   };
 
 // Helper function to convert ISO 8601 duration to seconds
 const isoDurationToSeconds = (isoDuration) => {
@@ -89,16 +83,16 @@ export const getTimeTrackedByEmployeeToday = async (
 ) => {
     const date = new Date().toISOString().split("T")[0]; // Get today's date
     console.log("date : ", date);
-    console.log("api key : ", API_KEY);
+
     console.log("user id : ", clockifyUserId);
     console.log("workspace id : ", clockifyWorkspaceId);
 
     try {
-        const response = await api.get(
+        const response = await api().get(
             `/workspaces/${clockifyWorkspaceId}/user/${clockifyUserId}/time-entries?start=${date}T00:00:00Z&end=${date}T23:59:59Z`
         );
 
-        console.log("response ==: ",response.data);
+        console.log("response ==: ", response.data);
         const timeEntries = response.data;
         // console.log(timeEntries);
         let totalTimeWorkedInSeconds = 0;
@@ -110,18 +104,17 @@ export const getTimeTrackedByEmployeeToday = async (
         });
 
         console.log("time : ", totalTimeWorkedInSeconds);
-        
 
         const hours = Math.floor(totalTimeWorkedInSeconds / 3600);
         const minutes = Math.floor((totalTimeWorkedInSeconds % 3600) / 60);
         const seconds = totalTimeWorkedInSeconds % 60;
-        console.log("hours",hours);
+        console.log("hours", hours);
         if (hours !== getCookie("workTime")) {
             addCookie("workTime", hours);
         }
         return { hours, minutes, seconds };
     } catch (error) {
-        console.error("Error fetching time entries:", error);
+        console.error("Error fetching time entries:", error.message);
         return null;
     }
 };
@@ -129,7 +122,7 @@ export const getTimeTrackedByEmployeeToday = async (
 export const getAllUserIds = async (clockifyWorkspaceId) => {
     console.log("i'm getAllUserIds, workspace :", clockifyWorkspaceId);
     try {
-        const response = await api.get(
+        const response = await api().get(
             `/workspaces/${clockifyWorkspaceId}/users`
         );
         const users = response.data;
@@ -156,13 +149,13 @@ export const getCheckInOutTimes = async (
     specificDate
 ) => {
     const formattedDate = specificDate.split("T")[0]; // Ensure the date is in YYYY-MM-DD format
-    console.log("api key : ", API_KEY?.value);
+   
     console.log("user id : ", clockifyUserId);
     console.log("workspace id : ", clockifyWorkspaceId);
     console.log(formattedDate);
     try {
         // Fetch time entries for the user for the specified date
-        const response = await api.get(
+        const response = await api().get(
             `/workspaces/${clockifyWorkspaceId}/user/${clockifyUserId}/time-entries?start=${formattedDate}T00:00:00Z&end=${formattedDate}T23:59:59Z`
         );
 

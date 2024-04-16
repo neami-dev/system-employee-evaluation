@@ -43,13 +43,14 @@ export default function page() {
         getCookie("tasksOnHold") || null
     );
     const [commits, setCommits] = useState(getCookie("totalCommits") || null);
-    const [isLogged, setIsLogged] = useState(false);
+    const [isLogged, setIsLogged] = useState(getCookie("isLogged") || false);
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
         useState(getCookie("workTime") || null);
 
     const route = useRouter();
 
     useEffect(() => {
+        console.log(getCookie("isLogged"));
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 setIsLogged(true);
@@ -59,36 +60,37 @@ export default function page() {
             }
         });
         const getInfo = async () => {
-            getTimeTrackedByEmployeeToday(
-                getCookie("clockifyUserId"),
-                getCookie("ClockifyWorkspace")
-            );
-            getTotalCommitsForToday();
-            // function to get information from clickUp
-            const [team, userCickupDetails] = await Promise.all([
-                getTeams(),
-                getAuthenticatedUserDetails(),
-            ]);
-            getCompletedTasksByEmployee(team?.id, userCickupDetails?.id);
-            getInProgressTasksByEmployee(team?.id, userCickupDetails?.id);
-            getOpenTasksByEmployee(team?.id, userCickupDetails?.id);
-            getPendingTasksByEmployee(team?.id, userCickupDetails?.id);
-            getAllTasksByEmployee(team?.id, userCickupDetails?.id);
-            setAllTasks(getCookie("tasks"));
-            setTasksCompleted(getCookie("tasksCompleted"));
-            setTasksInProgress(getCookie("tasksProgress"));
-            setTasksPending(getCookie("tasksPending"));
-            setCommits(getCookie("totalCommits"));
-            setTimeTrackedByEmployeeToday(getCookie("workTime"));
+            try {
+                getTimeTrackedByEmployeeToday(
+                    getCookie("clockifyUserId"),
+                    getCookie("clockifyWorkspace")
+                );
+                 getTotalCommitsForToday();
+
+                // function to get information from clickUp
+                const [team, userCickupDetails] = await Promise.all([
+                    getTeams(),
+                    getAuthenticatedUserDetails(),
+                ]);
+                getCompletedTasksByEmployee(team?.id, userCickupDetails?.id);
+                getInProgressTasksByEmployee(team?.id, userCickupDetails?.id);
+                getOpenTasksByEmployee(team?.id, userCickupDetails?.id);
+                getPendingTasksByEmployee(team?.id, userCickupDetails?.id);
+                await getAllTasksByEmployee(team?.id, userCickupDetails?.id);
+
+                setAllTasks(getCookie("tasks"));
+                setTasksCompleted(getCookie("tasksCompleted"));
+                setTasksInProgress(getCookie("tasksProgress"));
+                setTasksPending(getCookie("tasksPending"));
+                setCommits(getCookie("totalCommits"));
+                setTimeTrackedByEmployeeToday(getCookie("workTime"));
+            } catch (error) {
+                console.log("error from dashboard", error.message);
+            }
         };
-        const id = setInterval(() => {
-            console.log("tick");
-            getInfo();
-        }, 2000);
-        return () => {
-            clearInterval(id);
-        };
+        getInfo();
     }, []);
+  
 
     const dataChart = [
         {
@@ -135,7 +137,7 @@ export default function page() {
     };
     const itemStyle =
         "bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ";
-    if (isLogged) {
+    if (isLogged == true) {
         return (
             <>
                 <section className="grid justify-center w-full mx-auto pt-32">

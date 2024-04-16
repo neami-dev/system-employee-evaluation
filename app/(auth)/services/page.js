@@ -15,7 +15,6 @@ const IntegrationPage = () => {
     const [Github, setGithub] = useState(null);
     const [Clockify, setClockify] = useState(null);
     const [isEmailValid, setIsEmailValid] = useState(false);
-    const [checkCookies, setCheckCookies] = useState(null);
 
     // Conditional for button visibility
     const isAllIntegrated = Clickup && Github && Clockify;
@@ -26,16 +25,10 @@ const IntegrationPage = () => {
             // console.log(user);
             setIsEmailValid(user?.emailVerified);
 
-            CheckTokens().then((res) => {
-                setCheckCookies(res)
-            }).catch((err) => {
-                console.log(err.message);
-            })
-
             const response = await getDocument("userData", user?.uid);
             if (response.error) return;
 
-            if (response.result?.data()?.clickupToken && checkCookies !== "tokenClickup not found") {
+            if (response.result?.data()?.clickupToken) {
                 setClickup(true);
             } else {
                 setClickup(false);
@@ -43,10 +36,7 @@ const IntegrationPage = () => {
             if (
                 response.result?.data()?.clockifyUserId &&
                 response.result?.data()?.ClockifyWorkspace &&
-                response.result?.data()?.clockifyApiKey &&
-                checkCookies !== "clockifyUserId not found" &&
-                checkCookies !== "ClockifyWorkspace not found" &&
-                checkCookies !== "clockifyApiKey not found"
+                response.result?.data()?.clockifyApiKey
             ) {
                 setClockify(true);
             } else {
@@ -54,9 +44,7 @@ const IntegrationPage = () => {
             }
             if (
                 response.result?.data()?.githubRepo &&
-                response.result?.data()?.githubToken &&
-                checkCookies !== "tokenGithub not found" &&
-                checkCookies !== "githubRepo not found"
+                response.result?.data()?.githubToken
             ) {
                 setGithub(true);
             } else {

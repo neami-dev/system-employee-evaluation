@@ -1,6 +1,9 @@
+import { getCookie } from "@/app/api_services/actions/handleCookies";
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
+import { redirect } from "next/dist/server/api-utils";
 import { Inter } from "next/font/google";
+import { cookies } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,11 +15,11 @@ export const metadata = {
 export default function DashbordLayout({ children }) {
     return (
         <>
-            <NavBar />
-            <Menu />
-            <div className="">
-                {children}
-            </div>
+            <>
+                <NavBar />
+                <Menu />
+                <div>{children}</div>
+            </>
         </>
     );
 }

@@ -49,7 +49,6 @@ function GithubPage() {
         };
         getRepos();
     }, []);
-
     useEffect(() => {
         const addRepoSelected = async () => {
             if (repoSelected !== null) {
@@ -201,7 +200,13 @@ function GithubPage() {
                         disabled={!repoSelected}
                         className={`${"bg-black hover:bg-black"} text-[20px]  font-semibold mt-9`}
                         type="button"
-                        onClick={() => router.push("/services")}
+                        onClick={() => {
+                            if (userData?.emailVerified) {
+                                router.push("/employee/dashboard");
+                            } else {
+                                router.push("/services");
+                            }
+                        }}
                     >
                         submit
                     </Button>
