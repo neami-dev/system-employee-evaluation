@@ -34,7 +34,7 @@ export const getClockifyUserData = async (api_key) => {
 };
 
 export const getClockifyWorkSpaces = async (api_key) => {
-    addCookie("clockifyApiKey", api_key);
+  
 
     try {
         if (api_key) {

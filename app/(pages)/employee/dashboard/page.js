@@ -8,6 +8,7 @@ import {
     getAllTasksByEmployee,
     getAuthenticatedUserDetails,
     getCompletedTasksByEmployee,
+    getHoldTasksByEmployee,
     getInProgressTasksByEmployee,
     getOpenTasksByEmployee,
     getPendingTasksByEmployee,
@@ -40,10 +41,10 @@ export default function page() {
     );
     const [allTasks, setAllTasks] = useState(getCookie("tasks") || null);
     const [tasksOnHold, setTasksOnHold] = useState(
-        getCookie("tasksOnHold") || null
+        getCookie("tasksHold") || null
     );
     const [commits, setCommits] = useState(getCookie("totalCommits") || null);
-    const [isLogged, setIsLogged] = useState(getCookie("isLogged") || false);
+    const [isLogged, setIsLogged] = useState(false);
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
         useState(getCookie("workTime") || null);
 
@@ -65,7 +66,7 @@ export default function page() {
                     getCookie("clockifyUserId"),
                     getCookie("clockifyWorkspace")
                 );
-                 getTotalCommitsForToday();
+                getTotalCommitsForToday();
 
                 // function to get information from clickUp
                 const [team, userCickupDetails] = await Promise.all([
@@ -76,12 +77,14 @@ export default function page() {
                 getInProgressTasksByEmployee(team?.id, userCickupDetails?.id);
                 getOpenTasksByEmployee(team?.id, userCickupDetails?.id);
                 getPendingTasksByEmployee(team?.id, userCickupDetails?.id);
+                getHoldTasksByEmployee(team?.id, userCickupDetails?.id);
                 await getAllTasksByEmployee(team?.id, userCickupDetails?.id);
 
                 setAllTasks(getCookie("tasks"));
                 setTasksCompleted(getCookie("tasksCompleted"));
                 setTasksInProgress(getCookie("tasksProgress"));
                 setTasksPending(getCookie("tasksPending"));
+                setTasksOnHold(getCookie("tasksHold"));
                 setCommits(getCookie("totalCommits"));
                 setTimeTrackedByEmployeeToday(getCookie("workTime"));
             } catch (error) {
@@ -90,7 +93,6 @@ export default function page() {
         };
         getInfo();
     }, []);
-  
 
     const dataChart = [
         {
@@ -120,7 +122,6 @@ export default function page() {
                 tasksInProgress: Math.round((tasksInProgress * 100) / allTasks),
                 tasksPending: Math.round((tasksPending * 100) / allTasks),
                 tasksCompleted: Math.round((tasksCompleted * 100) / allTasks),
-
                 tasksOnHold: Math.round((tasksOnHold * 100) / allTasks),
             };
         }
@@ -233,7 +234,6 @@ export default function page() {
                                             {(percentage) => (
                                                 <CircularProgressbar
                                                     value={percentage}
-                                                    responseTasksOnHold
                                                     text={`${tasksOnHold}/${allTasks}`}
                                                     styles={buildStyles({
                                                         pathTransition:

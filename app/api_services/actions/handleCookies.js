@@ -1,6 +1,7 @@
 "use server";
 import { cookies } from "next/headers";
 import { getClockifyUserData } from "./clockifyActions";
+import { auth } from "@/firebase/firebase-config";
 
 export async function CheckTokens() {
     try {
@@ -25,32 +26,25 @@ export async function CheckTokens() {
         }
         if (!isAdmin) {
             console.log("isAdmin not found");
-           
         }
         if (!clockifyUserId) {
             console.log("clockifyUserId not found");
-            getClockifyUserData()
-            
+            getClockifyUserData();
         }
         if (!ClockifyWorkspace) {
             console.log("ClockifyWorkspace not found");
-            
         }
         if (!clockifyApiKey) {
             console.log("clockifyApiKey not found");
-            
         }
         if (!githubRepo) {
             console.log("githubRepo not found");
-             
         }
         if (!Tokengithub) {
             console.log("tokenGithub not found");
-             
         }
         if (!TokenClickup) {
             console.log("tokenClickup not found");
-            
         }
         return "All cookies are good";
     } catch (error) {
@@ -71,13 +65,12 @@ export async function deleteCookies() {
         cookies().delete("tasksProgress");
         cookies().delete("tasksOpen");
         cookies().delete("tasksPending");
-        cookies().delete("tasksOnHold");
-        cookies().delete("TasksOnHold");
+        cookies().delete("tasksHold");
+        cookies().delete("TasksOpen");
         cookies().delete("tasks");
         cookies().delete("isAdmin");
         cookies().delete("isLogged");
-        
-       
+
         return true;
     } catch (error) {
         console.error("Failed to delete tokens:", error);

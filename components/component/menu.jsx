@@ -61,8 +61,6 @@ export default function Menu() {
                         variant: "destructive",
                     });
                 }
-
-               
             } else {
                 route.push("/login");
                 console.log("logout from menu");
@@ -154,7 +152,7 @@ export default function Menu() {
                                         <Users />
                                     </Link>
                                 </li>
-                                <li
+                                {/* <li
                                     className={`relative hover:text-[#3354F4] cursor-pointer ${
                                         pathname == "/admin/"
                                             ? "text-[#3354F4]"
@@ -167,23 +165,53 @@ export default function Menu() {
 
                                         <UserPlus />
                                     </Link>
-                                </li>
+                                </li> */}
                             </>
                         )}
                         <li
-                            className={`relative hover:text-[#3354F4] cursor-pointer ${
-                                pathname ==
-                                ("/employee/attendance" || "/admin/attendance")
+                            className={`relative hover:text-[#3354F4]  cursor-pointer ${
+                                pathname === "/employee/attendance" ||
+                                pathname === "/admin/attendance"
                                     ? "text-[#3354F4]"
                                     : "text-[#A3AED0]"
                             }`}
                         >
-                            <Link href="/employee/attendance">
-                                {pathname ==
-                                    ("/employee/attendance" ||
-                                        "/admin/attendance") && JSXspan}
-                                <History />
-                            </Link>
+                            {pathname === "/employee/attendance" ||
+                            pathname === "/admin/attendance"
+                                ? JSXspan
+                                : null}
+                            {isAdmin ? (
+                                <Menubar className="border-0 h-5 w-[24px] cursor-pointer">
+                                    <MenubarMenu className="border-0 cursor-pointer ">
+                                        <MenubarTrigger>
+                                            <History className="cursor-pointer mt-1" />
+                                        </MenubarTrigger>
+                                        <MenubarContent>
+                                            <Link href="/admin/attendance">
+                                                <MenubarItem className="px-1">
+                                                    <ShieldHalf className="text-[#9a9696]" />
+                                                    <span className="px-3">
+                                                        admin
+                                                    </span>
+                                                </MenubarItem>
+                                            </Link>
+                                            <MenubarSeparator />
+                                            <Link href="/employee/attendance">
+                                                <MenubarItem className="px-1">
+                                                    <User className="text-[#9a9696]" />
+                                                    <span className="px-3">
+                                                        employee
+                                                    </span>
+                                                </MenubarItem>
+                                            </Link>
+                                        </MenubarContent>
+                                    </MenubarMenu>
+                                </Menubar>
+                            ) : (
+                                <Link href="/employee/attendance">
+                                    <History className="cursor-pointer" />
+                                </Link>
+                            )}
                         </li>
                     </ul>
                 </div>

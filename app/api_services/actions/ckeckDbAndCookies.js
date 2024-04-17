@@ -17,7 +17,7 @@ export const checkDataExistsInFirebase = async () => {
         if (!user) return;
         const res = await getDocument("userData", user?.uid);
         const clickUpAuth = await getAuthenticatedUserDetails();
-        console.log("clickUpAuth",clickUpAuth);
+       
         if (!res.result?.data()?.clickupToken || clickUpAuth == null) {
             link = `https://app.clickup.com/api?client_id=${process.env.NEXT_PUBLIC_CLICKUP_CLIENT_ID}&redirect_uri=http://localhost:3000/api_services/clickupAuth`;
             errorMsg = "lack of information in clickup";

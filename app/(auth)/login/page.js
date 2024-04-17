@@ -61,8 +61,8 @@ export default function loginPage() {
             addCookieServer("clickupToken", response.result?.data()?.clickupToken);
             addCookieServer("githubToken", response.result?.data()?.githubToken);
             addCookie("githubRepo", response.result?.data()?.githubRepo);
-            addCookie("isLogged",true);
             addCookie("isAdmin", (await checkRoleAdmin(user?.uid)).result);
+            addCookie("isLogged",true);
 
             toast({
                 description: "Authentication successful",

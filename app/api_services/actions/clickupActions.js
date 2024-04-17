@@ -127,7 +127,7 @@ export const getCompletedTasksByEmployee = async (teamId, userId) => {
 
 export const getInProgressTasksByEmployee = async (teamId, userId) => {
     try {
-        const response = await api.get(`/team/${teamId}/task`, {
+        const response = await api().get(`/team/${teamId}/task`, {
             params: {
                 assignees: [userId],
                 statuses: ["in progress"],
@@ -192,7 +192,28 @@ export const getPendingTasksByEmployee = async (teamId, userId) => {
         return [];
     }
 };
-
+export const getHoldTasksByEmployee = async (teamId, userId) => {
+    try {
+        const response = await api().get(`/team/${teamId}/task`, {
+            params: {
+                assignees: [userId],
+                statuses: ["hold"],
+                // 'date_updated_gt': startIso,
+                // 'date_updated_lt': endIso
+            },
+        });
+        console.log("in hold tasks ", response?.data?.tasks?.length);
+        if (
+            response?.data?.tasks?.length !== getCookie("tasksHold")?.value
+        ) {
+            addCookie("tasksHold", response?.data?.tasks?.length);
+        }
+        return response?.data?.tasks;
+    } catch (error) {
+        console.error("Error fetching hold tasks  :", error.message);
+        return [];
+    }
+};
 export const getAllTasksByEmployee = async (teamId, userId) => {
     try {
         const response = await api().get(`/team/${teamId}/task`, {
