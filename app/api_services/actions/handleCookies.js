@@ -2,53 +2,76 @@
 import { cookies } from "next/headers";
 import { getClockifyUserData } from "./clockifyActions";
 import { auth } from "@/firebase/firebase-config";
+import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
+import getDocument from "@/firebase/firestore/getDocummentA";
 
-export async function CheckTokens() {
+export async function checkCookies(uid) {
     try {
-        const Tokengithub = cookies().get("tokenGithub")?.value;
-        const TokenClickup = cookies().get("tokenClickup")?.value;
+        const githubToken = cookies().get("githubToken")?.value;
+        const clickupToken = cookies().get("clickupToken")?.value;
         const clockifyApiKey = cookies().get("clockifyApiKey")?.value;
-        const ClockifyWorkspace = cookies().get("ClockifyWorkspace")?.value;
+        const clockifyWorkspace = cookies().get("clockifyWorkspace")?.value;
         const clockifyUserId = cookies().get("clockifyUserId")?.value;
         const githubRepo = cookies().get("githubRepo")?.value;
         const isAdmin = cookies().get("isAdmin")?.value;
-        if (
-            !Tokengithub &&
-            !TokenClickup &&
-            !clockifyApiKey &&
-            !ClockifyWorkspace &&
-            !clockifyUserId &&
-            !githubRepo &&
-            !isAdmin
-        ) {
-            console.log("Cookies are empty");
-            return "Cookies are empty";
-        }
+        console.log({
+            githubToken,
+            clickupToken,
+            clockifyApiKey,
+            clockifyWorkspace,
+            clockifyUserId,
+            githubRepo,
+            isAdmin,
+        });
+
         if (!isAdmin) {
             console.log("isAdmin not found");
+            addCookie("isAdmin", (await checkRoleAdmin(uid))?.result);
         }
         if (!clockifyUserId) {
             console.log("clockifyUserId not found");
-            getClockifyUserData();
+            addCookie(
+                "clockifyUserId",
+                (await getDocument("userData", uid))?.result?.clockifyUserId
+            );
         }
-        if (!ClockifyWorkspace) {
+        if (!clockifyWorkspace) {
+            addCookie(
+                "clockifyWorkspace",
+                (await getDocument("userData", uid))?.result?.clockifyWorkspace
+            );
             console.log("ClockifyWorkspace not found");
         }
         if (!clockifyApiKey) {
             console.log("clockifyApiKey not found");
+            addCookieServer(
+                "clockifyApiKey",
+                (await getDocument("userData", uid))?.result?.clockifyApiKey
+            );
         }
         if (!githubRepo) {
             console.log("githubRepo not found");
+            addCookie(
+                "githubRepo",
+                (await getDocument("userData", uid))?.result?.githubRepo
+            );
         }
-        if (!Tokengithub) {
-            console.log("tokenGithub not found");
+        if (!githubToken) {
+            console.log("githubToken not found");
+            addCookieServer(
+                "githubToken",
+                (await getDocument("userData", uid))?.result?.githubToken
+            );
         }
-        if (!TokenClickup) {
-            console.log("tokenClickup not found");
+        if (!clickupToken) {
+            console.log("clickupToken not found");
+            addCookie(
+                "clickupToken",
+                (await getDocument("userData", uid))?.result?.clickupToken
+            );
         }
-        return "All cookies are good";
     } catch (error) {
-        return error;
+        return error.message;
     }
 }
 export async function deleteCookies() {

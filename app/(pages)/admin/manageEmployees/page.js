@@ -69,10 +69,12 @@ import { useToast } from "@/components/ui/use-toast";
 import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-
+import { getCookie } from "cookies-next";
 import emailjs from "@emailjs/browser";
 import { updateEmployee } from "@/firebase/firebase-admin/updateEmployee";
 import { Switch } from "@/components/ui/switch";
+import { addCookie } from "@/app/api_services/actions/handleCookies";
+import Loading from "@/components/component/Loading";
 const jsxElement = (
     <>
         <Skeleton className=" h-10 w-[100%] rounded-sm mb-2" />
@@ -93,19 +95,22 @@ export default function DataTableDemo() {
     const [textNoResults, setTextNoResults] = useState(jsxElement);
     const [userData, setUserData] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
+
     const [showEmailVerified, setShowEmailVerified] = useState(true);
     const { toast } = useToast();
     const route = useRouter();
 
     useEffect(() => {
+        setIsAdmin(getCookie("isAdmin"));
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const response = await checkRoleAdmin(user.uid);
                 setIsAdmin(response?.result);
+                // addCookie("isAdmin", response?.result);
+
                 if (!response?.result) {
                     route.push("/Not-Found");
                     console.log("your role is not admin");
-
                 }
             } else {
                 route.push("/login");
@@ -324,7 +329,6 @@ export default function DataTableDemo() {
                                                 if (res.error == null) {
                                                     getData();
                                                     toast({
-                                                        
                                                         description:
                                                             "Sccessfully transformed into a employee",
                                                     });
@@ -574,7 +578,7 @@ export default function DataTableDemo() {
         },
     });
 
-    if (isAdmin) {
+    if (String(isAdmin)?.toLowerCase() === "true") {
         return (
             <>
                 <section className="flex justify-center">
@@ -750,5 +754,7 @@ export default function DataTableDemo() {
                 </section>
             </>
         );
+    }else{
+        return <Loading/>
     }
 }

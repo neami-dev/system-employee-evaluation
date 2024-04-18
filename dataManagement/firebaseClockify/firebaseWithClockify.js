@@ -97,14 +97,14 @@ export async function firebaseWithClockify(hanldeChange, id) {
             if (totalTime !== undefined) {
                 hanldeChange(totalTime);
             } else {
-                const ClockifyUserDataId = await firebaseGetClockifyUserId(id);
-                console.log("ClockifyUserDataId :", ClockifyUserDataId);
-                const ClockifyWorkSpaceId =
+                const clockifyUserDataId = await firebaseGetClockifyUserId(id);
+                console.log("ClockifyUserDataId :", clockifyUserDataId);
+                const clockifyWorkSpaceId =
                     await firebaseGetClockifyWorkSpaceId(id);
-                console.log("ClockifyWorkSpaceId :", ClockifyWorkSpaceId);
+                console.log("ClockifyWorkSpaceId :", clockifyWorkSpaceId);
                 getTimeTrackedByEmployeeToday(
-                    ClockifyUserDataId,
-                    ClockifyWorkSpaceId
+                    clockifyUserDataId,
+                    clockifyWorkSpaceId
                 ).then((workTimeHours) => {
                     if (totalTime !== workTimeHours) {
                         updateDocument({

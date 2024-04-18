@@ -5,11 +5,11 @@ export async function GetWorkspaceFirebaseClockify(setClockify, id) {
         console.log("check token");
         if (id !== undefined) {
             const response = await getDocument("userData", id);
-            const ClockifyWorkspace = response.result.data()?.ClockifyWorkspace;
-            if (ClockifyWorkspace !== undefined) {
-                setClockify(ClockifyWorkspace);
-                console.log("firebase workspace : " , ClockifyWorkspace); // work just with return without set..., and change the file : services/page.js
-                return ClockifyWorkspace;
+            const clockifyWorkspace = response.result.data()?.clockifyWorkspace;
+            if (clockifyWorkspace !== undefined) {
+                setClockify(clockifyWorkspace);
+                console.log("firebase workspace : " , clockifyWorkspace); // work just with return without set..., and change the file : services/page.js
+                return clockifyWorkspace;
             } else {
                 setClockify(false);
                 console.log("error : ", err.message);

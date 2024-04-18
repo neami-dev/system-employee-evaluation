@@ -8,7 +8,7 @@ const api = () => {
     const API_KEY = cookies().get("clockifyApiKey");
     const api = axios.create({
         baseURL: "https://api.clockify.me/api/v1",
-        headers: { "X-Api-Key": cookies().get("clockifyApiKey").value },
+        headers: { "X-Api-Key": API_KEY?.value },
     });
     return api;
 };

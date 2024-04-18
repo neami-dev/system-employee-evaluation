@@ -37,32 +37,30 @@ import {
 } from "@/components/ui/table";
 import { useState } from "react";
 import { DatePickerWithRange } from "@/components/component/DateRangePicker";
-import { addDays,subDays, format } from "date-fns";
+import { addDays, subDays, format } from "date-fns";
 import { useEffect } from "react";
 import {
     getAllUserIds,
     getCheckInOutTimes,
-    getClockifyUserData,
-    getClockifyWorkSpaces,
 } from "@/app/api_services/actions/clockifyActions";
 import Loading from "@/components/component/Loading";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/firebase/firebase-config";
 import { useRouter } from "next/navigation";
-import { Switch } from "@/components/ui/switch";
-import { GetWorkspaceFirebaseClockify } from "@/dataManagement/firebaseWithClockify/GetWorkspaceFirebaseClockify";
+
 import getDocument from "@/firebase/firestore/getDocument";
-import { getClockifyUserIdCookies } from "@/app/api_services/actions/handleCookies";
+
 import { Calendar } from "@/components/ui/calendar";
-import { Calendar as CalendarIcon } from "lucide-react"
+import { Calendar as CalendarIcon } from "lucide-react";
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-  } from "@/components/ui/popover"
+} from "@/components/ui/popover";
+import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
+import { getCookie } from "cookies-next";
 
 function parseTimeToMinutes(timeString) {
-    
     if (typeof timeString !== "string") {
         // console.error('parseTime expects a string input, got:', typeof timeString);
         return 0; // Or handle this case as appropriate for your application
@@ -342,16 +340,15 @@ export default function DataTableDemo() {
     // const [dateRange, setDate] = useState(() => {
     //     const today = new Date();
     //     const fiveDaysAgo = subDays(today, 3);
-    
+
     //     return {
     //         from: fiveDaysAgo,
     //         to: today,
     //     };
     // });
-    const [date, setDate] = useState(()=> {
-        return new Date()
-    })
-    
+    const [date, setDate] = useState(() => {
+        return new Date();
+    });
 
     const [timeEntries, setTimeEntries] = useState([]);
 
@@ -360,50 +357,57 @@ export default function DataTableDemo() {
     const [columnVisibility, setColumnVisibility] = useState({});
     const [rowSelection, setRowSelection] = useState({});
     const [isLogged, setIsLogged] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
-    const [ClockifyWorkspaceId,setClockifyWorkspaceId] = useState([])
+    const [clockifyWorkspaceId, setClockifyWorkspaceId] = useState([]);
     const route = useRouter();
     useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            setIsLogged(true);
-            try {
-                const response = await getDocument("userData", user.uid); // Assuming user?.uid is always defined here
-                const workspaceId = response?.result.data()?.ClockifyWorkspace; // Safely access ClockifyWorkspace
-                if (workspaceId) {
-                    setClockifyWorkspaceId(workspaceId);
-                } else {
-                    console.log("No workspace ID found");
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const response = await checkRoleAdmin(user.uid);
+                setIsAdmin(response?.result);
+                // addCookie("isAdmin", response?.result);
+
+                if (!response?.result) {
+                    route.push("/Not-Found");
+                    console.log("your role is not admin");
                 }
-            } catch (error) {
-                console.error("Failed to fetch user data:", error);
+                try {
+                    const response = await getDocument("userData", user.uid); // Assuming user?.uid is always defined here
+                    const workspaceId =
+                        response?.result.data()?.clockifyWorkspace; // Safely access ClockifyWorkspace
+                    if (workspaceId) {
+                        setClockifyWorkspaceId(workspaceId);
+                    } else {
+                        console.log("No workspace ID found");
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch user data:", error);
+                }
+            } else {
+                route.push("/login");
+                console.log("Logged out from attendance employee");
             }
-        } else {
-            route.push("/login");
-            console.log("Logged out from attendance employee");
-        }
-    });
+        });
 
-    return () => unsubscribe(); // Cleanup function to unsubscribe from the auth listener
-}, []);
+        return () => unsubscribe(); // Cleanup function to unsubscribe from the auth listener
+    }, []);
 
+    // Simulated function to fetch time entries (replace with your actual Clockify API call)
 
-
-// Simulated function to fetch time entries (replace with your actual Clockify API call)
-
-//   const TimeTrackingTable = ({ userId, workspaceId }) => {
+    //   const TimeTrackingTable = ({ userId, workspaceId }) => {
     //     const [dateRange, setDateRange] = useState({
-        //       from: new Date(),
-        //       to: addDays(new Date(), 5),
-        //     });
-        useEffect(() => {
-            const fetchAndSetTimeEntries = async () => {
+    //       from: new Date(),
+    //       to: addDays(new Date(), 5),
+    //     });
+    useEffect(() => {
+        const fetchAndSetTimeEntries = async () => {
             console.log("hey i'm fetchAndSetTimeEntries function");
-            console.log("ClockifyWorkspaceId: ", ClockifyWorkspaceId);
-    
+            console.log("ClockifyWorkspaceId: ", clockifyWorkspaceId);
+
             try {
                 // const ClockifyUserId = await getClockifyUserIdCookies();
-                const ClockifyUsers = await getAllUserIds(ClockifyWorkspaceId);
+                const ClockifyUsers = await getAllUserIds(clockifyWorkspaceId);
                 console.log("ClockifyUsers :", ClockifyUsers);
                 if (ClockifyUsers.length > 0) {
                     // console.log("ClockifyUserId ID: ", ClockifyUserId);
@@ -412,19 +416,22 @@ export default function DataTableDemo() {
                         const formattedDate = format(date, "yyyy-MM-dd");
                         const dailyEntries = await getCheckInOutTimes(
                             user.id,
-                            ClockifyWorkspaceId,
+                            clockifyWorkspaceId,
                             formattedDate
                         );
-                        if (dailyEntries && Object.keys(dailyEntries).length > 0) {
+                        if (
+                            dailyEntries &&
+                            Object.keys(dailyEntries).length > 0
+                        ) {
                             entries.push({
-                                name : user.name,
+                                name: user.name,
                                 date: formattedDate,
                                 checkIn: dailyEntries.checkInTime,
                                 checkOut: dailyEntries.checkOutTime,
                             });
                         } else {
                             entries.push({
-                                name : user.name,
+                                name: user.name,
                                 date: formattedDate,
                                 checkIn: "---",
                                 checkOut: "---",
@@ -440,11 +447,10 @@ export default function DataTableDemo() {
                 console.error("Error in fetchAndSetTimeEntries:", error);
             }
         };
-    
+
         fetchAndSetTimeEntries();
         console.log("date: ", date);
-    }, [date, ClockifyWorkspaceId]); // Include all relevant dependencies
-    
+    }, [date, clockifyWorkspaceId]); // Include all relevant dependencies
 
     useEffect(() => {
         console.log("timeEntries : ", timeEntries);
@@ -468,7 +474,7 @@ export default function DataTableDemo() {
             rowSelection,
         },
     });
-    if (isLogged) {
+    if (String(isAdmin)?.toLowerCase() === "true") {
         return (
             <section className="flex justify-center">
                 <div className="w-[94%] mt-32 min-[426px]:w-[80%] min-[426px]:ml-[76px] sm:w-[80%] sm:ml-[84px] lg:w-[82%] lg:ml-[96px] mx-3 px-4 bg-white rounded-lg">
@@ -481,26 +487,29 @@ export default function DataTableDemo() {
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button
-                                    variant={"outline"}
-                                    className={`${
-                                        "w-[280px] justify-start text-left font-normal",
-                                        !date && "text-muted-foreground"}`
-                                    }
+                                        variant={"outline"}
+                                        className={`${
+                                            ("w-[280px] justify-start text-left font-normal",
+                                            !date && "text-muted-foreground")
+                                        }`}
                                     >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {date ? (
+                                            format(date, "PPP")
+                                        ) : (
+                                            <span>Pick a date</span>
+                                        )}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0">
                                     <Calendar
-                                    mode="single"
-                                    selected={date}
-                                    onSelect={setDate}
-                                    initialFocus
+                                        mode="single"
+                                        selected={date}
+                                        onSelect={setDate}
+                                        initialFocus
                                     />
                                 </PopoverContent>
                             </Popover>
-                            
                         </div>
                         <div className="m-1">
                             <DropdownMenu>
@@ -637,5 +646,7 @@ export default function DataTableDemo() {
                 </div>
             </section>
         );
+    } else {
+        return <Loading />;
     }
 }

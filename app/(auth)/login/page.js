@@ -11,7 +11,10 @@ import { auth } from "@/firebase/firebase-config";
 import Link from "next/link";
 import { onAuthStateChanged } from "firebase/auth";
 import getDocument from "@/firebase/firestore/getDocument";
-import { addCookie, addCookieServer} from "@/app/api_services/actions/handleCookies";
+import {
+    addCookie,
+    addCookieServer,
+} from "@/app/api_services/actions/handleCookies";
 import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
 
 export default function loginPage() {
@@ -29,26 +32,9 @@ export default function loginPage() {
             if (!user) return;
             const response = await getDocument("userData", user?.uid);
             const data = response?.result?.data();
-            if (
-                !response.result?.data()?.ClockifyWorkspace ||
-                !response.result?.data()?.clockifyApiKey ||
-                !response.result?.data()?.clockifyUserId ||
-                !response.result?.data()?.clickupToken ||
-                !response.result?.data()?.githubToken ||
-                !response.result?.data()?.githubRepo 
-            ) {
-                console.log("tokens or ids not found");
-                toast({
-                    variant: "destructive",
-                    description: "tokens or ids not found",
-                });
-                route.push("/services");
-                return;
-            }
-
             addCookie(
                 "clockifyWorkspace",
-                response.result?.data()?.ClockifyWorkspace
+                response.result?.data()?.clockifyWorkspace
             );
             addCookieServer(
                 "clockifyApiKey",
@@ -58,11 +44,17 @@ export default function loginPage() {
                 "clockifyUserId",
                 response.result?.data()?.clockifyUserId
             );
-            addCookieServer("clickupToken", response.result?.data()?.clickupToken);
-            addCookieServer("githubToken", response.result?.data()?.githubToken);
+            addCookieServer(
+                "clickupToken",
+                response.result?.data()?.clickupToken
+            );
+            addCookieServer(
+                "githubToken",
+                response.result?.data()?.githubToken
+            );
             addCookie("githubRepo", response.result?.data()?.githubRepo);
+
             addCookie("isAdmin", (await checkRoleAdmin(user?.uid)).result);
-            addCookie("isLogged",true);
 
             toast({
                 description: "Authentication successful",
@@ -71,7 +63,7 @@ export default function loginPage() {
             console.log(data);
         });
     };
-    
+
     useEffect(() => {
         // lanch the alert toast if there is an error
         errors.forEach((error) => {

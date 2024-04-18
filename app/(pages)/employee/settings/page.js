@@ -43,6 +43,8 @@ import { deleteImage } from "@/firebase/storge/deleteImage";
 
 import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 import { addCookies } from "@/app/api_services/actions/handleCookies";
+import { sendEmailVerify } from "@/firebase/auth/sendEmailVerify";
+import { updateEmployee } from "@/firebase/firebase-admin/updateEmployee";
 
 export default function page() {
     const route = useRouter();
@@ -55,24 +57,22 @@ export default function page() {
     const [userData, setUserData] = useState({});
     const [isLogged, setIsLogged] = useState(false);
     const { toast } = useToast();
-
-    useEffect(()=>{
-        const getUserData=()=>{
-            onAuthStateChanged(auth,(user)=>{
-                if (user) {
-                    setIsLogged(true)
-                    getDocument("userData", user?.uid).then((response)=>{
-                        response.result &&
-                            setUserData({...response.result.data(),...user})
-                    })
-                }else{
-                    route.push("/login")
-                }
-            })
-
-        }
-        getUserData()
-    },[])
+    const getUserData = () => {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setIsLogged(true);
+                getDocument("userData", user?.uid).then((response) => {
+                    response.result &&
+                        setUserData({ ...response.result.data(), ...user });
+                });
+            } else {
+                route.push("/login");
+            }
+        });
+    };
+    useEffect(() => {
+        getUserData();
+    }, []);
     const handleChangeProfilePhoto = async () => {
         const image = imageRef.current?.files[0];
         await uploadImage(userData?.uid, image);
@@ -94,13 +94,53 @@ export default function page() {
     const hanldeChangeEmail = async (e) => {
         e.preventDefault();
         const newEmail = newEmailRef.current.value;
-        const password = passwordRef.current.value;
+        const password = passwordRef.current?.value;
 
-        if (newEmail && userData && password) {
-            const res = await editEmail(userData?.email, newEmail, password);
-            console.log(res);
+        if (!newEmail && !userData && !password) {
+            toast({
+                variant: "destructive",
+                description: "Email and password are required!",
+            });
+            return;
         }
+        const responseEdit = await editEmail(
+            userData?.email,
+            newEmail,
+            password
+        );
+
+        if (responseEdit?.error !== null) {
+            toast({
+                variant: "destructive",
+                description: "Email not changed," + responseEdit?.error.message,
+            });
+            return;
+        }
+        onAuthStateChanged(auth, async (user)=>{
+            const responseUpdate = await updateEmployee({
+            uid: user?.uid,
+            emailVerified: true,
+        });
+        })
+
+        
+        if (responseUpdate?.result === true) {
+            toast({
+                description: "Email changed",
+            });
+        }
+        // const response = await sendEmailVerify();
+        // if (response?.error !== null) {
+        //     toast({
+        //         variant: "destructive",
+        //         description: "Email not changed," + responseEdit?.error.message,
+        //     });
+        // }
+        // toast({
+        //     description: "Email changed ,wait verfiction email",
+        // });
     };
+
     // send verifiction set password in email
     const handleSendVerification = async () => {
         if (userData) {
@@ -254,6 +294,7 @@ export default function page() {
                                                         id="password"
                                                         type="password"
                                                         className="col-span-3"
+                                                        required
                                                         ref={passwordRef}
                                                     />
                                                 </div>
@@ -335,7 +376,7 @@ export default function page() {
 
                     <Button
                         onClick={() => {
-                            route.push("/services/github");
+                            route.push("/services/clockify");
                         }}
                         className={`mt-6 w-[160px] gap-x-3 `}
                     >
@@ -347,7 +388,7 @@ export default function page() {
                     <h3>changing your repositorie in github ,</h3>
                     <Button
                         onClick={() => {
-                            route.push("/services/clockify");
+                            route.push("/services/github");
                         }}
                         className={`mt-1 min-w-[160px] px-3`}
                     >

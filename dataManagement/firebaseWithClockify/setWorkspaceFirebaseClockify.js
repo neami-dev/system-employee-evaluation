@@ -7,7 +7,7 @@ import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 import { setDoc } from "firebase/firestore";
 
 
-export async function setWorkSpaceIdfirebaseClockify(ClockifyWorkspace,id) {
+export async function setWorkSpaceIdfirebaseClockify(clockifyWorkspace,id) {
     try {
         if (id !== undefined) {
             console.log("id is good");
@@ -17,7 +17,7 @@ export async function setWorkSpaceIdfirebaseClockify(ClockifyWorkspace,id) {
                 await updateDocumentA({
                     collectionName: "userData",
                     id: id,
-                    data: { ClockifyWorkspace: ClockifyWorkspace },
+                    data: { clockifyWorkspace: clockifyWorkspace },
                 });
                 console.log("OK");
                 return {status : "OK"};

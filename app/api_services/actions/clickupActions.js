@@ -8,7 +8,7 @@ import { addCookie, getCookie } from "./handleCookies";
 const api = () => {
     const API_BASE_URL = process.env.CLICKUP_BASE_URL;
     const API_TOKEN = cookies().get("clickupToken"); // clickup API token
-    console.log("token clickup : ", API_TOKEN.value);
+    console.log("token clickup : ", API_TOKEN?.value);
     return axios.create({
         baseURL: API_BASE_URL,
         headers: {

@@ -1,6 +1,7 @@
 "use client";
 import { CheckTokens } from "@/app/api_services/actions/handleCookies";
 import Loading from "@/components/component/Loading";
+import { updateEmployee } from "@/firebase/firebase-admin/updateEmployee";
 
 import { auth } from "@/firebase/firebase-config";
 import getDocument from "@/firebase/firestore/getDocument";
@@ -20,9 +21,13 @@ const IntegrationPage = () => {
     const isAllIntegrated = Clickup && Github && Clockify;
 
     useEffect(() => {
+        
+        
         onAuthStateChanged(auth, async (user) => {
+
             if (!user) route.push("/login");
             // console.log(user);
+           
             setIsEmailValid(user?.emailVerified);
 
             const response = await getDocument("userData", user?.uid);
@@ -35,7 +40,7 @@ const IntegrationPage = () => {
             }
             if (
                 response.result?.data()?.clockifyUserId &&
-                response.result?.data()?.ClockifyWorkspace &&
+                response.result?.data()?.clockifyWorkspace &&
                 response.result?.data()?.clockifyApiKey
             ) {
                 setClockify(true);

@@ -49,7 +49,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/firebase/firebase-config";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
-import { GetWorkspaceFirebaseClockify } from "@/dataManagement/firebaseWithClockify/GetWorkspaceFirebaseClockify";
+ 
 import getDocument from "@/firebase/firestore/getDocument";
 import { getClockifyUserIdCookies } from "@/app/api_services/actions/handleCookies";
 
@@ -326,7 +326,7 @@ export default function DataTableDemo() {
     const [rowSelection, setRowSelection] = useState({});
     const [isLogged, setIsLogged] = useState(false);
 
-    const [ClockifyWorkspaceId,setClockifyWorkspaceId] = useState([])
+    const [clockifyWorkspaceId,setClockifyWorkspaceId] = useState([])
     const route = useRouter();
     useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -334,7 +334,7 @@ export default function DataTableDemo() {
             setIsLogged(true);
             try {
                 const response = await getDocument("userData", user.uid); // Assuming user?.uid is always defined here
-                const workspaceId = response?.result.data()?.ClockifyWorkspace; // Safely access ClockifyWorkspace
+                const workspaceId = response?.result.data()?.clockifyWorkspace; // Safely access ClockifyWorkspace
                 if (workspaceId) {
                     setClockifyWorkspaceId(workspaceId);
                 } else {
@@ -364,7 +364,7 @@ export default function DataTableDemo() {
         useEffect(() => {
             const fetchAndSetTimeEntries = async () => {
             console.log("hey i'm fetchAndSetTimeEntries function");
-            console.log("ClockifyWorkspaceId: ", ClockifyWorkspaceId);
+            console.log("ClockifyWorkspaceId: ", clockifyWorkspaceId);
     
             try {
                 const ClockifyUserId = await getClockifyUserIdCookies();
@@ -375,7 +375,7 @@ export default function DataTableDemo() {
                         const formattedDate = format(date, "yyyy-MM-dd");
                         const dailyEntries = await getCheckInOutTimes(
                             ClockifyUserId,
-                            ClockifyWorkspaceId,
+                            clockifyWorkspaceId,
                             formattedDate
                         );
                         if (dailyEntries && Object.keys(dailyEntries).length > 0) {
@@ -405,7 +405,7 @@ export default function DataTableDemo() {
     
         fetchAndSetTimeEntries();
         console.log("dateRange: ", dateRange);
-    }, [dateRange, ClockifyWorkspaceId]); // Include all relevant dependencies
+    }, [dateRange, clockifyWorkspaceId]); // Include all relevant dependencies
     
 
     useEffect(() => {

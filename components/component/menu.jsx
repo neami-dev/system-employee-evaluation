@@ -36,10 +36,13 @@ import { getAuthenticatedUserDetails } from "@/app/api_services/actions/clickupA
 import { getGitHubUsername } from "@/app/api_services/actions/githubActions";
 import { getClockifyUserData } from "@/app/api_services/actions/clockifyActions";
 import { checkDataExistsInFirebase } from "@/app/api_services/actions/ckeckDbAndCookies";
+import { getCookie } from "cookies-next";
+import { addCookie, checkCookies } from "@/app/api_services/actions/handleCookies";
+
 
 export default function Menu() {
     const pathname = usePathname();
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(getCookie("isAdmin") || false);
     const [isLogged, setIsLogged] = useState(false);
     const route = useRouter();
     const { toast } = useToast();
@@ -47,10 +50,12 @@ export default function Menu() {
     useEffect(() => {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                if (!user?.emailVerified) route.push("/not-found");
+                if (!user?.emailVerified) route.push("/invalid-email");
                 setIsLogged(true);
                 const response = await checkRoleAdmin(user.uid);
                 setIsAdmin(response?.result);
+                addCookie("isAdmin",response?.result)
+               await checkCookies(user?.uid)
                 const checkResponse = await checkDataExistsInFirebase();
                 console.log(checkResponse);
                 console.log(!!checkResponse?.link);
@@ -88,7 +93,7 @@ export default function Menu() {
                             pathname === "/admin/dashboard"
                                 ? JSXspan
                                 : null}
-                            {isAdmin ? (
+                            {String(isAdmin)?.toLowerCase() === "true" ? (
                                 <Menubar className="border-0 h-5 w-[24px] cursor-pointer">
                                     <MenubarMenu className="border-0 cursor-pointer ">
                                         <MenubarTrigger>
@@ -135,7 +140,8 @@ export default function Menu() {
                                 <MessageSquareText />
                             </Link>
                         </li>
-                        {isAdmin && (
+                        {/*  the cookies type string */}
+                        {String(isAdmin)?.toLowerCase() === "true"  && (
                             <>
                                 {" "}
                                 <li
@@ -152,20 +158,7 @@ export default function Menu() {
                                         <Users />
                                     </Link>
                                 </li>
-                                {/* <li
-                                    className={`relative hover:text-[#3354F4] cursor-pointer ${
-                                        pathname == "/admin/"
-                                            ? "text-[#3354F4]"
-                                            : "text-[#A3AED0]"
-                                    }`}
-                                >
-                                    <Link href="/employee/test">
-                                        {pathname == "/employee/test" &&
-                                            JSXspan}
-
-                                        <UserPlus />
-                                    </Link>
-                                </li> */}
+                               
                             </>
                         )}
                         <li
@@ -180,7 +173,7 @@ export default function Menu() {
                             pathname === "/admin/attendance"
                                 ? JSXspan
                                 : null}
-                            {isAdmin ? (
+                            {String(isAdmin)?.toLowerCase() === "true"  ? (
                                 <Menubar className="border-0 h-5 w-[24px] cursor-pointer">
                                     <MenubarMenu className="border-0 cursor-pointer ">
                                         <MenubarTrigger>

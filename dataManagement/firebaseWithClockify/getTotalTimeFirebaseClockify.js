@@ -15,11 +15,11 @@ export async function getTotalTimeFirebaseClockify(hanldeChange, uid) {
             // return { hours, minutes, seconds };
             hanldeChange({ hours, minutes, seconds });
             
-            const ClockifyUserData = await getClockifyUserData();
-            console.log("ClockifyUserData", ClockifyUserData);
-            const ClockifyWorkspace = response.result.data()?.ClockifyWorkspace;
+            const clockifyUserData = await getClockifyUserData();
+            console.log("ClockifyUserData", clockifyUserData);
+            const clockifyWorkspace = response.result.data()?.clockifyWorkspace;
             // const interval = setInterval(() => {
-                getTimeTrackedByEmployeeToday(ClockifyUserData?.id,ClockifyWorkspace,id,workingTime).then((totalTime) => {
+                getTimeTrackedByEmployeeToday(clockifyUserData?.id,clockifyWorkspace,id,workingTime).then((totalTime) => {
                     return hanldeChange(totalTime);
                 });
             // }, 2000);

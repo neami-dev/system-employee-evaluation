@@ -28,6 +28,7 @@ import { getTotalCommitsForToday } from "@/app/api_services/actions/githubAction
 import { getTimeTrackedByEmployeeToday } from "@/app/api_services/actions/clockifyActions";
 
 import { getCookie } from "cookies-next";
+import Loading from "@/components/component/Loading";
 
 export default function page() {
     const [tasksCompleted, setTasksCompleted] = useState(
@@ -51,7 +52,6 @@ export default function page() {
     const route = useRouter();
 
     useEffect(() => {
-        console.log(getCookie("isLogged"));
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 setIsLogged(true);
@@ -62,31 +62,40 @@ export default function page() {
         });
         const getInfo = async () => {
             try {
-                getTimeTrackedByEmployeeToday(
+                await getTimeTrackedByEmployeeToday(
                     getCookie("clockifyUserId"),
                     getCookie("clockifyWorkspace")
                 );
-                getTotalCommitsForToday();
+                setTimeTrackedByEmployeeToday(getCookie("workTime"));
+
+                await getTotalCommitsForToday();
+                setCommits(getCookie("totalCommits"));
 
                 // function to get information from clickUp
                 const [team, userCickupDetails] = await Promise.all([
                     getTeams(),
                     getAuthenticatedUserDetails(),
                 ]);
-                getCompletedTasksByEmployee(team?.id, userCickupDetails?.id);
-                getInProgressTasksByEmployee(team?.id, userCickupDetails?.id);
-                getOpenTasksByEmployee(team?.id, userCickupDetails?.id);
-                getPendingTasksByEmployee(team?.id, userCickupDetails?.id);
-                getHoldTasksByEmployee(team?.id, userCickupDetails?.id);
-                await getAllTasksByEmployee(team?.id, userCickupDetails?.id);
-
-                setAllTasks(getCookie("tasks"));
+                await getOpenTasksByEmployee(team?.id, userCickupDetails?.id);
+                await getCompletedTasksByEmployee(
+                    team?.id,
+                    userCickupDetails?.id
+                );
                 setTasksCompleted(getCookie("tasksCompleted"));
+                await getInProgressTasksByEmployee(
+                    team?.id,
+                    userCickupDetails?.id
+                );
                 setTasksInProgress(getCookie("tasksProgress"));
+                await getPendingTasksByEmployee(
+                    team?.id,
+                    userCickupDetails?.id
+                );
                 setTasksPending(getCookie("tasksPending"));
+                await getHoldTasksByEmployee(team?.id, userCickupDetails?.id);
                 setTasksOnHold(getCookie("tasksHold"));
-                setCommits(getCookie("totalCommits"));
-                setTimeTrackedByEmployeeToday(getCookie("workTime"));
+                await getAllTasksByEmployee(team?.id, userCickupDetails?.id);
+                setAllTasks(getCookie("tasks"));
             } catch (error) {
                 console.log("error from dashboard", error.message);
             }
@@ -138,7 +147,7 @@ export default function page() {
     };
     const itemStyle =
         "bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ";
-    if (isLogged == true) {
+    if (isLogged === true) {
         return (
             <>
                 <section className="grid justify-center w-full mx-auto pt-32">
@@ -147,14 +156,14 @@ export default function page() {
                             <Weather />
                         </li>
                         <li className={`${itemStyle} `}>
-                            {allTasks !== null ? (
+                            {allTasks !== null && tasksCompleted !==null ? (
                                 <>
                                     <div className="w-[65px]">
                                         <ChangingProgressProvider
                                             values={[
                                                 0,
                                                 progressPercentageTask()
-                                                    .tasksCompleted,
+                                                    ?.tasksCompleted,
                                             ]}
                                         >
                                             {(percentage) => (
@@ -184,14 +193,14 @@ export default function page() {
                             )}
                         </li>
                         <li className={`${itemStyle}`}>
-                            {allTasks !== null ? (
+                            {allTasks !== null && tasksInProgress !==null ? (
                                 <>
                                     <div className="w-[65px]">
                                         <ChangingProgressProvider
                                             values={[
                                                 0,
                                                 progressPercentageTask()
-                                                    .tasksInProgress,
+                                                    ?.tasksInProgress,
                                             ]}
                                         >
                                             {(percentage) => (
@@ -221,14 +230,14 @@ export default function page() {
                             )}
                         </li>
                         <li className={`${itemStyle}`}>
-                            {allTasks !== null ? (
+                            {allTasks !== null && tasksOnHold !==null  ? (
                                 <>
                                     <div className="w-[65px]">
                                         <ChangingProgressProvider
                                             values={[
                                                 0,
                                                 progressPercentageTask()
-                                                    .tasksOnHold,
+                                                    ?.tasksOnHold,
                                             ]}
                                         >
                                             {(percentage) => (
@@ -258,14 +267,14 @@ export default function page() {
                             )}
                         </li>
                         <li className={`${itemStyle}`}>
-                            {allTasks !== null ? (
+                            {allTasks !== null && tasksPending !==null ? (
                                 <>
                                     <div className="w-[65px]">
                                         <ChangingProgressProvider
                                             values={[
                                                 0,
                                                 progressPercentageTask()
-                                                    .tasksPending,
+                                                    ?.tasksPending,
                                             ]}
                                         >
                                             {(percentage) => (
@@ -397,5 +406,7 @@ export default function page() {
                 </section>
             </>
         );
+    } else {
+        return <Loading />;
     }
 }
