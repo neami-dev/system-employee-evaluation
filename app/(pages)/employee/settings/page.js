@@ -38,8 +38,8 @@ import { useToast } from "@/components/ui/use-toast";
 import Loading from "@/components/component/Loading";
 import { Input } from "@/components/ui/input";
 import { editProfile } from "@/firebase/auth/editProfile";
-import { uploadImage } from "@/firebase/storge/uploadImage";
-import { deleteImage } from "@/firebase/storge/deleteImage";
+import { uploadImage } from "@/firebase/storage/uploadImage";
+import { deleteImage } from "@/firebase/storage/deleteImage";
 
 import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 import { addCookies } from "@/app/api_services/actions/handleCookies";
