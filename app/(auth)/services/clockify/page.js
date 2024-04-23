@@ -85,7 +85,7 @@ function ClockifyPage() {
                     variant: "destructive",
                     description: "api key required!",
                 });
-                return;
+                return false;
             }
             const result = await getClockifyUserData(apiKey,auth?.currentUser?.uid);
             
@@ -94,7 +94,7 @@ function ClockifyPage() {
                     variant: "destructive",
                     description: "api key is not valid",
                 });
-                return;
+                return false;
             }
             setKeyValid(true);
             toast({

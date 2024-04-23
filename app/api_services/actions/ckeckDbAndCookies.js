@@ -18,6 +18,7 @@ export const checkDataExistsInFirebase = async () => {
         if (!user) return;
         checkCookies(user?.uid)
         const res = await getDocument("userData", user?.uid);
+        // verify the token is valid
         const githibAuth = await getGitHubUsername();
         if (
             !res.result?.data()?.githubToken ||
@@ -59,6 +60,6 @@ export const checkDataExistsInFirebase = async () => {
     } catch (error) {
         console.log(error.message);
     }
-
+    // not found any errors
     return false;
 };

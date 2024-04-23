@@ -1,6 +1,5 @@
 "use client";
 import { auth } from "@/firebase/firebase-config";
-import getDocument from "@/firebase/firestore/getDocument";
 import {
     Menubar,
     MenubarCheckboxItem,
@@ -25,16 +24,12 @@ import {
     ShieldHalf,
     User,
 } from "lucide-react";
-
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
 import { onAuthStateChanged } from "firebase/auth";
 import { useToast } from "../ui/use-toast";
-import { getAuthenticatedUserDetails } from "@/app/api_services/actions/clickupActions";
-import { getGitHubUsername } from "@/app/api_services/actions/githubActions";
-import { getClockifyUserData } from "@/app/api_services/actions/clockifyActions";
 import { checkDataExistsInFirebase } from "@/app/api_services/actions/ckeckDbAndCookies";
 import { getCookie } from "cookies-next";
 import {
@@ -52,30 +47,37 @@ export default function Menu() {
 
     useEffect(() => {
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                console.log("emailVerified", user?.emailVerified);
-                if (user?.emailVerified !== true) {
-                    route.push("/invalid-email");
-                }
-                setIsLogged(true);
-                const response = await checkRoleAdmin(user.uid);
-                setIsAdmin(response?.result);
-                console.log("isAdmin", response?.result);
-                addCookie("isAdmin", response?.result);
-                await checkCookies(user?.uid);
-                const checkResponse = await checkDataExistsInFirebase();
-                console.log(checkResponse);
-                console.log(!!checkResponse?.link);
-                if (!!checkResponse?.link) route.push(checkResponse?.link);
-                if (!!checkResponse?.errorMsg) {
-                    toast({
-                        description: checkResponse?.errorMsg,
-                        variant: "destructive",
-                    });
-                }
-            } else {
+            if (!user) {
+                // check if user logged 
                 route.push("/login");
                 console.log("logout from menu");
+                return false;
+            }
+            setIsLogged(true);
+            // check if user is email verified
+            console.log("emailVerified", user?.emailVerified);
+            if (user?.emailVerified !== true) {
+                route.push("/invalid-email");
+                return false;
+            }
+            // check if user is admin
+            const response = await checkRoleAdmin(user.uid);
+            setIsAdmin(response?.result);
+            console.log("isAdmin", response?.result);
+            addCookie("isAdmin", response?.result);
+            // check cookies if exists 
+            await checkCookies(user?.uid);
+        
+            // check if any data lacked (clickup github cloockify)
+            const checkResponse = await checkDataExistsInFirebase();
+            console.log(checkResponse);
+            console.log(!!checkResponse?.link);
+            if (!!checkResponse?.link) route.push(checkResponse?.link);
+            if (!!checkResponse?.errorMsg) {
+                toast({
+                    description: checkResponse?.errorMsg,
+                    variant: "destructive",
+                });
             }
         });
     }, []);
@@ -216,7 +218,7 @@ export default function Menu() {
                 </div>
             </>
         );
-    }else{
-        <Loading/>
+    } else {
+        <Loading />;
     }
 }

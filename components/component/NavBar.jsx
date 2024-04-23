@@ -59,7 +59,7 @@ export default function NavBar() {
     async function logout() {
         signOut(auth)
             .then(() => {
-                // route.push("/login")
+                route.push("/login")
                 toast({
                     description: "logged out sccessfully",
                 });
