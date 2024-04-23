@@ -2,7 +2,8 @@
 
 import axios from "axios";
 import { cookies } from "next/headers";
-import { addCookie, getCookie } from "./handleCookies";
+import { addCookie, addCookieServer, getCookie } from "./handleCookies";
+import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 
 const api = () => {
     const API_KEY = cookies().get("clockifyApiKey");
@@ -14,16 +15,37 @@ const api = () => {
 };
 
 // function to get user data from Clockify
-export const getClockifyUserData = async (api_key) => {
+export const getClockifyUserData = async (api_key, uid) => {
     console.log("api-key==1", cookies().get("clockifyApiKey"));
 
     try {
         if (api_key) {
-            return (
-                await axios.get("https://api.clockify.me/api/v1/user", {
+            const response = await axios.get(
+                "https://api.clockify.me/api/v1/user",
+                {
                     headers: { "X-Api-Key": api_key },
-                })
-            ).data;
+                }
+            );
+            console.log("status", response?.status);
+            if (response?.status == 200) {
+                console.log({
+                    clockifyApiKey: api_key,
+                    clockifyUserId: response?.data?.id,
+                });
+                const responseUpdate = await updateDocumentA({
+                    collectionName: "userData",
+                    id: uid,
+                    data: {
+                        clockifyApiKey: api_key,
+                        clockifyUserId: response?.data?.id,
+                    },
+                });
+                if (responseUpdate?.error !== null) {
+                    addCookieServer("clockifyApiKey", api_key),
+                        addCookie("clockifyUserId", response?.data?.id);
+                }
+                return true;
+            }
         }
 
         return (await api().get("/user")).data;
@@ -34,8 +56,6 @@ export const getClockifyUserData = async (api_key) => {
 };
 
 export const getClockifyWorkSpaces = async (api_key) => {
-  
-
     try {
         if (api_key) {
             return (
@@ -149,7 +169,7 @@ export const getCheckInOutTimes = async (
     specificDate
 ) => {
     const formattedDate = specificDate.split("T")[0]; // Ensure the date is in YYYY-MM-DD format
-   
+
     console.log("user id : ", clockifyUserId);
     console.log("workspace id : ", clockifyWorkspaceId);
     console.log(formattedDate);

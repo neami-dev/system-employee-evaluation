@@ -19,13 +19,9 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import getDocument from "@/firebase/firestore/getDocument";
 import { getGitHubUserRepos } from "@/app/api_services/actions/githubActions";
-import Loading from "@/components/component/Loading";
-import {
-    addCookie,
-    getAllCookies,
-} from "@/app/api_services/actions/handleCookies";
-import updateDocumentA from "@/firebase/firestore/updateDocumentA";
+import { addCookie } from "@/app/api_services/actions/handleCookies";
 import { useToast } from "@/components/ui/use-toast";
+import updateDocument from "@/firebase/firestore/updateDocument";
 
 function GithubPage() {
     const router = useRouter();
@@ -52,13 +48,13 @@ function GithubPage() {
     useEffect(() => {
         const addRepoSelected = async () => {
             if (repoSelected !== null) {
-                const response = await updateDocumentA({
+                const response = await updateDocument({
                     collectionName: "userData",
                     id: userData?.uid,
                     data: { githubRepo: repoSelected },
                 });
-                if (response?.error) {
-                    console.log(response?.error);
+                if (response.error) {
+                    console.log(response.error);
                     return;
                 }
                 toast({

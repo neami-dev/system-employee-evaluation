@@ -27,7 +27,7 @@ import {
 } from "@/app/api_services/actions/clockifyActions";
 import { Input } from "@/components/ui/input";
 import { addCookie, addCookieServer, getCookie } from "@/app/api_services/actions/handleCookies";
-import updateDocumentA from "@/firebase/firestore/updateDocumentA";
+
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import updateDocument from "@/firebase/firestore/updateDocument";
@@ -62,7 +62,7 @@ function ClockifyPage() {
                     id: userData?.uid,
                     data: { clockifyWorkspace: keySelected },
                 });
-                console.log("res updateDocumentA",response);
+                
                 if (response?.error) {
                     console.log(response?.error);
                     return;
@@ -87,7 +87,8 @@ function ClockifyPage() {
                 });
                 return;
             }
-            const result = await getClockifyUserData(apiKey);
+            const result = await getClockifyUserData(apiKey,auth?.currentUser?.uid);
+            
             if (result == null) {
                 toast({
                     variant: "destructive",
@@ -95,19 +96,12 @@ function ClockifyPage() {
                 });
                 return;
             }
-            console.log(result);
             setKeyValid(true);
             toast({
                 description: "key is valid ,choose workspace",
             });
             addCookie("clockifyUserId", result?.id);
             addCookieServer("clockifyApiKey", apiKey);
-
-            await updateDocumentA({
-                collectionName: "userData",
-                id: userData?.uid,
-                data: { clockifyApiKey: apiKey, clockifyUserId: result?.id },
-            });
 
             const spacesResponse = await getClockifyWorkSpaces(apiKey);
             console.log("spacesResponse===", spacesResponse);
