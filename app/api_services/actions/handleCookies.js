@@ -40,7 +40,7 @@ export async function checkCookies(uid) {
                 "clockifyWorkspace",
                 (await getDocument("userData", uid))?.result?.clockifyWorkspace
             );
-            console.log("ClockifyWorkspace not found");
+            console.log("ClockifyWorkspace not found=",(await getDocument("userData", uid)));
         }
         if (!clockifyApiKey) {
             console.log("clockifyApiKey not found");

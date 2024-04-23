@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { getGitHubUsername } from "./githubActions";
 import { getClockifyUserData } from "./clockifyActions";
+import { checkCookies } from "./handleCookies";
 
 export const checkDataExistsInFirebase = async () => {
     let link,
@@ -15,6 +16,7 @@ export const checkDataExistsInFirebase = async () => {
     try {
         const user = auth?.currentUser;
         if (!user) return;
+        checkCookies(user?.uid)
         const res = await getDocument("userData", user?.uid);
         const githibAuth = await getGitHubUsername();
         if (

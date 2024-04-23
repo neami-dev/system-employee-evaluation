@@ -23,7 +23,7 @@ export const getAuthenticatedUserDetails = async () => {
     console.log("i'm user func");
     try {
         const response = await api().get("/user");
-        
+
         return response?.data?.user; // Adjust according to the actual response structure
     } catch (error) {
         console.error(
@@ -197,15 +197,13 @@ export const getHoldTasksByEmployee = async (teamId, userId) => {
         const response = await api().get(`/team/${teamId}/task`, {
             params: {
                 assignees: [userId],
-                statuses: ["hold"],
+                statuses: ["on hold"],
                 // 'date_updated_gt': startIso,
                 // 'date_updated_lt': endIso
             },
         });
         console.log("in hold tasks ", response?.data?.tasks?.length);
-        if (
-            response?.data?.tasks?.length !== getCookie("tasksHold")?.value
-        ) {
+        if (response?.data?.tasks?.length !== getCookie("tasksHold")?.value) {
             addCookie("tasksHold", response?.data?.tasks?.length);
         }
         return response?.data?.tasks;

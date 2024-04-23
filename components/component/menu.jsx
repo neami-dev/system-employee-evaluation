@@ -54,6 +54,7 @@ export default function Menu() {
                 setIsLogged(true);
                 const response = await checkRoleAdmin(user.uid);
                 setIsAdmin(response?.result);
+                console.log(response?.result);
                 addCookie("isAdmin",response?.result)
                await checkCookies(user?.uid)
                 const checkResponse = await checkDataExistsInFirebase();

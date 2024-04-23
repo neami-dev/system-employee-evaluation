@@ -121,14 +121,15 @@ export default function page() {
             uid: user?.uid,
             emailVerified: true,
         });
-        })
-
-        
         if (responseUpdate?.result === true) {
             toast({
                 description: "Email changed",
             });
         }
+        })
+
+        
+        
         // const response = await sendEmailVerify();
         // if (response?.error !== null) {
         //     toast({

@@ -23,27 +23,36 @@ import BarChart from "@/components/component/barChart";
 import { getEmployees } from "@/firebase/firebase-admin/getEmployees";
 import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
 import { onAuthStateChanged } from "firebase/auth";
+import Loading from "@/components/component/Loading";
 
 export default function page() {
     const [isAdmin, setsIsdmin] = useState(false);
+    const [totalEmployeea,setTotalEmployees] = useState(0);
     const route = useRouter();
 
     useEffect(() => {
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const response = await checkRoleAdmin(user.uid);
-                user.uid;
-                setsIsdmin(response?.result);
-                if (!response?.result) {
-                    route.push("/Not-Found");
-                    console.log("your role is not admin");
-                }
-            } else {
+            if (!user) {
                 route.push("/login");
-                console.log("logout from dashboard admin"); 
+                console.log("logout from dashboard admin");
+                return;
             }
+            const response = await checkRoleAdmin(user.uid);
+            setsIsdmin(response?.result);
+
+            if (!response?.result) {
+                route.push("/Not-Found");
+                console.log("your role is not admin");
+            }
+
+            const responseEmp = await getEmployees();
+            if(responseEmp?.result){
+                setTotalEmployees(responseEmp?.result?.length)
+            console.log(responseEmp?.result?.length);
+            }
+            
         });
-        getEmployees();
+        
     }, []);
 
     const dataChart = [
@@ -80,7 +89,7 @@ export default function page() {
                         </li>
                         <li className={`${itemStyle}`}>
                             <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">452</span>
+                                <span className=" text-4xl">{totalEmployeea}</span>
                                 <span className=" bg-[#E6EAF5] p-2 rounded-full">
                                     <Users className="text-blue-500" />
                                 </span>
@@ -173,5 +182,7 @@ export default function page() {
                 </section>
             </>
         );
+    } else {
+        return <Loading />;
     }
 }

@@ -42,13 +42,13 @@ export const getClockifyWorkSpaces = async (api_key) => {
                 await axios.get("https://api.clockify.me/api/v1/workspaces", {
                     headers: { "X-Api-Key": api_key },
                 })
-            ).data;
+            )?.data;
         }
         console.log(api_key);
 
         const response = await api().get("/workspaces");
         console.log("workspaces===", response);
-        return response.data;
+        return response?.data;
     } catch (error) {
         console.error(
             "Error fetching workspaces data from Clockify:",

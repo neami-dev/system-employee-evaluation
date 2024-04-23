@@ -30,6 +30,7 @@ import { addCookie, addCookieServer, getCookie } from "@/app/api_services/action
 import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
+import updateDocument from "@/firebase/firestore/updateDocument";
 
 function ClockifyPage() {
     const router = useRouter();
@@ -56,11 +57,12 @@ function ClockifyPage() {
     useEffect(() => {
         const addKeySelected = async () => {
             if (keySelected !== null) {
-                const response = await updateDocumentA({
+                const response = await updateDocument({
                     collectionName: "userData",
                     id: userData?.uid,
                     data: { clockifyWorkspace: keySelected },
                 });
+                console.log("res updateDocumentA",response);
                 if (response?.error) {
                     console.log(response?.error);
                     return;
