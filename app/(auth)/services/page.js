@@ -1,7 +1,7 @@
 "use client";
-import { CheckTokens } from "@/app/api_services/actions/handleCookies";
+
 import Loading from "@/components/component/Loading";
-import { updateEmployee } from "@/firebase/firebase-admin/updateEmployee";
+
 
 import { auth } from "@/firebase/firebase-config";
 import getDocument from "@/firebase/firestore/getDocument";
@@ -21,7 +21,6 @@ const IntegrationPage = () => {
     const isAllIntegrated = Clickup && Github && Clockify;
 
     useEffect(() => {
-        
         
         onAuthStateChanged(auth, async (user) => {
 

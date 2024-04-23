@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 // import ClickupTokenHandler from "./ClickupTokenHandler";
-import Loading from "@/components/component/Loading";
+
 import { auth } from "@/firebase/firebase-config";
 import GithubTokenHandler from "./GithubTokenHandler";
 

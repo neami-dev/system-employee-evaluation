@@ -37,8 +37,11 @@ import { getGitHubUsername } from "@/app/api_services/actions/githubActions";
 import { getClockifyUserData } from "@/app/api_services/actions/clockifyActions";
 import { checkDataExistsInFirebase } from "@/app/api_services/actions/ckeckDbAndCookies";
 import { getCookie } from "cookies-next";
-import { addCookie, checkCookies } from "@/app/api_services/actions/handleCookies";
-
+import {
+    addCookie,
+    checkCookies,
+} from "@/app/api_services/actions/handleCookies";
+import Loading from "./Loading";
 
 export default function Menu() {
     const pathname = usePathname();
@@ -50,13 +53,16 @@ export default function Menu() {
     useEffect(() => {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                if (!user?.emailVerified) route.push("/invalid-email");
+                console.log("emailVerified", user?.emailVerified);
+                if (user?.emailVerified !== true) {
+                    route.push("/invalid-email");
+                }
                 setIsLogged(true);
                 const response = await checkRoleAdmin(user.uid);
                 setIsAdmin(response?.result);
-                console.log(response?.result);
-                addCookie("isAdmin",response?.result)
-               await checkCookies(user?.uid)
+                console.log("isAdmin", response?.result);
+                addCookie("isAdmin", response?.result);
+                await checkCookies(user?.uid);
                 const checkResponse = await checkDataExistsInFirebase();
                 console.log(checkResponse);
                 console.log(!!checkResponse?.link);
@@ -142,7 +148,7 @@ export default function Menu() {
                             </Link>
                         </li>
                         {/*  the cookies type string */}
-                        {String(isAdmin)?.toLowerCase() === "true"  && (
+                        {String(isAdmin)?.toLowerCase() === "true" && (
                             <>
                                 {" "}
                                 <li
@@ -159,7 +165,6 @@ export default function Menu() {
                                         <Users />
                                     </Link>
                                 </li>
-                               
                             </>
                         )}
                         <li
@@ -174,7 +179,7 @@ export default function Menu() {
                             pathname === "/admin/attendance"
                                 ? JSXspan
                                 : null}
-                            {String(isAdmin)?.toLowerCase() === "true"  ? (
+                            {String(isAdmin)?.toLowerCase() === "true" ? (
                                 <Menubar className="border-0 h-5 w-[24px] cursor-pointer">
                                     <MenubarMenu className="border-0 cursor-pointer ">
                                         <MenubarTrigger>
@@ -211,5 +216,7 @@ export default function Menu() {
                 </div>
             </>
         );
+    }else{
+        <Loading/>
     }
 }

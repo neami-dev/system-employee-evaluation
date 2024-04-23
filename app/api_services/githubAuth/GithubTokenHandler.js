@@ -34,7 +34,7 @@ export default async function GithubTokenHandler(code, uid) {
         await updateDocumentA({
             collectionName: "userData",
             id: uid,
-            data: { githubToken: tokenData.access_token },
+            data: { githubToken: tokenData?.access_token },
         });
         addCookieServer("githubToken", tokenData.access_token);
 

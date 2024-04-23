@@ -24,7 +24,7 @@ export const checkDataExistsInFirebase = async () => {
             !res.result?.data()?.githubRepo ||
             githibAuth == null
         ) {
-            console.log("not authenticated for github",githibAuth);
+            // console.log("not authenticated for github",githibAuth);
             link = `https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}&scope=user,repo`;
 
             errorMsg = "lack of information in github";
@@ -34,7 +34,7 @@ export const checkDataExistsInFirebase = async () => {
         const clickUpAuth = await getAuthenticatedUserDetails();
 
         if (!res.result?.data()?.clickupToken || clickUpAuth == null) {
-            console.log("not authenticated for github",clickUpAuth);
+            // console.log("not authenticated for github",clickUpAuth);
 
             link = `https://app.clickup.com/api?client_id=${process.env.NEXT_PUBLIC_CLICKUP_CLIENT_ID}&redirect_uri=http://localhost:3000/api_services/clickupAuth`;
             errorMsg = "lack of information in clickup";
@@ -49,7 +49,7 @@ export const checkDataExistsInFirebase = async () => {
             !res.result?.data()?.clockifyUserId ||
             clockifyAuth == null
         ) {
-            console.log("not authenticated for clockifyAuth",clockifyAuth);
+            // console.log("not authenticated for clockifyAuth",clockifyAuth);
 
             link = "/services/clockify";
             errorMsg = "lack of information in clockify";
