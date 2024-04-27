@@ -1,12 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-
 import "react-circular-progressbar/dist/styles.css";
 import { useRouter } from "next/navigation";
-
 import { auth } from "@/firebase/firebase-config";
-
 import {
     AlignCenter,
     CalendarClock,
@@ -24,36 +21,96 @@ import { getEmployees } from "@/firebase/firebase-admin/getEmployees";
 import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
 import { onAuthStateChanged } from "firebase/auth";
 import Loading from "@/components/component/Loading";
+import {
+    getAllUserIds,
+    getCheckInOutTimes,
+} from "@/app/api_services/actions/clockifyActions";
+import getDocument from "@/firebase/firestore/getDocument";
+import { format } from "date-fns";
 
 export default function page() {
+    const [clockifyWorkspaceId, setClockifyWorkspaceId] = useState([]);
+    const [totalEmployeea, setTotalEmployees] = useState(0);
+    const [lateArrival, setLateArrival] = useState(0);
+    const [absent, setAbsent] = useState(0);
+    const [onTime, setOnTime] = useState(0);
+    const [earlyDepartures, setEarlyDepartures] = useState(0);
+    const [timeOff, setTimeOff] = useState(0);
+    const [date, setDate] = useState(new Date());
     const [isAdmin, setsIsdmin] = useState(false);
-    const [totalEmployeea,setTotalEmployees] = useState(0);
     const route = useRouter();
 
     useEffect(() => {
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                route.push("/login");
-                console.log("logout from dashboard admin");
-                return;
-            }
-            const response = await checkRoleAdmin(user.uid);
-            setsIsdmin(response?.result);
+            try {
+                if (!user) {
+                    route.push("/login");
+                    return;
+                }
+                const response = await getDocument("userData", user?.uid);
+                const workspaceId = response?.result.data()?.clockifyWorkspace;
 
-            if (!response?.result) {
-                route.push("/Not-Found");
-                console.log("your role is not admin");
-            }
+                if (workspaceId) setClockifyWorkspaceId(workspaceId);
 
-            const responseEmp = await getEmployees();
-            if(responseEmp?.result){
-                setTotalEmployees(responseEmp?.result?.length)
-            console.log(responseEmp?.result?.length);
+                const responseRole = await checkRoleAdmin(user.uid);
+                setsIsdmin(responseRole?.result);
+
+                if (!responseRole?.result) {
+                    route.push("/Not-Found");
+                    console.log("your role is not admin");
+                }
+
+                const responseEmp = await getEmployees();
+                if (responseEmp?.result) {
+                    setTotalEmployees(responseEmp?.result?.length);
+                }
+            } catch (error) {
+                console.log(error.message);
             }
-            
         });
-        
     }, []);
+
+    useEffect(() => {
+        const fetchAndSetTimeEntries = async () => {
+            try {
+                const ClockifyUsers = await getAllUserIds(clockifyWorkspaceId);
+                if (ClockifyUsers?.length > 0) {
+                    for (const user of ClockifyUsers) {
+                        const formattedDate = format(date, "yyyy-MM-dd");
+                        const dailyEntries = await getCheckInOutTimes(
+                            user?.id,
+                            clockifyWorkspaceId,
+                            formattedDate
+                        );
+                        if (dailyEntries === null) {
+                            return setAbsent((prev) => prev + 1);
+                        }
+                        const time = new Date(
+                            "2000-01-01 " + dailyEntries?.checkInTime
+                        );
+                        const hour = time.getHours();
+
+                        if (hour <= 9 && hour < 7) {
+                            setLateArrival((prev) => prev + 1);
+                        }
+                        if (hour <= 9) {
+                            setOnTime((prev) => prev + 1);
+                        }
+                        if (hour < 17) {
+                            setEarlyDepartures((prev) => prev + 1);
+                        }
+                        if (hour >= 17) {
+                            setTimeOff((prev) => prev + 1);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log("Error in fetchAndSetTimeEntries:", error.message);
+            }
+        };
+
+        fetchAndSetTimeEntries();
+    }, [date, clockifyWorkspaceId]);
 
     const dataChart = [
         {
@@ -89,7 +146,9 @@ export default function page() {
                         </li>
                         <li className={`${itemStyle}`}>
                             <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">{totalEmployeea}</span>
+                                <span className=" text-4xl">
+                                    {totalEmployeea}
+                                </span>
                                 <span className=" bg-[#E6EAF5] p-2 rounded-full">
                                     <Users className="text-blue-500" />
                                 </span>
@@ -100,7 +159,7 @@ export default function page() {
                         </li>
                         <li className={`${itemStyle}`}>
                             <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">360</span>
+                                <span className=" text-4xl">{onTime}</span>
                                 <span className=" bg-[#E6EAF5] p-2 rounded-full">
                                     <History className="text-blue-500" />
                                 </span>
@@ -111,7 +170,7 @@ export default function page() {
                         </li>
                         <li className={`${itemStyle}`}>
                             <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">60</span>
+                                <span className=" text-4xl">{absent}</span>
                                 <span className=" bg-[#E6EAF5] p-2 rounded-full">
                                     <Cloud className="text-blue-500" />
                                 </span>
@@ -122,7 +181,7 @@ export default function page() {
                         </li>
                         <li className={`${itemStyle}`}>
                             <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">6</span>
+                                <span className=" text-4xl">{lateArrival}</span>
                                 <span className=" bg-[#E6EAF5] p-2 rounded-full">
                                     <Hourglass className="text-blue-500" />
                                 </span>
@@ -133,7 +192,9 @@ export default function page() {
                         </li>
                         <li className={`${itemStyle}`}>
                             <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">62</span>
+                                <span className=" text-4xl">
+                                    {earlyDepartures}
+                                </span>
                                 <span className=" bg-[#E6EAF5] p-2 rounded-full">
                                     <Moon className="text-blue-500" />
                                 </span>
@@ -144,7 +205,7 @@ export default function page() {
                         </li>
                         <li className={`${itemStyle}`}>
                             <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">16</span>
+                                <span className=" text-4xl">{timeOff}</span>
                                 <CalendarClock className="text-blue-500" />
                             </div>
                             <h3 className="text-[#252C58] ml-5 text-lg">

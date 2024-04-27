@@ -6,7 +6,6 @@ import updateDocument from "@/firebase/firestore/updateDocument";
 import updateDocumentA from "@/firebase/firestore/updateDocumentA";
 
 
-
 export async function setWorkSpaceIdfirebaseClockify(clockifyWorkspace,id) {
     try {
         if (id !== undefined) {

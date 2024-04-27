@@ -41,9 +41,7 @@ import { editProfile } from "@/firebase/auth/editProfile";
 import { uploadImage } from "@/firebase/storage/uploadImage";
 import { deleteImage } from "@/firebase/storage/deleteImage";
 
-import updateDocumentA from "@/firebase/firestore/updateDocumentA";
-import { addCookies } from "@/app/api_services/actions/handleCookies";
-import { sendEmailVerify } from "@/firebase/auth/sendEmailVerify";
+ 
 import { updateEmployee } from "@/firebase/firebase-admin/updateEmployee";
 
 export default function page() {

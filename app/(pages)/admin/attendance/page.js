@@ -367,13 +367,12 @@ export default function DataTableDemo() {
                 const response = await checkRoleAdmin(user.uid);
                 setIsAdmin(response?.result);
                 // addCookie("isAdmin", response?.result);
-
                 if (!response?.result) {
                     route.push("/Not-Found");
                     console.log("your role is not admin");
                 }
                 try {
-                    const response = await getDocument("userData", user.uid); // Assuming user?.uid is always defined here
+                    const response = await getDocument("userData", user?.uid); // Assuming user?.uid is always defined here
                     const workspaceId =
                         response?.result.data()?.clockifyWorkspace; // Safely access ClockifyWorkspace
                     if (workspaceId) {
@@ -400,6 +399,7 @@ export default function DataTableDemo() {
     //       from: new Date(),
     //       to: addDays(new Date(), 5),
     //     });
+    
     useEffect(() => {
         const fetchAndSetTimeEntries = async () => {
             console.log("hey i'm fetchAndSetTimeEntries function");
@@ -409,7 +409,7 @@ export default function DataTableDemo() {
                 // const ClockifyUserId = await getClockifyUserIdCookies();
                 const ClockifyUsers = await getAllUserIds(clockifyWorkspaceId);
                 console.log("ClockifyUsers :", ClockifyUsers);
-                if (ClockifyUsers.length > 0) {
+                if (ClockifyUsers?.length > 0) {
                     // console.log("ClockifyUserId ID: ", ClockifyUserId);
                     const entries = [];
                     for (const user of ClockifyUsers) {
@@ -419,6 +419,7 @@ export default function DataTableDemo() {
                             clockifyWorkspaceId,
                             formattedDate
                         );
+                        
                         if (
                             dailyEntries &&
                             Object.keys(dailyEntries).length > 0

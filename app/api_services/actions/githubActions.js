@@ -1,7 +1,7 @@
 "use server";
 
 import getDocumentA from "@/firebase/firestore/getDocummentA";
-import updateDocumentA from "@/firebase/firestore/updateDocumentA";
+
 // actions.js
 import axios from "axios";
 import { cookies } from "next/headers";
