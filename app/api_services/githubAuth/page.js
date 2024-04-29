@@ -42,7 +42,7 @@ export default function ClickupCallback() {
             router.push("/services/github");
         } else {
             console.error("Failed to obtain access token:", dataToken);
-            router.push("/login");
+            // router.back();
         }
     }
 }

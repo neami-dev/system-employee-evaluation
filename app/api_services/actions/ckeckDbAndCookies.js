@@ -1,10 +1,7 @@
 "use client";
 import { auth } from "@/firebase/firebase-config";
 import getDocument from "@/firebase/firestore/getDocument";
-import { onAuthStateChanged } from "firebase/auth";
 import { getAuthenticatedUserDetails } from "./clickupActions";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { getGitHubUsername } from "./githubActions";
 import { getClockifyUserData } from "./clockifyActions";
 import { checkCookies } from "./handleCookies";
@@ -43,7 +40,7 @@ export const checkDataExistsInFirebase = async () => {
             return { link, errorMsg };
         }
         const clockifyAuth = await getClockifyUserData();
-        console.log("clockifyAuth==", clockifyAuth);
+        // console.log("clockifyAuth==", clockifyAuth);
         if (
             !res.result?.data()?.clockifyWorkspace ||
             !res.result?.data()?.clockifyApiKey ||

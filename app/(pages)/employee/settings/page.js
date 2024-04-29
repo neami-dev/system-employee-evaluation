@@ -387,7 +387,7 @@ export default function page() {
                     <h3>changing your repositorie in github ,</h3>
                     <Button
                         onClick={() => {
-                            route.push("/services/github");
+                            route.push(`https://github.com/login/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID}&scope=user,repo`);
                         }}
                         className={`mt-1 min-w-[160px] px-3`}
                     >

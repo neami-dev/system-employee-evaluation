@@ -47,13 +47,12 @@ export default function page() {
                     route.push("/login");
                     return;
                 }
+                const responseRole = await checkRoleAdmin(user.uid);
+                setsIsdmin(responseRole?.result);
                 const response = await getDocument("userData", user?.uid);
                 const workspaceId = response?.result.data()?.clockifyWorkspace;
 
                 if (workspaceId) setClockifyWorkspaceId(workspaceId);
-
-                const responseRole = await checkRoleAdmin(user.uid);
-                setsIsdmin(responseRole?.result);
 
                 if (!responseRole?.result) {
                     route.push("/Not-Found");
@@ -82,24 +81,26 @@ export default function page() {
                             clockifyWorkspaceId,
                             formattedDate
                         );
-                        if (dailyEntries === null) {
+                        if (dailyEntries === null ) {
                             return setAbsent((prev) => prev + 1);
                         }
-                        const time = new Date(
+                        const entryTime = new Date(
                             "2000-01-01 " + dailyEntries?.checkInTime
-                        );
-                        const hour = time.getHours();
-
-                        if (hour <= 9 && hour < 7) {
+                        ).getHours();
+                        const timeToLeave = new Date(
+                            "2000-01-01 " + dailyEntries?.checkOutTime
+                        ).getHours();
+                        
+                        if (entryTime > 9) {
                             setLateArrival((prev) => prev + 1);
                         }
-                        if (hour <= 9) {
+                        if (entryTime <= 9) {
                             setOnTime((prev) => prev + 1);
                         }
-                        if (hour < 17) {
+                        if (timeToLeave < 17) {
                             setEarlyDepartures((prev) => prev + 1);
                         }
-                        if (hour >= 17) {
+                        if (timeToLeave >= 17) {
                             setTimeOff((prev) => prev + 1);
                         }
                     }
