@@ -7,11 +7,10 @@ import axios from "axios";
 import { cookies } from "next/headers";
 import { addCookie, getCookie } from "./handleCookies";
 
-
 const githubApi = () => {
     const GITHUB_TOKEN = cookies()?.get("githubToken"); // github API token
     console.log("GITHUB_TOKEN", GITHUB_TOKEN);
-  const api = axios.create({
+    const api = axios.create({
         baseURL: "https://api.github.com",
         headers: {
             Authorization: `token ${GITHUB_TOKEN?.value}`,
@@ -110,7 +109,28 @@ export const getTotalCommitsForToday = async () => {
         return error.message;
     }
 };
-getTotalCommitsForToday();
+
+export const getTotalCommitEmplyee = async (githubRepo, username) => {
+    const today = new Date().toISOString().split("T")[0];
+    try {
+        if ((githubRepo, username)) {
+            const responseRepo = await githubApi().get(
+                `/repos/${githubRepo}/commits`,
+                {
+                    params: {
+                        since: `${today}T00:00:00Z`,
+                        until: `${today}T23:59:59Z`,
+                        author: username,
+                    },
+                }
+            );
+            const totalCommits = responseRepo?.data?.length;
+            return totalCommits;
+        }
+    } catch (error) {
+        console.error(`Error fetching in github :`, error.message);
+    }
+};
 // export const getTotalCommitsForToday = async () => {
 //     const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
 //     const username = await getGitHubUsername(); // Fetch the authenticated user's username

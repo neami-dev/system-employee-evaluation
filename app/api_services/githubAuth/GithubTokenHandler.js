@@ -1,7 +1,8 @@
 "use server";
 
 import updateDocumentA from "@/firebase/firestore/updateDocumentA";
-import { addCookie, addCookieServer} from "../actions/handleCookies";
+import { addCookie, addCookieServer } from "../actions/handleCookies";
+import axios from "axios";
 
 export default async function GithubTokenHandler(code, uid) {
     try {
@@ -30,11 +31,19 @@ export default async function GithubTokenHandler(code, uid) {
             console.log("token exchange failed");
             return;
         }
+        // get username to added in firebase
+        const response = await axios.get("https://api.github.com/user", {
+            headers: {
+                Authorization: `token ${tokenData.access_token}`,
+                Accept: "application/vnd.github.v3+json",
+            },
+        });
 
+        const username = response?.data?.login;
         await updateDocumentA({
             collectionName: "userData",
             id: uid,
-            data: { githubToken: tokenData?.access_token },
+            data: { githubToken: tokenData?.access_token, username },
         });
         addCookieServer("githubToken", tokenData.access_token);
 

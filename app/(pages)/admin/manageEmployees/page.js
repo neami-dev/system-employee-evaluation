@@ -15,6 +15,7 @@ import {
 } from "@tanstack/react-table";
 import {
     ArrowUpDown,
+    BookUser,
     ChevronDown,
     Copy,
     MoreHorizontal,
@@ -75,6 +76,7 @@ import { updateEmployee } from "@/firebase/firebase-admin/updateEmployee";
 import { Switch } from "@/components/ui/switch";
 import { addCookie } from "@/app/api_services/actions/handleCookies";
 import Loading from "@/components/component/Loading";
+import Link from "next/link";
 const jsxElement = (
     <>
         <Skeleton className=" h-10 w-[100%] rounded-sm mb-2" />
@@ -123,7 +125,7 @@ export default function DataTableDemo() {
         const newData = [];
         const employees = await getEmployees();
 
-        if (employees.result !== null && employees.error == null) {
+        if (employees?.result !== null && employees?.error == null) {
             await Promise.all(
                 employees.result?.map(async (user) => {
                     const response = await getDocument("userData", user?.uid);
@@ -269,6 +271,7 @@ export default function DataTableDemo() {
             </div>
         );
     };
+    // check user role
     const checkRole = (uid) => {
         const result = userData?.find((user) => user.uid == uid);
         if (result?.role) {
@@ -551,6 +554,14 @@ export default function DataTableDemo() {
                                 <div>{checkRole(employee?.uid)}</div>
                                 <DropdownMenuSeparator />
                                 <div>{checkEmailIsVerified(employee?.uid)}</div>
+                                <DropdownMenuSeparator />
+                                <Link
+                                    className=" flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-[#f2f3f2]  "
+                                    href={`/admin/manageEmployees/${employee?.uid}`}
+                                >
+                                    <BookUser className="mr-2" size={18} />
+                                    Details
+                                </Link>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -754,7 +765,7 @@ export default function DataTableDemo() {
                 </section>
             </>
         );
-    }else{
-        return <Loading/>
+    } else {
+        return <Loading />;
     }
 }
