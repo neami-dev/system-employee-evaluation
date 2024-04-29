@@ -131,7 +131,7 @@ export default function detailsPage({ params }) {
             console.log(error.message);
         }
     };
-
+  
     if (String(isAdmin)?.toLowerCase() === "true") {
         return (
             <div className="mt-[140px]  w-[92%] mx-auto min-[426px]:w-[72%] min-[426px]:ml-[100px] sm:w-[80%] sm:ml-[100px] md:ml-[124px] lg:w-[82%] lg:ml-[135px]  xl:w-[85%] xl:ml-[145px]">
@@ -254,11 +254,13 @@ export default function detailsPage({ params }) {
                                     lack informition
                                 </span>
                             )}
-                            {totalCommit == 0 && totalCommit < numberCommit && (
-                                <span className="bg-red-100 text-red-800 w-[60px] text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">
-                                    Poor
-                                </span>
-                            )}
+                            {totalCommit !== null &&
+                                totalCommit !== undefined &&
+                                totalCommit < numberCommit && (
+                                    <span className="bg-red-100 text-red-800 w-[60px] text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">
+                                        Poor
+                                    </span>
+                                )}
                             {totalCommit == numberCommit && (
                                 <span className="bg-yellow-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
                                     Good

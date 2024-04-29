@@ -39,6 +39,8 @@ export default function page() {
     const [date, setDate] = useState(new Date());
     const [isAdmin, setsIsdmin] = useState(false);
     const route = useRouter();
+    const timeOfEntry = 9;
+    const timeOfExit = 17;
 
     useEffect(() => {
         onAuthStateChanged(auth, async (user) => {
@@ -91,16 +93,16 @@ export default function page() {
                             "2000-01-01 " + dailyEntries?.checkOutTime
                         ).getHours();
                         
-                        if (entryTime > 9) {
+                        if (entryTime > timeOfEntry) {
                             setLateArrival((prev) => prev + 1);
                         }
-                        if (entryTime <= 9) {
+                        if (entryTime <= timeOfEntry) {
                             setOnTime((prev) => prev + 1);
                         }
-                        if (timeToLeave < 17) {
+                        if (date.getHours() >= timeOfExit && timeToLeave < timeOfExit) {
                             setEarlyDepartures((prev) => prev + 1);
                         }
-                        if (timeToLeave >= 17) {
+                        if (date.getHours() >= timeOfExit && timeToLeave >= timeOfExit) {
                             setTimeOff((prev) => prev + 1);
                         }
                     }
