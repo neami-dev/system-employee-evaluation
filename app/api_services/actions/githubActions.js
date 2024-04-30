@@ -110,16 +110,15 @@ export const getTotalCommitsForToday = async () => {
     }
 };
 
-export const getTotalCommitEmplyee = async (githubRepo, username) => {
-    const today = new Date().toISOString().split("T")[0];
+export const getTotalCommitEmplyee = async (githubRepo, username,day) => {
     try {
         if ((githubRepo, username)) {
             const responseRepo = await githubApi().get(
                 `/repos/${githubRepo}/commits`,
                 {
                     params: {
-                        since: `${today}T00:00:00Z`,
-                        until: `${today}T23:59:59Z`,
+                        since: `${day}T00:00:00Z`,
+                        until: `${day}T23:59:59Z`,
                         author: username,
                     },
                 }
