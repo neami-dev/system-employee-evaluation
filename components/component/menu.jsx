@@ -143,8 +143,8 @@ export default function Menu() {
                                     : "text-[#A3AED0]"
                             }`}
                         >
-                            <Link href="/">
-                                {pathname == "/" && JSXspan}
+                            <Link href="/chat">
+                                {pathname == "/chat" && JSXspan}
 
                                 <MessageSquareText />
                             </Link>

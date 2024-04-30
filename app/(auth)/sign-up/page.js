@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import Loading from "@/components/component/Loading";
+import createUserChat from "@/app/(pages)/chat/chatEngine";
+import updateDocument from "@/firebase/firestore/updateDocument";
 
 export default function regsiter() {
     const emailRef = useRef();
@@ -60,6 +62,18 @@ export default function regsiter() {
             ]);
             setIsLoading(false); // Stop loading after handling the sign-up attempt
         } else {
+            console.log("uid : ",result.result.user.uid);
+            updateDocument("userData",result.result.user.uid,{"chatSecret": password})
+            const chatUser = await createUserChat({
+                "username": fullName,
+                "secret": password,
+                "email": email,
+            })
+            if (chatUser == "no") {
+                alert('error with chat engine')
+                setIsLoading(false);
+                return;
+            }
             console.log("Sign-up successful");
             toast({
                 description: "Sign-up successful",
