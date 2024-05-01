@@ -212,6 +212,42 @@ export const getHoldTasksByEmployee = async (teamId, userId) => {
         return [];
     }
 };
+export const getRejectedTasksByEmployee = async (teamId, userId) => {
+    try {
+        const response = await api().get(`/team/${teamId}/task`, {
+            params: {
+                assignees: [userId],
+                statuses: ['rejected'],
+                // 'date_updated_gt': startIso,
+                // 'date_updated_lt': endIso
+            },
+        });
+
+        
+
+        return response?.data?.tasks;
+    } catch (error) {
+        console.error("Error fetching pending tasks  :", error.message);
+        return null;
+    }
+};
+export const getClosedTasksByEmployee = async (teamId, userId) => {
+    try {
+        const response = await api().get(`/team/${teamId}/task`, {
+            params: {
+                assignees: [userId],
+                statuses: ['Closed'],
+                // 'date_updated_gt': startIso,
+                // 'date_updated_lt': endIso
+            },
+        });
+
+        return response?.data?.tasks;
+    } catch (error) {
+        console.error("Error fetching pending tasks  :", error.message);
+        return null;
+    }
+};
 export const getAllTasksByEmployee = async (teamId, userId) => {
     try {
         const response = await api().get(`/team/${teamId}/task`, {
