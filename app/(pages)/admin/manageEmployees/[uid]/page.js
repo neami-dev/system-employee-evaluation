@@ -1,13 +1,13 @@
 "use client";
+import {
+    getCompletedTasksByEmployee,
+    getInProgressTasksByEmployee,
+} from "@/app/api_services/actions/clickupActions";
 import { getCheckInOutTimes } from "@/app/api_services/actions/clockifyActions";
 import { getTotalCommitEmplyee } from "@/app/api_services/actions/githubActions";
 import Loading from "@/components/component/Loading";
 import { Calendar } from "@/components/ui/calendar";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
+ 
 import { useToast } from "@/components/ui/use-toast";
 import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
 import { auth } from "@/firebase/firebase-config";
@@ -17,8 +17,30 @@ import setDocumment from "@/firebase/firestore/setDocumment";
 import { getCookie } from "cookies-next";
 import { format } from "date-fns";
 import { onAuthStateChanged } from "firebase/auth";
-import { Timestamp } from "firebase/firestore";
-import { Clock3, CircleCheckBig, Speech, CalendarIcon } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+// import {
+//     Command,
+//     CommandEmpty,
+//     CommandGroup,
+//     CommandInput,
+//     CommandItem,
+// } from "@/components/ui/command";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+
+import {
+    Clock3,
+    CircleCheckBig,
+    Speech,
+    CalendarIcon,
+    PencilLine,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 export default function detailsPage({ params }) {
@@ -29,6 +51,7 @@ export default function detailsPage({ params }) {
     const [totalCommit, setTotalcommit] = useState(null);
     const [evaluationComminu, setEvaluationComminu] = useState(null);
     const [respectWork, setRespectWork] = useState(null);
+    const [evaluationDocs, setEvaluationDoc] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const router = useRouter();
     const timeOfEntry = 9;
@@ -39,9 +62,12 @@ export default function detailsPage({ params }) {
     yesterday.setDate(today.getDate() - 1);
     const formattedDate = format(yesterday, "yyyy-MM-dd");
     const [date, setDate] = useState(formattedDate);
+    const [open, setOpen] = React.useState(false);
+    const [value, setValue] = React.useState("");
 
-    const handleDate = async (date) => {
-        const formattedDate = format(date, "yyyy-MM-dd");
+    const handleDate = async (Date) => {
+        const formattedDate = format(Date, "yyyy-MM-dd");
+        if (formattedDate === date) return;
         setDate(formattedDate);
         setTime(null);
         setTotalcommit(null);
@@ -61,6 +87,7 @@ export default function detailsPage({ params }) {
     useEffect(() => {
         try {
             setIsAdmin(getCookie("isAdmin") || false);
+
             onAuthStateChanged(auth, async (user) => {
                 if (!user) {
                     return router.push("/login");
@@ -77,19 +104,38 @@ export default function detailsPage({ params }) {
             hanldeTatalCommit();
             handleTimeWorking();
             getfirebaseData();
+            getClickupDate();
         } catch (error) {
             console.error(error.message);
         }
     }, [date]);
 
-    const getfirebaseData = async () => {
-        const response = await getDocument("Attributes", uid);
+    const getClickupDate = async () => {
+        const response = await getDocument("userData", uid);
+
+        const clickupTeamID = response?.result?.data()?.clickupTeam;
+        const clickupUserID = response?.result?.data()?.clickupUser;
+        const tasks = await getCompletedTasksByEmployee(
+            clickupTeamID,
+            clickupUserID
+        );
+        console.log(tasks);
+        const timestamp = 1710302400000;
+        const date = new Date(timestamp);
+        const formattedDate = format(date, "yyyy-MM-dd");
+        console.log(formattedDate);
 
         console.log(date);
+    };
+    const getfirebaseData = async () => {
+        const response = await getDocument("Attributes", uid);
         console.log("responseEmp", response?.result?.data()?.respectWork[date]);
         const attributes = response?.result?.data();
         setEvaluationComminu(attributes?.communication[date]);
         setRespectWork(attributes?.respectWork[date]);
+        // const response = await getDocument("Attributes", uid);
+        // console.log("responseEmp", response?.result?.data()?.respectWork[date]);
+        // const attributes = response?.result?.data();
     };
     const handleTimeWorking = async () => {
         try {
@@ -115,7 +161,6 @@ export default function detailsPage({ params }) {
 
                 return;
             }
-            console.log("check");
             const entryTime = new Date(
                 "2000-01-01 " + dailyEntries?.checkInTime
             );
@@ -152,6 +197,28 @@ export default function detailsPage({ params }) {
             console.error(error.message);
         }
     };
+    const frameworks = [
+        {
+            value: "next.js",
+            label: "Next.js",
+        },
+        {
+            value: "sveltekit",
+            label: "SvelteKit",
+        },
+        {
+            value: "nuxt.js",
+            label: "Nuxt.js",
+        },
+        {
+            value: "remix",
+            label: "Remix",
+        },
+        {
+            value: "astro",
+            label: "Astro",
+        },
+    ];
     const hanldeTatalCommit = async () => {
         const responseEmp = await getDocument("userData", uid);
         if (!responseEmp?.result?.data()) {
@@ -174,7 +241,7 @@ export default function detailsPage({ params }) {
             return responseGithub;
         }
     };
-
+    const handleDocs = async () => {};
     const handlecommunication = async (evaluation) => {
         const response = await setDocumment({
             collectionName: "Attributes",
@@ -217,7 +284,10 @@ export default function detailsPage({ params }) {
     if (String(isAdmin)?.toLowerCase() === "true") {
         return (
             <div className="mt-[140px] w-[92%] mx-auto min-[426px]:w-[72%] min-[426px]:ml-[100px] sm:w-[80%] sm:ml-[100px] md:ml-[124px] lg:w-[82%] lg:ml-[135px]  xl:w-[85%] xl:ml-[145px]">
-                <div className="flex justify-center items-center sm:justify-end m-3">
+                <div className="flex  items-center justify-between m-3">
+                    <h3 className="ml-2 mt-2 text-[20px] font-semibold">
+                        Attributs
+                    </h3>
                     <Popover>
                         <PopoverTrigger asChild>
                             <button className=" min-w-44 px-3 py-2 bg-white text-[#453F78] font-medium items-center  flex rounded-md">
@@ -385,7 +455,7 @@ export default function detailsPage({ params }) {
                         {evaluationComminu === null ? (
                             <svg
                                 aria-hidden="true"
-                                className="w-8 h-8 mt-2 text-gray-200 animate-spin dark:text-gray-600  fill-blue-500 "
+                                className="w-8 h-8 mt-7 block text-gray-200 animate-spin dark:text-gray-600  fill-blue-500 "
                                 viewBox="0 0 100 101"
                                 fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
@@ -487,7 +557,7 @@ export default function detailsPage({ params }) {
                         {respectWork === null ? (
                             <svg
                                 aria-hidden="true"
-                                className="w-8 h-8 mt-2 text-gray-200 animate-spin dark:text-gray-600  fill-blue-500 "
+                                className="w-8 h-8 mt-7 block text-gray-200 animate-spin dark:text-gray-600  fill-blue-500 "
                                 viewBox="0 0 100 101"
                                 fill="none"
                                 xmlns="http://www.w3.org/2000/svg"
@@ -547,6 +617,144 @@ export default function detailsPage({ params }) {
                                             }}
                                             className={` ${
                                                 respectWork == 2 &&
+                                                "bg-green-600 text-white"
+                                            } bg-green-200 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300`}
+                                        >
+                                            Excellent
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                </section>
+                <div className="flex  items-center justify-between m-3 mt-6">
+                    <h3 className="ml-2 text-[20px] font-semibold">
+                        Methodology of work
+                    </h3>
+
+                    {/* <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={open}
+                                className="w-[200px] justify-between"
+                            >
+                                {value
+                                    ? frameworks.find(
+                                          (framework) =>
+                                              framework.value === value
+                                      )?.label
+                                    : "Select framework..."}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0">
+                            <Command>
+                                <CommandInput placeholder="Search framework..." />
+                                <CommandEmpty>No framework found.</CommandEmpty>
+                                <CommandGroup>
+                                    {frameworks.map((framework) => (
+                                        <CommandItem
+                                            key={framework.value}
+                                            value={framework.value}
+                                            onSelect={(currentValue) => {
+                                                setValue(
+                                                    currentValue === value
+                                                        ? ""
+                                                        : currentValue
+                                                );
+                                                setOpen(false);
+                                            }}
+                                        >
+                                            <Check
+                                                className={cn(
+                                                    "mr-2 h-4 w-4",
+                                                    value === framework.value
+                                                        ? "opacity-100"
+                                                        : "opacity-0"
+                                                )}
+                                            />
+                                            {framework.label}
+                                        </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                            </Command>
+                        </PopoverContent>
+                    </Popover> */}
+                </div>
+                <section className=" p-2 flex justify-around flex-wrap gap-3 lg:flex-nowrap">
+                    <div className="bg-white w-[220px] h-[200px] rounded-md shadow-md py-6 flex items-center gap-3  flex-col">
+                        <div className="flex justify-around gap-7  items-center">
+                            <h3 className="text-[#344767] font-semibold ">
+                                Documentation
+                            </h3>
+                            <PencilLine className="text-[#008DDA]" size={26} />
+                        </div>
+                        {evaluationComminu === null ? (
+                            <svg
+                                aria-hidden="true"
+                                className="w-8 h-8 mt-7 block text-gray-200 animate-spin dark:text-gray-600  fill-blue-500 "
+                                viewBox="0 0 100 101"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                    fill="currentColor"
+                                />
+                                <path
+                                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                    fill="currentFill"
+                                />
+                            </svg>
+                        ) : (
+                            <div>
+                                <div className="mt-[14px]">
+                                    <h3 className="text-[#344767] font-medium ">
+                                        {evaluationComminu === null
+                                            ? "Enter a ranting"
+                                            : "Change a ranting"}
+                                    </h3>
+                                </div>
+                                <ul className="flex justify-around mt-5">
+                                    <li>
+                                        <button
+                                            onClick={() => {
+                                                handlecommunication(0);
+                                                setEvaluationComminu(0);
+                                            }}
+                                            className={` ${
+                                                evaluationComminu == 0 &&
+                                                "bg-red-600 text-white"
+                                            } bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300`}
+                                        >
+                                            Poor
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button
+                                            onClick={() => {
+                                                handlecommunication(1);
+                                                setEvaluationComminu(1);
+                                            }}
+                                            className={` ${
+                                                evaluationComminu == 1 &&
+                                                "bg-yellow-600 text-white"
+                                            } bg-yellow-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300`}
+                                        >
+                                            Good
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button
+                                            onClick={() => {
+                                                handlecommunication(2);
+                                                setEvaluationComminu(2);
+                                            }}
+                                            className={` ${
+                                                evaluationComminu == 2 &&
                                                 "bg-green-600 text-white"
                                             } bg-green-200 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300`}
                                         >
