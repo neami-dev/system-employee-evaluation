@@ -1,9 +1,9 @@
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
 import { Button } from "@/components/ui/button";
-import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"] });
+
+
 
 export const metadata = {
     title: "Create Next App",
