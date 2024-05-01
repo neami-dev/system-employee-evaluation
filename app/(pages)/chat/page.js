@@ -74,14 +74,6 @@ function ChatComponent() {
         }
     }, [userData, isLoading]);
 
-    // useEffect(() => {
-    //     if (channelListContext) {
-    //         console.log("Current channels in context:", channelListContext.channels);
-    //     }
-    // }, [channelListContext]);
-
-    
-
     const CustomChannelPreview = (props) => {
         const {
           channel,
@@ -137,12 +129,20 @@ function ChatComponent() {
 
         );
     };
+    // useEffect(() => {
+    //     if (channelListContext) {
+    //         console.log("Current channels in context:", channelListContext.channels);
+    //     }
+    // }, [channelListContext]);
+
+    
+
       
     
     const setupDefaultChannel = async () => {
-        const defaultChannel = chatClient.channel('messaging', 'newOne', {
-            name: 'newOne',
-            members: [userData.uid],
+        const defaultChannel = chatClient.channel('messaging', 'ChatGroup', {
+            name: 'ChatGroup',
+            members: [],
         });
         await defaultChannel.watch();
         setChannel(defaultChannel);
@@ -151,7 +151,9 @@ function ChatComponent() {
     if (!channel) return <Loading />;
 
     return (
-        <Chat client={chatClient} theme="messaging light">
+        <Chat client={chatClient}  theme="messaging light">
+            <div className="absolute top-7 right-5 bg-black w-[60px] h-[40px] z-50 bg-black font-bold text-white rounded-lg
+                hover:cursor-pointer flex justify-center items-center " onClick={() => route.push("/employee/dashboard")}>Home</div>
             <div className="channel-list__container">
                 <ChannelList filters={{
                         type: 'messaging',
@@ -164,7 +166,8 @@ function ChatComponent() {
                         // List={ChannelListMessenger}
                         Preview={CustomChannelPreview}
                         // onSelect={() => handleChannelSelect}
-                        showChannelSearch
+                        // showChannelSearch
+                        // additionalChannelSearchProps={{ searchForChannels: true }}
                         />
                 </div>
             <Channel channel={channel}>

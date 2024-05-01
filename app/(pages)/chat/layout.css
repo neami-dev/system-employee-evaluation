@@ -20,6 +20,8 @@ body,
 }
 body {
   margin: 0;
+  background-color: #f4f4f8; /* Example color */
+  position: relative;
 }
 #root {
   display: flex;

@@ -18,7 +18,8 @@ export default function DashbordLayout({ children }) {
             {/* <NavBar /> */}
             {/* < Menu /> */}
             
-            <div className="">
+
+            <div className="bg-white ">
                 {children}
             </div>
         </>
