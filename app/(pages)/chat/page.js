@@ -1,6 +1,6 @@
 "use client"
 // Import necessary React and Stream Chat components
-import React, { useContext,useEffect, useState } from "react";
+import React, { useContext,useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/firebase/firebase-config";
 import getDocument from "@/firebase/firestore/getDocument";
@@ -19,13 +19,14 @@ import {
   ChannelPreviewMessenger,
   ChannelListContext,
   useChatContext,
+  useTranslationContext,
 
 } from 'stream-chat-react';
 import { StreamChat } from 'stream-chat';
 import 'stream-chat-react/dist/css/index.css'; // Import custom CSS
 import './layout.css'
 import generateToken from "./stream-chat-client";
-import CustomChannelPreview from "./customChannelPreview";
+import "./CustomChannelPreview.css";
 
 const chatClient = StreamChat.getInstance(process.env.NEXT_PUBLIC_STREAM_API_KEY);
 
@@ -73,60 +74,102 @@ function ChatComponent() {
         }
     }, [userData, isLoading]);
 
+    const CustomChannelPreview = (props) => {
+        const {
+          channel,
+          activeChannel,
+          displayImage,
+          displayTitle,
+          latestMessage,
+          setActiveChannel,
+        } = props;
+        const latestMessageAt = channel.state.last_message_at;
+        const isSelected = channel.id === activeChannel?.id;
+        const { userLanguage } = useTranslationContext();
+      
+        const timestamp = useMemo(() => {
+          if (!latestMessageAt) {
+            return '';
+          }
+          const formatter = new Intl.DateTimeFormat(userLanguage, {
+            timeStyle: 'short',
+          });
+          return formatter.format(latestMessageAt);
+        }, [latestMessageAt, userLanguage]);
+        // const { setActiveChannel } = useChatContext();
+      
+        const selectChannel = async () => {
+            console.log("heyy i'm ",channel);
+            await channel.watch();
+            setChannel(channel);
+            setActiveChannel(channel);
+        };
+        
+        return (
+            // <div onClick={selectChannel} style={{ cursor: 'pointer' }}>
+            //     {channel.data.name}
+            // </div>
+
+            <button
+            className={`channel-preview ${isSelected ? 'channel-preview_selected' : ''}`}
+            disabled={isSelected}
+            onClick={selectChannel}
+            >
+            {/* <img className='channel-preview__avatar' src={displayImage} alt='' /> */}
+            <div className='channel-preview__main'>
+            <div className='channel-preview__header'>
+                {displayTitle}
+                <time dateTime={latestMessageAt?.toISOString()} className='channel-preview__timestamp'>
+                {timestamp}
+                </time>
+            </div>
+            <div className='channel-preview__message'>{latestMessage}</div>
+            </div>
+            </button>
+
+        );
+    };
     // useEffect(() => {
     //     if (channelListContext) {
     //         console.log("Current channels in context:", channelListContext.channels);
     //     }
     // }, [channelListContext]);
 
-    const CustomChannelPreview = ({ channel }) => {
-        const { setActiveChannel } = useChatContext();
-      
-        const selectChannel = () => {
-            console.log("heyy i'm ",channel);
-            setActiveChannel(channel);
-        };
-        
-        return (
-            <div onClick={selectChannel} style={{ cursor: 'pointer' }}>
-            {channel.data.name}
-          </div>
-        );
-    };
+    
+
       
     
     const setupDefaultChannel = async () => {
-        const defaultChannel = chatClient.channel('messaging', 'newOne', {
-            name: 'newOne',
-            members: [userData.uid],
+        const defaultChannel = chatClient.channel('messaging', 'ChatGroup', {
+            name: 'ChatGroup',
+            members: [],
         });
         await defaultChannel.watch();
         setChannel(defaultChannel);
-    };
-    
-    const handleChannelSelect = async (channel) => {
-        console.log("heyy i'm ",channel);
-        await channel.watch();
-        setChannel(channel);
     };
 
     if (!channel) return <Loading />;
 
     return (
-        <Chat client={chatClient} theme="messaging light">
-            <ChannelList filters={{
-                    type: 'messaging',
-                    // members: { $in: [userData.uid] },
-                    }} 
-                    sort={{ last_message_at: -1 }} 
-                    options={{
-                    limit: 10,
-                    }}
-                    // List={ChannelListMessenger}
-                    Preview={CustomChannelPreview}
-                    // onSelect={() => handleChannelSelect}
-                    
-                    />
+        <Chat client={chatClient}  theme="messaging light">
+            <div className="absolute top-7 right-5 bg-black w-[60px] h-[40px] z-50 bg-black font-bold text-white rounded-lg
+                hover:cursor-pointer flex justify-center items-center " onClick={() => route.push("/employee/dashboard")}>Home</div>
+            <div className="channel-list__container">
+                <ChannelList filters={{
+                        type: 'messaging',
+                        // members: { $in: [userData.uid] },
+                        }} 
+                        sort={{ last_message_at: -1 }} 
+                        options={{
+                        limit: 10,
+                        }}
+                        // List={ChannelListMessenger}
+                        Preview={CustomChannelPreview}
+                        // onSelect={() => handleChannelSelect}
+                        // showChannelSearch
+                        // additionalChannelSearchProps={{ searchForChannels: true }}
+                        />
+                </div>
             <Channel channel={channel}>
                 <Window>
                     <ChannelHeader />
