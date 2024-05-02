@@ -201,7 +201,7 @@ export default function loginPage() {
                                             Enter
                                         </Button>
                                     </div>
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex items-center w-full justify-between">
                                         <div className="text-sm">
                                             <Link
                                                 href="/forgot-password"
@@ -211,8 +211,8 @@ export default function loginPage() {
                                             </Link>
                                         </div>
                                         <Link
-                                            href="sign-up"
-                                            className="text-blue-700 hover:underline text-sm"
+                                            href="/sign-up"
+                                            className="font-medium text-teal-600 hover:text-teal-500"
                                         >
                                             create new compte
                                         </Link>
