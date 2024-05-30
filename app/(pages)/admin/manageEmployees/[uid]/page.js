@@ -68,6 +68,7 @@ export default function detailsPage({ params }) {
     const formattedDate = format(yesterday, "yyyy-MM-dd");
     const [date, setDate] = useState(formattedDate);
 
+    
     const handleDate = async (Date) => {
         const formattedDate = format(Date, "yyyy-MM-dd");
         if (formattedDate === date) return;
@@ -116,14 +117,18 @@ export default function detailsPage({ params }) {
     useEffect(() => {
         handleTaskPunctuality();
         getMethodologyOfWork();
+        calculateEvaluation();
     }, [tasks, taskSelected]); //rendering when change tasks, taskSelected
 
     const getAttributes = async () => {
         const response = await getDocument("attributes", uid);
         console.log("responseEmp", response?.result?.data()?.respectWork[date]);
         const attributes = response?.result?.data();
-        setEvaluationComminu(attributes?.communication[date]);
-        setRespectWork(attributes?.respectWork[date]);
+        const evaluationComminu = attributes?.communication[date];
+        const evaluationRespect = attributes?.respectWork[date];
+        setEvaluationComminu(evaluationComminu);
+        setRespectWork(evaluationRespect);
+        return {evaluationComminu,evaluationRespect};
     };
     const getMethodologyOfWork = async () => {
         const response = await getDocument("methodologyOfWork", uid);
@@ -149,12 +154,12 @@ export default function detailsPage({ params }) {
             clickupTeamID,
             clickupUserID
         );
-        console.log("responseTasks",responseTasks);
-       if (responseTasks !== null) {
-        setTasks(responseTasks);
-        // default task
-        settaskSelected(responseTasks[0]);
-       }
+        console.log("responseTasks", responseTasks);
+        if (responseTasks !== null) {
+            setTasks(responseTasks);
+            // default task
+            settaskSelected(responseTasks[0]);
+        }
     };
     const getRejectedTask = async () => {
         const response = await getDocument("userData", uid);
@@ -166,7 +171,8 @@ export default function detailsPage({ params }) {
         );
         //    console.log(responseTasks);
     };
-    const handleTaskPunctuality = async () => {
+    const handleTaskPunctuality = () => {
+        let evaluation = null;
         console.log(taskSelected);
         const dueDate = taskSelected?.due_date;
         const dateDone = taskSelected?.date_done;
@@ -180,27 +186,30 @@ export default function detailsPage({ params }) {
         if (parseInt(dueDate, 10) < parseInt(dateDone, 10)) {
             const timestampDiff =
                 parseInt(dateDone, 10) - parseInt(dueDate, 10);
-            settaskPunctuality(0);
             const seconds = Math.abs(Math.floor(timestampDiff / 1000));
             const days = Math.floor(seconds / (3600 * 24));
             const hours = Math.floor((seconds % (3600 * 24)) / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
             const remainingSeconds = seconds % 60;
             setDurationTask(`-${days}:${hours}:${minutes}:${remainingSeconds}`);
+            settaskPunctuality(0);
+            evaluation = 0;
         } else if (parseInt(dueDate, 10) === parseInt(dateDone, 10)) {
             settaskPunctuality(1);
+            evaluation = 1;
         } else if (parseInt(dueDate, 10) > parseInt(dateDone, 10)) {
             const timestampDiff =
                 parseInt(dueDate, 10) - parseInt(dateDone, 10);
-            settaskPunctuality(2);
             const seconds = Math.abs(Math.floor(timestampDiff / 1000));
             const days = Math.floor(seconds / (3600 * 24));
             const hours = Math.floor((seconds % (3600 * 24)) / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
             const remainingSeconds = seconds % 60;
             setDurationTask(`${days}:${hours}:${minutes}:${remainingSeconds}`);
+            settaskPunctuality(2);
+            evaluation = 2;
         }
-
+        return evaluation;
         // Calculate days, hours, minutes, and seconds
 
         // const formatteddueDate = format(
@@ -215,6 +224,7 @@ export default function detailsPage({ params }) {
     };
     const handleTimeWorking = async () => {
         try {
+            let evaluation = null;
             const response = await getDocument("userData", uid);
             const workspaceId = response?.result.data()?.clockifyWorkspace;
             const clockifyUserId = response?.result.data()?.clockifyUserId;
@@ -240,6 +250,7 @@ export default function detailsPage({ params }) {
                 } else {
                     setTime(false);
                     setStatusTime(0);
+                    evaluation = 0;
                 }
 
                 return false;
@@ -258,7 +269,13 @@ export default function detailsPage({ params }) {
             const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
             setTime(`${hours}:${minutes}:${seconds}`);
-
+            if (hours > 8) {
+                evaluation = 2;
+            } else if (hours == 8) {
+                evaluation = 1;
+            } else {
+                evaluation = 0;
+            }
             if (entryTime.getHours() > timeOfEntry) {
                 setStatusTime(1);
             }
@@ -277,30 +294,44 @@ export default function detailsPage({ params }) {
             ) {
                 setStatusTime(4);
             }
+            return evaluation;
         } catch (error) {
             console.error(error.message);
         }
     };
     const hanldeTatalCommit = async () => {
-        const responseEmp = await getDocument("userData", uid);
-        if (!responseEmp?.result?.data()) {
-            return toast({
-                description: "not found employee by this uid : " + uid,
-                variant: "destructive",
-            });
-        }
+        try {
+            let evaluation = null;
+            const responseEmp = await getDocument("userData", uid);
+            if (!responseEmp?.result?.data()) {
+                return toast({
+                    description: "not found employee by this uid : " + uid,
+                    variant: "destructive",
+                });
+            }
 
-        const githubRepo = responseEmp?.result?.data()?.githubRepo;
-        const username = responseEmp?.result?.data()?.username;
-        const responseGithub = await getTotalCommitEmplyee(
-            githubRepo,
-            username,
-            date
-        );
+            const githubRepo = responseEmp?.result?.data()?.githubRepo;
+            const username = responseEmp?.result?.data()?.username;
+            const responseGithub = await getTotalCommitEmplyee(
+                githubRepo,
+                username,
+                date
+            );
 
-        if (responseGithub !== undefined) {
-            setTotalcommit(responseGithub);
-            return responseGithub;
+            if (responseGithub > 3) {
+                evaluation = 2;
+            } else if (responseGithub == 3) {
+                evaluation = 1;
+            } else {
+                evaluation = 0;
+            }
+
+            if (responseGithub !== undefined) {
+                setTotalcommit(responseGithub);
+            }
+            return evaluation;
+        } catch (error) {
+            console.error(error.message);
         }
     };
     //   (start) functions save evaluations in firebase
@@ -395,13 +426,26 @@ export default function detailsPage({ params }) {
             });
         }
     };
+    const calculateEvaluation = async () => {
+        const currentTime = new Date().getHours();
+        // console.log(currentTime);
+        console.log("Punctuality", handleTaskPunctuality());
+        const responseWorkTime = await handleTimeWorking();
+        console.log("work time", responseWorkTime);
+        const responseTotalCommit = await hanldeTatalCommit();
+        console.log("total commit ", responseTotalCommit);
+        await getAttributes();
+        console.log("evaluationComminu", evaluationComminu);
+        console.log("respectWork", respectWork);
+    };
 
     // (end) functions save evaluations in firebase
+
     if (String(isAdmin)?.toLowerCase() === "true") {
         return (
             <div className="mt-[140px] w-[92%] mx-auto min-[426px]:w-[72%] min-[426px]:ml-[100px] sm:w-[80%] sm:ml-[100px] md:ml-[124px] lg:w-[82%] lg:ml-[135px]  xl:w-[85%] xl:ml-[145px]">
                 <div className="flex  items-center justify-between m-3">
-                    <h3 className="ml-2 mt-2 text-[14px] pr-2 sm:text-[20px] font-medium sm:font-semibold">
+                    <h3 className="ml-2 mt-2 text-[14px] pr-2 sm:text-[20px] font-medium sm:font-semibold text-[#453F78]">
                         Attributs
                     </h3>
                     <Popover>
@@ -745,7 +789,7 @@ export default function detailsPage({ params }) {
                     </div>
                 </section>
                 <div className="flex  items-center justify-between m-3 mt-6">
-                    <h3 className="ml-2 text-[14px] sm:text-[20px] font-medium sm:font-semibold">
+                    <h3 className="ml-2 text-[14px] sm:text-[20px] font-medium sm:font-semibold text-[#453F78]">
                         Methodology of work
                     </h3>
                     <Popover>
@@ -753,7 +797,7 @@ export default function detailsPage({ params }) {
                             <Button
                                 variant="outline"
                                 role="combobox"
-                                className="w-[200px] justify-between"
+                                className="w-[200px] justify-between ml-2 mt-2 text-[14px] pr-2 sm:text-[18px] font-medium sm:font-semibold text-[#453F78]"
                             >
                                 {taskSelected === null ? (
                                     <>

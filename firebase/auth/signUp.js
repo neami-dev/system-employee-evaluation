@@ -22,8 +22,12 @@ export default async function signUp({ email, password, fullName }) {
         });
 
         const userRef = doc(db, "userData", result.user.uid);
+        const methodoRef = doc(db, "methodologyOfWork", result.user.uid);
+        const attrRef = doc(db, "attributes", result.user.uid);
 
         await setDoc(userRef, data);
+        // await setDoc(methodoRef);
+        // await setDoc(attrRef);
     } catch (e) {
         error = e;
     }

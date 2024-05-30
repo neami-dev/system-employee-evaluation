@@ -78,12 +78,11 @@ export default function loginPage() {
         });
     }, [errors, , toast]);
 
-    const login = async (e) => {
-        e.preventDefault();
-
+    const login = async () => {
+    
         setIsLoading(true); // Start loading
-        const email = emailRef.current.value.trim();
-        const password = passwordRef.current.value.trim();
+        const email = emailRef.current?.value.trim();
+        const password = passwordRef.current?.value.trim();
 
         setErrors([]); // Clear previous errors
 
@@ -97,9 +96,10 @@ export default function loginPage() {
             return; // Stop the function if there are errors
         }
 
-        const result = await signIn({ email, password });
+        const result = await signIn( email, password );
+        
         if (result.error) {
-            setErrors([result.error?.code?.split("/")[1]]);
+            setErrors([result.error?.code?.split("/")[1].replace(/-/g, ' ')]);
             setIsLoading(false); // Stop loading after auth attempt
         } else {
             handleInfo();
@@ -146,7 +146,7 @@ export default function loginPage() {
                                     Login
                                 </h2>
                             </div>
-                            <form onSubmit={login} method="Post">
+                            <form>
                                 <div className="mt-8 space-y-6">
                                     {/* <input type="hidden" name="remember" defaultValue="true" /> */}
                                     <div className="rounded-md shadow-sm -space-y-px">
@@ -192,7 +192,7 @@ export default function loginPage() {
 
                                     <div className="w-full flex justify-center">
                                         <Button
-                                            // onClick={login}
+                                            onClick={login}
                                             type="submit"
                                             className="group w-[120px] relative flex justify-center py-2 px-4 border border-transparent 
                                 text-sm font-medium rounded-md text-white bg-teal-500 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
