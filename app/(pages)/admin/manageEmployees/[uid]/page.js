@@ -41,7 +41,7 @@ import {
 import { Clock3, Speech, CalendarIcon, PencilLine } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { test } from "@/app/(pages)/test/page";
+
 
 export default function detailsPage({ params }) {
     const uid = params?.uid;
