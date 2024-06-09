@@ -32,7 +32,7 @@ import  {  getAllCookies } from "@/app/api_services/actions/handleCookies";
 import {deleteCookies} from "@/app/api_services/actions/handleCookies";
 export default function NavBar() {
     const [userData, setUserData] = useState({});
-    const [isLogged, setIslogged] = useState(false);
+ 
     const route = useRouter();
     const { toast } = useToast();
 
@@ -43,16 +43,9 @@ export default function NavBar() {
         
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                setIslogged(true);
+                 
                 setUserData(user);
-            } else {
-                deleteCookies().then((tokenRemoved) => {
-                    console.log("tokenRemoved :", tokenRemoved);
-                    if (tokenRemoved) {
-                        route.push("/login");
-                    }
-                });
-            }
+            }  
         });
     }, []);
     
@@ -74,7 +67,7 @@ export default function NavBar() {
                 console.log(err);
             });
     }
-    if (isLogged) {
+    
         return (
             <>
                 {/* {date?.toDateString()} */}
@@ -197,5 +190,5 @@ export default function NavBar() {
                 </nav>
             </>
         );
-    }
+    
 }

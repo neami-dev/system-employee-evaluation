@@ -1,7 +1,6 @@
 import NavBar from "@/components/component/NavBar";
 import Menu from "@/components/component/menu";
 import { Inter } from "next/font/google";
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {

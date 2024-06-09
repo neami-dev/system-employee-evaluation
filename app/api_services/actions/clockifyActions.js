@@ -179,9 +179,9 @@ export const getCheckInOutTimes = async (
             `/workspaces/${clockifyWorkspaceId}/user/${clockifyUserId}/time-entries?start=${formattedDate}T00:00:00Z&end=${formattedDate}T23:59:59Z`
         );
 
-        const timeEntries = response.data;
+        const timeEntries = response?.data;
         // console.log("timeEntries : ",timeEntries);
-        if (timeEntries.length === 0) {
+        if (timeEntries?.length === 0) {
             console.log(`No time entries found for ${formattedDate}`);
             return null;
         }

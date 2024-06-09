@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/table";
 import { useState } from "react";
 import { DatePickerWithRange } from "@/components/component/DateRangePicker";
-import { addDays,subDays, format } from "date-fns";
+import { addDays, subDays, format } from "date-fns";
 import { useEffect } from "react";
 import {
     getCheckInOutTimes,
@@ -49,12 +49,11 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/firebase/firebase-config";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
- 
+
 import getDocument from "@/firebase/firestore/getDocument";
 import { getClockifyUserIdCookies } from "@/app/api_services/actions/handleCookies";
 
 function parseTimeToMinutes(timeString) {
-    
     if (typeof timeString !== "string") {
         // console.error('parseTime expects a string input, got:', typeof timeString);
         return 0; // Or handle this case as appropriate for your application
@@ -310,13 +309,12 @@ export default function DataTableDemo() {
     const [dateRange, setDate] = useState(() => {
         const today = new Date();
         const fiveDaysAgo = subDays(today, 3);
-    
+
         return {
             from: fiveDaysAgo,
             to: today,
         };
     });
-    
 
     const [timeEntries, setTimeEntries] = useState([]);
 
@@ -324,61 +322,61 @@ export default function DataTableDemo() {
     const [columnFilters, setColumnFilters] = useState([]);
     const [columnVisibility, setColumnVisibility] = useState({});
     const [rowSelection, setRowSelection] = useState({});
-    const [isLogged, setIsLogged] = useState(false);
+    const [clockifyWorkspaceId, setClockifyWorkspaceId] = useState([]);
 
-    const [clockifyWorkspaceId,setClockifyWorkspaceId] = useState([])
-    const route = useRouter();
     useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            setIsLogged(true);
-            try {
-                const response = await getDocument("userData", user.uid); // Assuming user?.uid is always defined here
-                const workspaceId = response?.result.data()?.clockifyWorkspace; // Safely access ClockifyWorkspace
-                if (workspaceId) {
-                    setClockifyWorkspaceId(workspaceId);
-                } else {
-                    console.log("No workspace ID found");
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const response = await getDocument("userData", user.uid); // Assuming user?.uid is always defined here
+                    const workspaceId =
+                        response?.result.data()?.clockifyWorkspace; // Safely access ClockifyWorkspace
+                    if (workspaceId) {
+                        setClockifyWorkspaceId(workspaceId);
+                    } else {
+                        console.log("No workspace ID found");
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch user data:", error);
                 }
-            } catch (error) {
-                console.error("Failed to fetch user data:", error);
             }
-        } else {
-            route.push("/login");
-            console.log("Logged out from attendance employee");
-        }
-    });
+        });
 
-    return () => unsubscribe(); // Cleanup function to unsubscribe from the auth listener
-}, []);
+        return () => unsubscribe(); // Cleanup function to unsubscribe from the auth listener
+    }, []);
 
+    // Simulated function to fetch time entries (replace with your actual Clockify API call)
 
-
-// Simulated function to fetch time entries (replace with your actual Clockify API call)
-
-//   const TimeTrackingTable = ({ userId, workspaceId }) => {
+    //   const TimeTrackingTable = ({ userId, workspaceId }) => {
     //     const [dateRange, setDateRange] = useState({
-        //       from: new Date(),
-        //       to: addDays(new Date(), 5),
-        //     });
-        useEffect(() => {
-            const fetchAndSetTimeEntries = async () => {
+    //       from: new Date(),
+    //       to: addDays(new Date(), 5),
+    //     });
+    useEffect(() => {
+        const fetchAndSetTimeEntries = async () => {
             console.log("hey i'm fetchAndSetTimeEntries function");
             console.log("ClockifyWorkspaceId: ", clockifyWorkspaceId);
-    
+
             try {
                 const ClockifyUserId = await getClockifyUserIdCookies();
                 if (ClockifyUserId) {
                     console.log("ClockifyUserId ID: ", ClockifyUserId);
                     const entries = [];
-                    for (let date = dateRange.from; date <= dateRange.to; date = addDays(date, 1)) {
+                    for (
+                        let date = dateRange.from;
+                        date <= dateRange.to;
+                        date = addDays(date, 1)
+                    ) {
                         const formattedDate = format(date, "yyyy-MM-dd");
                         const dailyEntries = await getCheckInOutTimes(
                             ClockifyUserId,
                             clockifyWorkspaceId,
                             formattedDate
                         );
-                        if (dailyEntries && Object.keys(dailyEntries).length > 0) {
+                        if (
+                            dailyEntries &&
+                            Object.keys(dailyEntries).length > 0
+                        ) {
                             entries.push({
                                 date: formattedDate,
                                 checkIn: dailyEntries.checkInTime,
@@ -402,11 +400,10 @@ export default function DataTableDemo() {
                 console.error("Error in fetchAndSetTimeEntries:", error);
             }
         };
-    
+
         fetchAndSetTimeEntries();
         console.log("dateRange: ", dateRange);
     }, [dateRange, clockifyWorkspaceId]); // Include all relevant dependencies
-    
 
     useEffect(() => {
         console.log("timeEntries : ", timeEntries);
@@ -430,151 +427,142 @@ export default function DataTableDemo() {
             rowSelection,
         },
     });
-    if (isLogged) {
-        return (
-            <section className="flex justify-center">
-                <div className="w-[94%] mt-32 min-[426px]:w-[80%] min-[426px]:ml-[76px] sm:w-[80%] sm:ml-[84px] lg:w-[82%] lg:ml-[96px] mx-3 px-4 bg-white rounded-lg">
-                    <div className="flex flex-wrap items-center p-1 justify-end ">
-                        <div className="m-1">
-                            <DatePickerWithRange
-                                date={dateRange}
-                                setDate={setDate}
-                            />
-                        </div>
-                        <div className="m-1">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        className="ml-auto"
-                                    >
-                                        Columns{" "}
-                                        <ChevronDown className=" h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    {table
-                                        .getAllColumns()
-                                        .filter((column) => column.getCanHide())
-                                        .map((column, index) => {
-                                            return (
-                                                <DropdownMenuCheckboxItem
-                                                    // key={column.id}
-                                                    key={index}
-                                                    className="capitalize"
-                                                    checked={column.getIsVisible()}
-                                                    onCheckedChange={(value) =>
-                                                        column.toggleVisibility(
-                                                            !!value
-                                                        )
-                                                    }
-                                                >
-                                                    {column.id}
-                                                </DropdownMenuCheckboxItem>
-                                            );
-                                        })}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
+
+    return (
+        <section className="flex justify-center">
+            <div className="w-[94%] mt-32 min-[426px]:w-[80%] min-[426px]:ml-[76px] sm:w-[80%] sm:ml-[84px] lg:w-[82%] lg:ml-[96px] mx-3 px-4 bg-white rounded-lg">
+                <div className="flex flex-wrap items-center p-1 justify-end ">
+                    <div className="m-1">
+                        <DatePickerWithRange
+                            date={dateRange}
+                            setDate={setDate}
+                        />
                     </div>
-                    <div className="rounded-md border">
-                        <Table>
-                            <TableHeader>
-                                {table.getHeaderGroups().map((headerGroup) => (
-                                    <TableRow key={headerGroup.id}>
-                                        {headerGroup.headers.map(
-                                            (header, index) => {
-                                                return (
-                                                    <TableHead
-                                                        // key={header.id}
-                                                        key={index}
-                                                    >
-                                                        {header.isPlaceholder
-                                                            ? null
-                                                            : flexRender(
-                                                                  header.column
-                                                                      .columnDef
-                                                                      .header,
-                                                                  header.getContext()
-                                                              )}
-                                                    </TableHead>
-                                                );
-                                            }
-                                        )}
-                                    </TableRow>
-                                ))}
-                            </TableHeader>
-                            <TableBody>
-                                {table.getRowModel().rows?.length ? (
-                                    table
-                                        .getRowModel()
-                                        .rows.map((row, index) => (
-                                            <TableRow
-                                                // key={row.id}
+                    <div className="m-1">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" className="ml-auto">
+                                    Columns <ChevronDown className=" h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {table
+                                    .getAllColumns()
+                                    .filter((column) => column.getCanHide())
+                                    .map((column, index) => {
+                                        return (
+                                            <DropdownMenuCheckboxItem
+                                                // key={column.id}
                                                 key={index}
-                                                data-state={
-                                                    row.getIsSelected() &&
-                                                    "selected"
+                                                className="capitalize"
+                                                checked={column.getIsVisible()}
+                                                onCheckedChange={(value) =>
+                                                    column.toggleVisibility(
+                                                        !!value
+                                                    )
                                                 }
                                             >
-                                                {row
-                                                    .getVisibleCells()
-                                                    .map((cell, index) => (
-                                                        <TableCell
-                                                            key={index}
-                                                            // key={cell.id}
-                                                        >
-                                                            {flexRender(
-                                                                cell.column
-                                                                    .columnDef
-                                                                    .cell,
-                                                                cell.getContext()
-                                                            )}
-                                                        </TableCell>
-                                                    ))}
-                                            </TableRow>
-                                        ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={columns.length}
-                                            className="h-24 text-center"
-                                        >
-                                            {/* No results. */}
-                                            <Loading />
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                    <div className="flex items-center justify-end space-x-2 py-4">
-                        <div className="flex-1 text-sm text-muted-foreground">
-                            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                            {table.getFilteredRowModel().rows.length} row(s)
-                            selected.
-                        </div>
-                        <div className="space-x-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => table.previousPage()}
-                                disabled={!table.getCanPreviousPage()}
-                            >
-                                Previous
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => table.nextPage()}
-                                disabled={!table.getCanNextPage()}
-                            >
-                                Next
-                            </Button>
-                        </div>
+                                                {column.id}
+                                            </DropdownMenuCheckboxItem>
+                                        );
+                                    })}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
-            </section>
-        );
-    }
+                <div className="rounded-md border">
+                    <Table>
+                        <TableHeader>
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map(
+                                        (header, index) => {
+                                            return (
+                                                <TableHead
+                                                    // key={header.id}
+                                                    key={index}
+                                                >
+                                                    {header.isPlaceholder
+                                                        ? null
+                                                        : flexRender(
+                                                              header.column
+                                                                  .columnDef
+                                                                  .header,
+                                                              header.getContext()
+                                                          )}
+                                                </TableHead>
+                                            );
+                                        }
+                                    )}
+                                </TableRow>
+                            ))}
+                        </TableHeader>
+                        <TableBody>
+                            {table.getRowModel().rows?.length ? (
+                                table.getRowModel().rows.map((row, index) => (
+                                    <TableRow
+                                        // key={row.id}
+                                        key={index}
+                                        data-state={
+                                            row.getIsSelected() && "selected"
+                                        }
+                                    >
+                                        {row
+                                            .getVisibleCells()
+                                            .map((cell, index) => (
+                                                <TableCell
+                                                    key={index}
+                                                    // key={cell.id}
+                                                >
+                                                    {flexRender(
+                                                        cell.column.columnDef
+                                                            .cell,
+                                                        cell.getContext()
+                                                    )}
+                                                </TableCell>
+                                            ))}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={columns.length}
+                                        className="h-24 text-center"
+                                    >
+                                        {/* No results. */}
+                                        <Loading />
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+                <div className="flex items-center justify-end space-x-2 py-4">
+                    <div className="flex-1 text-sm text-muted-foreground">
+                        {table.getFilteredSelectedRowModel().rows.length} of{" "}
+                        {table.getFilteredRowModel().rows.length} row(s)
+                        selected.
+                    </div>
+                    <div className="space-x-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()}
+                        >
+                            Next
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
 }

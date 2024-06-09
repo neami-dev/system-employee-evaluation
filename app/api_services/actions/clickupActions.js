@@ -106,7 +106,7 @@ export const getCompletedTasksByEmployee = async (teamId, userId) => {
         const response = await api().get(`/team/${teamId}/task`, {
             params: {
                 assignees: [userId],
-                statuses: ["completed"],
+                statuses: ["complete"],
                 // 'date_updated_gt': startIso,
                 // 'date_updated_lt': endIso
             },
@@ -271,3 +271,12 @@ export const getAllTasksByEmployee = async (teamId, userId) => {
         return [];
     }
 };
+export const getTaskById = async (taskId)=>{
+    try {
+        const response = await api().get(`/task/${taskId}`);
+        return response?.data;
+    } catch (error) {
+        console.error("Error fetching task by id  :", error.message);
+        return [];
+    }
+}

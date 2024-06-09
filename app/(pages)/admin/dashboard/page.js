@@ -37,7 +37,7 @@ export default function page() {
     const [earlyDepartures, setEarlyDepartures] = useState(0);
     const [timeOff, setTimeOff] = useState(0);
     const [date, setDate] = useState(new Date());
-    const [isAdmin, setsIsdmin] = useState(false);
+
     const route = useRouter();
     const timeOfEntry = 9;
     const timeOfExit = 17;
@@ -45,21 +45,10 @@ export default function page() {
     useEffect(() => {
         onAuthStateChanged(auth, async (user) => {
             try {
-                if (!user) {
-                    route.push("/login");
-                    return;
-                }
-                const responseRole = await checkRoleAdmin(user.uid);
-                setsIsdmin(responseRole?.result);
                 const response = await getDocument("userData", user?.uid);
                 const workspaceId = response?.result.data()?.clockifyWorkspace;
 
                 if (workspaceId) setClockifyWorkspaceId(workspaceId);
-
-                if (!responseRole?.result) {
-                    route.push("/Not-Found");
-                    console.log("your role is not admin");
-                }
 
                 const responseEmp = await getEmployees();
                 if (responseEmp?.result) {
@@ -83,7 +72,7 @@ export default function page() {
                             clockifyWorkspaceId,
                             formattedDate
                         );
-                        if (dailyEntries === null ) {
+                        if (dailyEntries === null) {
                             return setAbsent((prev) => prev + 1);
                         }
                         const entryTime = new Date(
@@ -92,17 +81,23 @@ export default function page() {
                         const timeToLeave = new Date(
                             "2000-01-01 " + dailyEntries?.checkOutTime
                         ).getHours();
-                        
+
                         if (entryTime > timeOfEntry) {
                             setLateArrival((prev) => prev + 1);
                         }
                         if (entryTime <= timeOfEntry) {
                             setOnTime((prev) => prev + 1);
                         }
-                        if (date.getHours() >= timeOfExit && timeToLeave < timeOfExit) {
+                        if (
+                            date.getHours() >= timeOfExit &&
+                            timeToLeave < timeOfExit
+                        ) {
                             setEarlyDepartures((prev) => prev + 1);
                         }
-                        if (date.getHours() >= timeOfExit && timeToLeave >= timeOfExit) {
+                        if (
+                            date.getHours() >= timeOfExit &&
+                            timeToLeave >= timeOfExit
+                        ) {
                             setTimeOff((prev) => prev + 1);
                         }
                     }
@@ -139,114 +134,103 @@ export default function page() {
 
     const itemStyle =
         "bg-white rounded-lg w-[260px] h-[115px] flex flex-col   justify-evenly ";
-    if (isAdmin) {
-        return (
-            <>
-                <section className=" grid justify-center w-full mx-auto pt-32">
-                    <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:ml-[80px] lg:grid-cols-3 xl:grid-cols-4 ">
-                        <li className="w-[260px] md:row-span-2 lg:row-span-3 xl:row-span-2">
-                            <Weather />
-                        </li>
-                        <li className={`${itemStyle}`}>
-                            <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">
-                                    {totalEmployeea}
-                                </span>
-                                <span className=" bg-[#E6EAF5] p-2 rounded-full">
-                                    <Users className="text-blue-500" />
-                                </span>
-                            </div>
-                            <h3 className="text-[#252C58] ml-5 text-lg">
-                                Total Employees
-                            </h3>
-                        </li>
-                        <li className={`${itemStyle}`}>
-                            <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">{onTime}</span>
-                                <span className=" bg-[#E6EAF5] p-2 rounded-full">
-                                    <History className="text-blue-500" />
-                                </span>
-                            </div>
-                            <h3 className="text-[#252C58] ml-5 text-lg">
-                                On Time
-                            </h3>
-                        </li>
-                        <li className={`${itemStyle}`}>
-                            <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">{absent}</span>
-                                <span className=" bg-[#E6EAF5] p-2 rounded-full">
-                                    <Cloud className="text-blue-500" />
-                                </span>
-                            </div>
-                            <h3 className="text-[#252C58] ml-5 text-lg">
-                                Absent
-                            </h3>
-                        </li>
-                        <li className={`${itemStyle}`}>
-                            <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">{lateArrival}</span>
-                                <span className=" bg-[#E6EAF5] p-2 rounded-full">
-                                    <Hourglass className="text-blue-500" />
-                                </span>
-                            </div>
-                            <h3 className="text-[#252C58] ml-5 text-lg">
-                                Late Arrival
-                            </h3>
-                        </li>
-                        <li className={`${itemStyle}`}>
-                            <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">
-                                    {earlyDepartures}
-                                </span>
-                                <span className=" bg-[#E6EAF5] p-2 rounded-full">
-                                    <Moon className="text-blue-500" />
-                                </span>
-                            </div>
-                            <h3 className="text-[#252C58] ml-5 text-lg">
-                                Early Departures
-                            </h3>
-                        </li>
-                        <li className={`${itemStyle}`}>
-                            <div className="flex justify-between px-5 w-full ">
-                                <span className=" text-4xl">{timeOff}</span>
-                                <CalendarClock className="text-blue-500" />
-                            </div>
-                            <h3 className="text-[#252C58] ml-5 text-lg">
-                                Time-off
-                            </h3>
-                        </li>
-                    </ul>
-                </section>
-                <section>
-                    <div className="flex w-full flex-wrap gap-4 lg:w-[86%] lg:ml-[106px] xl:w-[90%]  mt-8 xl:px-8">
-                        <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[52%]  xl:w-[56%] mx-auto h-[350px] p-3  bg-white rounded-lg">
-                            <ul className="flex justify-between items-center ">
-                                <li>General performance</li>
-                                <li></li>
-                                <li> </li>
 
-                                <li>
-                                    <AlignCenter className=" cursor-pointer text-slate-700" />
-                                </li>
-                            </ul>
-
-                            <CurvedlineChart data={dataChart} />
+    return (
+        <>
+            <section className=" grid justify-center w-full mx-auto pt-32">
+                <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:ml-[80px] lg:grid-cols-3 xl:grid-cols-4 ">
+                    <li className="w-[260px] md:row-span-2 lg:row-span-3 xl:row-span-2">
+                        <Weather />
+                    </li>
+                    <li className={`${itemStyle}`}>
+                        <div className="flex justify-between px-5 w-full ">
+                            <span className=" text-4xl">{totalEmployeea}</span>
+                            <span className=" bg-[#E6EAF5] p-2 rounded-full">
+                                <Users className="text-blue-500" />
+                            </span>
                         </div>
-
-                        <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[42%]   mx-auto xl:w-[40%] h-[350px] p-3 bg-white rounded-lg">
-                            <ul className="flex justify-between items-center">
-                                <li>Statistics</li>
-                                <li>
-                                    <AlignCenter className=" cursor-pointer text-slate-700" />
-                                </li>
-                            </ul>
-                            <BarChart data={chartBarData} />
+                        <h3 className="text-[#252C58] ml-5 text-lg">
+                            Total Employees
+                        </h3>
+                    </li>
+                    <li className={`${itemStyle}`}>
+                        <div className="flex justify-between px-5 w-full ">
+                            <span className=" text-4xl">{onTime}</span>
+                            <span className=" bg-[#E6EAF5] p-2 rounded-full">
+                                <History className="text-blue-500" />
+                            </span>
                         </div>
+                        <h3 className="text-[#252C58] ml-5 text-lg">On Time</h3>
+                    </li>
+                    <li className={`${itemStyle}`}>
+                        <div className="flex justify-between px-5 w-full ">
+                            <span className=" text-4xl">{absent}</span>
+                            <span className=" bg-[#E6EAF5] p-2 rounded-full">
+                                <Cloud className="text-blue-500" />
+                            </span>
+                        </div>
+                        <h3 className="text-[#252C58] ml-5 text-lg">Absent</h3>
+                    </li>
+                    <li className={`${itemStyle}`}>
+                        <div className="flex justify-between px-5 w-full ">
+                            <span className=" text-4xl">{lateArrival}</span>
+                            <span className=" bg-[#E6EAF5] p-2 rounded-full">
+                                <Hourglass className="text-blue-500" />
+                            </span>
+                        </div>
+                        <h3 className="text-[#252C58] ml-5 text-lg">
+                            Late Arrival
+                        </h3>
+                    </li>
+                    <li className={`${itemStyle}`}>
+                        <div className="flex justify-between px-5 w-full ">
+                            <span className=" text-4xl">{earlyDepartures}</span>
+                            <span className=" bg-[#E6EAF5] p-2 rounded-full">
+                                <Moon className="text-blue-500" />
+                            </span>
+                        </div>
+                        <h3 className="text-[#252C58] ml-5 text-lg">
+                            Early Departures
+                        </h3>
+                    </li>
+                    <li className={`${itemStyle}`}>
+                        <div className="flex justify-between px-5 w-full ">
+                            <span className=" text-4xl">{timeOff}</span>
+                            <CalendarClock className="text-blue-500" />
+                        </div>
+                        <h3 className="text-[#252C58] ml-5 text-lg">
+                            Time-off
+                        </h3>
+                    </li>
+                </ul>
+            </section>
+            <section>
+                <div className="flex w-full flex-wrap gap-4 lg:w-[86%] lg:ml-[106px] xl:w-[90%]  mt-8 xl:px-8">
+                    <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[52%]  xl:w-[56%] mx-auto h-[350px] p-3  bg-white rounded-lg">
+                        <ul className="flex justify-between items-center ">
+                            <li>General performance</li>
+                            <li></li>
+                            <li> </li>
+
+                            <li>
+                                <AlignCenter className=" cursor-pointer text-slate-700" />
+                            </li>
+                        </ul>
+
+                        <CurvedlineChart data={dataChart} />
                     </div>
-                </section>
-            </>
-        );
-    } else {
-        return <Loading />;
-    }
+
+                    <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[42%]   mx-auto xl:w-[40%] h-[350px] p-3 bg-white rounded-lg">
+                        <ul className="flex justify-between items-center">
+                            <li>Statistics</li>
+                            <li>
+                                <AlignCenter className=" cursor-pointer text-slate-700" />
+                            </li>
+                        </ul>
+                        <BarChart data={chartBarData} />
+                    </div>
+                </div>
+            </section>
+        </>
+    );
 }

@@ -49,10 +49,10 @@ export default function Menu() {
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 // check if user logged 
-                route.push("/login");
-                console.log("logout from menu");
+                addCookie("isLogged", false);
                 return false;
             }
+            addCookie("isLogged", true);
             setIsLogged(true);
             // check if user is email verified
             console.log("emailVerified", user?.emailVerified);
@@ -60,16 +60,11 @@ export default function Menu() {
                 route.push("/invalid-email");
                 return false;
             }
-            // check if user is admin
-            const response = await checkRoleAdmin(user.uid);
-            setIsAdmin(response?.result);
-            console.log("isAdmin", response?.result);
-            addCookie("isAdmin", response?.result);
             // check cookies if exists 
             await checkCookies(user?.uid);
-        
             // check if any data lacked (clickup github cloockify)
             const checkResponse = await checkDataExistsInFirebase();
+             
             console.log(checkResponse);
             console.log(!!checkResponse?.link);
             if (!!checkResponse?.link) route.push(checkResponse?.link);
@@ -79,6 +74,15 @@ export default function Menu() {
                     variant: "destructive",
                 });
             }
+            // check if user is admin
+            const response = await checkRoleAdmin(user.uid);
+            setIsAdmin(response?.result);
+            console.log("isAdmin", response?.result);
+            addCookie("isAdmin", response?.result);
+            
+        
+            
+            
         });
     }, []);
 

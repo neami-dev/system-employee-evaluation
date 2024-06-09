@@ -30,6 +30,8 @@ export default function loginPage() {
     const handleInfo = async () => {
         onAuthStateChanged(auth, async (user) => {
             if (!user) return;
+            addCookie("isLogged",true);
+
             const response = await getDocument("userData", user?.uid);
             const data = response?.result?.data();
             addCookie(

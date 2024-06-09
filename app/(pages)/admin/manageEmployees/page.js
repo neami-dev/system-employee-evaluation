@@ -24,7 +24,7 @@ import {
     Trash2,
     User,
 } from "lucide-react";
-
+ 
 import { Button } from "@/components/ui/button";
 
 import {
@@ -36,6 +36,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import { Input } from "@/components/ui/input";
 import {
     Table,
@@ -77,6 +78,8 @@ import { Switch } from "@/components/ui/switch";
 import { addCookie } from "@/app/api_services/actions/handleCookies";
 import Loading from "@/components/component/Loading";
 import Link from "next/link";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 const jsxElement = (
     <>
         <Skeleton className=" h-10 w-[100%] rounded-sm mb-2" />
@@ -96,30 +99,11 @@ export default function DataTableDemo() {
     const [rowSelection, setRowSelection] = useState({});
     const [textNoResults, setTextNoResults] = useState(jsxElement);
     const [userData, setUserData] = useState([]);
-    const [isAdmin, setIsAdmin] = useState(false);
-
+    const [open2, setOpen2] = useState(false);
     const [showEmailVerified, setShowEmailVerified] = useState(true);
     const { toast } = useToast();
-    const route = useRouter();
 
-    useEffect(() => {
-        setIsAdmin(getCookie("isAdmin"));
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const response = await checkRoleAdmin(user.uid);
-                setIsAdmin(response?.result);
-                // addCookie("isAdmin", response?.result);
 
-                if (!response?.result) {
-                    route.push("/Not-Found");
-                    console.log("your role is not admin");
-                }
-            } else {
-                route.push("/login");
-                console.log("logout from manageEmployee ");
-            }
-        });
-    }, []);
     // get user data from firebase
     const getData = async () => {
         const newData = [];
@@ -442,37 +426,37 @@ export default function DataTableDemo() {
                 );
             },
         },
-        {
-            accessorKey: "currentTasks",
-            header: () => <div className="text-center">Current Tasks</div>,
-            cell: ({ row }) => {
-                return (
-                    <div className="text-center text-[#a9a7a7] text-[12px] md:text-[14px]">
-                        {row.getValue("currentTasks") || "null"}
-                    </div>
-                );
-            },
-        },
-        {
-            accessorKey: "score",
-            header: ({ column }) => (
-                <div
-                    onClick={() =>
-                        column.toggleSorting(column.getIsSorted() === "asc")
-                    }
-                    className="text-center flex justify-center items-center cursor-pointer rounded-sm hover:bg-gray-200"
-                >
-                    Score <ArrowUpDown className="ml-2 h-4 w-4" />
-                </div>
-            ),
-            cell: ({ row }) => {
-                return (
-                    <div className="mx-auto bg-[#39B5A6] text-white rounded-full w-[40px] h-[40px] text-center pt-2.5  text-[12px] md:text-[14px]">
-                        {row.getValue("score") || 0}%
-                    </div>
-                );
-            },
-        },
+        // {
+        //     accessorKey: "currentTasks",
+        //     header: () => <div className="text-center">Current Tasks</div>,
+        //     cell: ({ row }) => {
+        //         return (
+        //             <div className="text-center text-[#a9a7a7] text-[12px] md:text-[14px]">
+        //                 {row.getValue("currentTasks") || "null"}
+        //             </div>
+        //         );
+        //     },
+        // },
+        // {
+        //     accessorKey: "score",
+        //     header: ({ column }) => (
+        //         <div
+        //             onClick={() =>
+        //                 column.toggleSorting(column.getIsSorted() === "asc")
+        //             }
+        //             className="text-center flex justify-center items-center cursor-pointer rounded-sm hover:bg-gray-200"
+        //         >
+        //             Score <ArrowUpDown className="ml-2 h-4 w-4" />
+        //         </div>
+        //     ),
+        //     cell: ({ row }) => {
+        //         return (
+        //             <div className="mx-auto bg-[#39B5A6] text-white rounded-full w-[40px] h-[40px] text-center pt-2.5  text-[12px] md:text-[14px]">
+        //                 {row.getValue("score") || 0}%
+        //             </div>
+        //         );
+        //     },
+        // },
         {
             id: "actions",
             header: () => <div className="text-center">Actions</div>,
@@ -508,6 +492,9 @@ export default function DataTableDemo() {
                                     </div>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
+
+                                
+                                
                                 <div>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
@@ -589,7 +576,7 @@ export default function DataTableDemo() {
         },
     });
 
-    if (String(isAdmin)?.toLowerCase() === "true") {
+    
         return (
             <>
                 <section className="flex justify-center">
@@ -765,7 +752,5 @@ export default function DataTableDemo() {
                 </section>
             </>
         );
-    } else {
-        return <Loading />;
-    }
+    
 }

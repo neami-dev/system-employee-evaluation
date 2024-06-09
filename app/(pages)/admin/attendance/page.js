@@ -58,7 +58,6 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { checkRoleAdmin } from "@/firebase/firebase-admin/checkRoleAdmin";
-import { getCookie } from "cookies-next";
 
 function parseTimeToMinutes(timeString) {
     if (typeof timeString !== "string") {
@@ -356,21 +355,12 @@ export default function DataTableDemo() {
     const [columnFilters, setColumnFilters] = useState([]);
     const [columnVisibility, setColumnVisibility] = useState({});
     const [rowSelection, setRowSelection] = useState({});
-    const [isLogged, setIsLogged] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
 
     const [clockifyWorkspaceId, setClockifyWorkspaceId] = useState([]);
     const route = useRouter();
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const response = await checkRoleAdmin(user.uid);
-                setIsAdmin(response?.result);
-                // addCookie("isAdmin", response?.result);
-                if (!response?.result) {
-                    route.push("/Not-Found");
-                    console.log("your role is not admin");
-                }
                 try {
                     const response = await getDocument("userData", user?.uid); // Assuming user?.uid is always defined here
                     const workspaceId =
@@ -383,10 +373,7 @@ export default function DataTableDemo() {
                 } catch (error) {
                     console.error("Failed to fetch user data:", error);
                 }
-            } else {
-                route.push("/login");
-                console.log("Logged out from attendance employee");
-            }
+            }  
         });
 
         return () => unsubscribe(); // Cleanup function to unsubscribe from the auth listener
@@ -399,7 +386,7 @@ export default function DataTableDemo() {
     //       from: new Date(),
     //       to: addDays(new Date(), 5),
     //     });
-    
+
     useEffect(() => {
         const fetchAndSetTimeEntries = async () => {
             console.log("hey i'm fetchAndSetTimeEntries function");
@@ -419,7 +406,7 @@ export default function DataTableDemo() {
                             clockifyWorkspaceId,
                             formattedDate
                         );
-                        
+
                         if (
                             dailyEntries &&
                             Object.keys(dailyEntries).length > 0
@@ -475,7 +462,7 @@ export default function DataTableDemo() {
             rowSelection,
         },
     });
-    if (String(isAdmin)?.toLowerCase() === "true") {
+   
         return (
             <section className="flex justify-center">
                 <div className="w-[94%] mt-32 min-[426px]:w-[80%] min-[426px]:ml-[76px] sm:w-[80%] sm:ml-[84px] lg:w-[82%] lg:ml-[96px] mx-3 px-4 bg-white rounded-lg">
@@ -609,7 +596,7 @@ export default function DataTableDemo() {
                                     <TableRow>
                                         <TableCell
                                             colSpan={columns.length}
-                                            className="h-24 text-center"
+                                            className="h-9 text-center"
                                         >
                                             {/* No results. */}
                                             <Loading />
@@ -617,6 +604,8 @@ export default function DataTableDemo() {
                                     </TableRow>
                                 )}
                             </TableBody>
+
+                            
                         </Table>
                     </div>
                     <div className="flex items-center justify-end space-x-2 py-4">
@@ -647,7 +636,5 @@ export default function DataTableDemo() {
                 </div>
             </section>
         );
-    } else {
-        return <Loading />;
-    }
+    
 }

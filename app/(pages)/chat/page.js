@@ -34,7 +34,7 @@ function ChatComponent() {
     const route = useRouter();
     const [userData, setUserData] = useState({});
     const [channel, setChannel] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+ 
 
     // const channelListContext = useContext(ChannelListContext);
 
@@ -46,17 +46,15 @@ function ChatComponent() {
                 const doc = await getDocument("userData", user.uid);
                 if (doc.result) {
                     setUserData({...doc.result.data(), ...user});
-                    setIsLoading(true);
+                    
                     console.log("uid : ", user.uid);
                 }
-            } else {
-                route.push("/login");
-            }
+            }  
         });
     }, [auth, route]);
 
     useEffect(() => {
-        if (userData.uid && isLoading) {
+        if (userData.uid) {
             const connectUser = async () => {
                 const token = await generateToken(userData.uid);
                 console.log('chat token : ',token);
@@ -72,7 +70,7 @@ function ChatComponent() {
 
             return () => chatClient.disconnectUser().catch(console.error);
         }
-    }, [userData, isLoading]);
+    }, [userData]);
 
     const CustomChannelPreview = (props) => {
         const {
@@ -152,7 +150,7 @@ function ChatComponent() {
 
     return (
         <Chat client={chatClient}  theme="messaging light">
-            <div className="absolute top-7 right-5 bg-black w-[60px] h-[40px] z-50 bg-black font-bold text-white rounded-lg
+            <div className="absolute top-7 right-5 bg-blue-500 w-[60px] h-[40px] z-50  font-bold text-white rounded-lg
                 hover:cursor-pointer flex justify-center items-center " onClick={() => route.push("/employee/dashboard")}>Home</div>
             <div className="channel-list__container">
                 <ChannelList filters={{
