@@ -34,7 +34,7 @@ export const checkDataExistsInFirebase = async () => {
         if (!res.result?.data()?.clickupToken || clickUpAuth == null) {
             // console.log("not authenticated for github",clickUpAuth);
 
-            link = `https://app.clickup.com/api?client_id=${process.env.NEXT_PUBLIC_CLICKUP_CLIENT_ID}&redirect_uri=http://localhost:3000/api_services/clickupAuth`;
+            link = `https://app.clickup.com/api?client_id=${process.env.NEXT_PUBLIC_CLICKUP_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_BASE_URL}/api_services/clickupAuth`;
             errorMsg = "lack of information in clickup";
             console.log("lack of information in clickup");
             return { link, errorMsg };

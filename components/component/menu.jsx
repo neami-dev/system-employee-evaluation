@@ -85,7 +85,7 @@ export default function Menu() {
             
         });
     }, []);
-
+console.log("env:",process.env.NEXT_PUBLIC_BASE_URL);
     const JSXspan = (
         <span className="before:absolute before:h-10   before:w-[6px]  before:bg-[#3354F4] before:left-[-21px]  before:top-[-8px]  before:rounded-r-lg menu-line "></span>
     );
