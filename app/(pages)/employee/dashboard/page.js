@@ -51,8 +51,15 @@ export default function page() {
             if (user) {
                 getInfo(user?.uid);
                 const data = await getEvaluation(user?.uid);
-                handleChartBarAtter(data?.attributes);
-                handleChartLineMethodologyOfWork(data?.methodologyOfWork);
+                if (
+                    data?.attributes !== null &&
+                    data?.attributes !== undefined &&
+                    data?.methodologyOfWork !== null &&
+                    data?.methodologyOfWork !== undefined
+                ) {
+                    handleChartBarAtter(data?.attributes);
+                    handleChartLineMethodologyOfWork(data?.methodologyOfWork);
+                }
             }
         });
     }, []);
