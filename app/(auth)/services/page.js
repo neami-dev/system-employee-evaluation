@@ -103,7 +103,7 @@ const IntegrationPage = () => {
                         <button
                             onClick={() =>
                                 route.push(
-                                    `https://app.clickup.com/api?client_id=${process.env.NEXT_PUBLIC_CLICKUP_CLIENT_ID}&redirect_uri=http://localhost:3000/api_services/clickupAuth`
+                                    `https://app.clickup.com/api?client_id=${process.env.NEXT_PUBLIC_CLICKUP_CLIENT_ID}&redirect_uri=https://system-employee-evaluation.vercel.app/api_services/clickupAuth`
                                 )
                             }
                             className={`${
