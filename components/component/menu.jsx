@@ -37,6 +37,7 @@ import {
     checkCookies,
 } from "@/app/api_services/actions/handleCookies";
 import Loading from "./Loading";
+import useNetwork from "@/utils/useNetwork";
 
 export default function Menu() {
     const pathname = usePathname();
@@ -44,11 +45,14 @@ export default function Menu() {
     const [isLogged, setIsLogged] = useState(false);
     const route = useRouter();
     const { toast } = useToast();
-
+    
+   
     useEffect(() => {
-        onAuthStateChanged(auth, async (user) => {
+        
+        //   console.log("isOnline", navigator.onLine );
+       onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                // check if user logged 
+                // check if user logged
                 addCookie("isLogged", false);
                 return false;
             }
@@ -60,14 +64,14 @@ export default function Menu() {
                 route.push("/invalid-email");
                 return false;
             }
-            // check cookies if exists 
+            // check cookies if exists
             await checkCookies(user?.uid);
             // check if any data lacked (clickup github cloockify)
             const checkResponse = await checkDataExistsInFirebase();
-             
+
             console.log(checkResponse);
             console.log(!!checkResponse?.link);
-            if (!!checkResponse?.link) route.push(checkResponse?.link);
+            // if (!!checkResponse?.link) route.push(checkResponse?.link);
             if (!!checkResponse?.errorMsg) {
                 toast({
                     description: checkResponse?.errorMsg,
@@ -77,15 +81,11 @@ export default function Menu() {
             // check if user is admin
             const response = await checkRoleAdmin(user.uid);
             setIsAdmin(response?.result);
-            console.log("isAdmin", response?.result);
+            console.log("isAdmin", response );
             addCookie("isAdmin", response?.result);
-            
-        
-            
-            
         });
     }, []);
-console.log("env:",process.env.NEXT_PUBLIC_BASE_URL);
+    console.log("env:", process.env.NEXT_PUBLIC_BASE_URL);
     const JSXspan = (
         <span className="before:absolute before:h-10   before:w-[6px]  before:bg-[#3354F4] before:left-[-21px]  before:top-[-8px]  before:rounded-r-lg menu-line "></span>
     );

@@ -33,6 +33,7 @@
     "axios": "^1.6.7",
     "chart.js": "^4.4.3",
     "class-variance-authority": "^0.7.0",
+    "classnames": "^2.5.1",
     "clsx": "^2.1.0",
     "cmdk": "^1.0.0",
     "cookies-next": "^4.1.1",

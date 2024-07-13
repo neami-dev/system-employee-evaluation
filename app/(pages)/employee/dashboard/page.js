@@ -31,15 +31,17 @@ import { Chart as ChartJS } from "chart.js/auto";
 import { Bar, Line } from "react-chartjs-2";
 import StatusCard from "./components/statusCard";
 import { onAuthStateChanged } from "firebase/auth";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function page() {
     const [clickupData, setClickupData] = useState({
         allTasks: null,
-        completeTask: null,
-        inProgressTask: null,
-        holdTask: null,
-        pendingTask: null,
+        completeTasks: null,
+        inProgressTasks: null,
+        holdTasks: null,
+        pendingTasks: null,
     });
+    const [tasksGroupedByStatus, setTasksGroupedByStatus] = useState([]);
     const [commits, setCommits] = useState(null);
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
         useState(null);
@@ -77,23 +79,27 @@ export default function page() {
             const clockifyUserId = response?.result?.data()?.clockifyUserId;
             const clockifyWorkspace =
                 response?.result?.data()?.clockifyWorkspace;
+            const allTasks = await getAllTasksByEmployee(
+                clickupTeam,
+                clickupUser
+            );
+
+            const groupTasksBystatus = (tasks) => {
+                return tasks.reduce((acc, task) => {
+                    const status = task?.status?.status;
+                    if (!acc[status]) {
+                        acc[status] = [];
+                    }
+                    acc[status].push(task);
+                    return acc;
+                }, {});
+            };
+            const groupedTasks = groupTasksBystatus(allTasks || []);
+            setTasksGroupedByStatus(Object.entries(groupedTasks));
+            console.log(Object.entries(groupedTasks));
 
             // function to get information from clickUp
-            const [
-                allTasks,
-                completeTask,
-                inProgressTask,
-                holdTask,
-                pendingTask,
-                workTime,
-                totalCommits,
-            ] = await Promise.allSettled([
-                getAllTasksByEmployee(clickupTeam, clickupUser),
-                getCompletedTasksByEmployee(clickupTeam, clickupUser),
-                getInProgressTasksByEmployee(clickupTeam, clickupUser),
-                getHoldTasksByEmployee(clickupTeam, clickupUser),
-                getPendingTasksByEmployee(clickupTeam, clickupUser),
-
+            const [workTime, totalCommits] = await Promise.allSettled([
                 getTimeTrackedByEmployeeToday(
                     clockifyUserId,
                     clockifyWorkspace
@@ -101,13 +107,6 @@ export default function page() {
                 getTotalCommitsForToday(),
             ]);
 
-            setClickupData({
-                allTasks: allTasks?.value?.length,
-                completeTask: completeTask?.value?.length,
-                inProgressTask: inProgressTask?.value?.length,
-                holdTask: holdTask?.value?.length,
-                pendingTask: pendingTask?.value?.length,
-            });
             setTimeTrackedByEmployeeToday(workTime?.value?.hours);
             setCommits(totalCommits?.value);
         } catch (error) {
@@ -214,35 +213,6 @@ export default function page() {
         setDataMethodologyOfWork(dataArray.slice(-8));
     };
 
-    const progressPercentageTask = () => {
-        if (clickupData?.allTasks !== null) {
-            return {
-                tasksInProgress: Math.round(
-                    (clickupData?.inProgressTask * 100) / clickupData?.allTasks
-                ),
-                tasksPending: Math.round(
-                    (clickupData?.pendingTask * 100) / clickupData?.allTasks
-                ),
-                tasksCompleted: Math.round(
-                    (clickupData?.completeTask * 100) / clickupData?.allTasks
-                ),
-                tasksOnHold: Math.round(
-                    (clickupData?.holdTask * 100) / clickupData?.allTasks
-                ),
-            };
-        }
-    };
-    const progressPercentageCommits = () => {
-        if (commits !== null) {
-            return Math.round((commits * 100) / 3);
-        }
-    };
-    const progressPercentageTimeWork = () => {
-        if (timeTrackedByEmployeeToday !== null) {
-            return Math.round((timeTrackedByEmployeeToday * 100) / 8);
-        }
-    };
-
     const dataChartLine = {
         labels: dataMethodologyOfWork?.map((data) => data?.label),
         datasets: [
@@ -329,48 +299,263 @@ export default function page() {
                         <div className="w-[260px] md:row-span-2 lg:row-span-3 xl:row-span-2">
                             <Weather />
                         </div>
+                        {/* show all tasks */}
+                        {tasksGroupedByStatus?.map((tasks, index) => {
+                            console.log(tasks?.[0]);
+                            return (
+                                <StatusCard
+                                    key={index}
+                                    text={tasks?.[0]}
+                                    count={tasks?.[1].length}
+                                    color={tasks?.[1][0]?.status?.color}
+                                >
+                                    {tasks?.[0] == "to do" && (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width={24}
+                                            height={24}
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="lucide lucide-list-checks"
+                                        >
+                                            <path d="m3 17 2 2 4-4" />
+                                            <path d="m3 7 2 2 4-4" />
+                                            <path d="M13 6h8" />
+                                            <path d="M13 12h8" />
+                                            <path d="M13 18h8" />
+                                        </svg>
+                                    )}
+                                    {tasks?.[0] == "in review" && (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width={24}
+                                            height={24}
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="lucide lucide-scan-eye"
+                                        >
+                                            <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                                            <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                                            <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                                            <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+                                            <circle cx={12} cy={12} r={1} />
+                                            <path d="M5 12s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5" />
+                                        </svg>
+                                    )}
+                                    {tasks?.[0] == "rejected" && (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width={24}
+                                            height={24}
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="lucide lucide-git-pull-request-closed"
+                                        >
+                                            <circle cx={6} cy={6} r={3} />
+                                            <path d="M6 9v12" />
+                                            <path d="m21 3-6 6" />
+                                            <path d="m21 9-6-6" />
+                                            <path d="M18 11.5V15" />
+                                            <circle cx={18} cy={18} r={3} />
+                                        </svg>
+                                    )}
 
-                        <StatusCard
-                            text="Tasks Complete"
-                            percent={progressPercentageTask()?.tasksCompleted}
-                            countAll={clickupData?.allTasks}
-                            count={clickupData?.completeTask}
-                        />
+                                    {tasks?.[0] == "pending" && (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width={24}
+                                            height={24}
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="lucide lucide-clock-arrow-down"
+                                        >
+                                            <path d="M12.338 21.994A10 10 0 1 1 21.925 13.227" />
+                                            <path d="M12 6v6l2 1" />
+                                            <path d="m14 18 4 4 4-4" />
+                                            <path d="M18 14v8" />
+                                        </svg>
+                                    )}
 
-                        <StatusCard
-                            text="Tasks in Progress"
-                            percent={progressPercentageTask()?.tasksInProgress}
-                            countAll={clickupData?.allTasks}
-                            count={clickupData?.inProgressTask}
-                        />
-
-                        <StatusCard
-                            text="Tasks On Hold"
-                            percent={progressPercentageTask()?.tasksOnHold}
-                            countAll={clickupData?.allTasks}
-                            count={clickupData?.holdTask}
-                        />
-
-                        <StatusCard
-                            text="tasks Pending"
-                            percent={progressPercentageTask()?.tasksPending}
-                            countAll={clickupData?.allTasks}
-                            count={clickupData?.pendingTask}
-                        />
-
+                                    {tasks?.[0] == "in progress" && (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width={24}
+                                            height={24}
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="lucide lucide-loader-circle"
+                                        >
+                                            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                                        </svg>
+                                    )}
+                                    {tasks?.[0] == "completed" && (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width={24}
+                                            height={24}
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="lucide lucide-square-check-big"
+                                        >
+                                            <path d="m9 11 3 3L22 4" />
+                                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                                        </svg>
+                                    )}
+                                    {tasks?.[0] == "blocked" && (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width={24}
+                                            height={24}
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="lucide lucide-book-key"
+                                        >
+                                            <path d="m19 3 1 1" />
+                                            <path d="m20 2-4.5 4.5" />
+                                            <path d="M20 8v13a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
+                                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H14" />
+                                            <circle cx={14} cy={8} r={2} />
+                                        </svg>
+                                    )}
+                                    {tasks?.[0] == "Open" && (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width={24}
+                                            height={24}
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            className="lucide lucide-package-open"
+                                        >
+                                            <path d="M12 22v-9" />
+                                            <path d="M15.17 2.21a1.67 1.67 0 0 1 1.63 0L21 4.57a1.93 1.93 0 0 1 0 3.36L8.82 14.79a1.655 1.655 0 0 1-1.64 0L3 12.43a1.93 1.93 0 0 1 0-3.36z" />
+                                            <path d="M20 13v3.87a2.06 2.06 0 0 1-1.11 1.83l-6 3.08a1.93 1.93 0 0 1-1.78 0l-6-3.08A2.06 2.06 0 0 1 4 16.87V13" />
+                                            <path d="M21 12.43a1.93 1.93 0 0 0 0-3.36L8.83 2.2a1.64 1.64 0 0 0-1.63 0L3 4.57a1.93 1.93 0 0 0 0 3.36l12.18 6.86a1.636 1.636 0 0 0 1.63 0z" />
+                                        </svg>
+                                    )}
+                                </StatusCard>
+                            );
+                        })}
+                        {/* show count hour work */}
                         <StatusCard
                             text="Work Time"
-                            percent={progressPercentageTimeWork()}
-                            countAll={"8H"}
                             count={timeTrackedByEmployeeToday}
-                        />
-
+                            color="#36BA98"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width={24}
+                                height={24}
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="lucide lucide-clock"
+                            >
+                                <circle cx={12} cy={12} r={10} />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                        </StatusCard>
+                        {/* show total commits today */}
                         <StatusCard
                             text="Commits"
-                            percent={progressPercentageCommits()}
-                            countAll={"3"}
                             count={commits}
-                        />
+                            color="#430A5D"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width={24}
+                                height={24}
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="lucide lucide-git-commit-horizontal"
+                            >
+                                <circle cx={12} cy={12} r={3} />
+                                <line x1={3} x2={9} y1={12} y2={12} />
+                                <line x1={15} x2={21} y1={12} y2={12} />
+                            </svg>
+                        </StatusCard>
+                        {tasksGroupedByStatus?.length == 0 && (
+                            <>
+                                <div className="bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ">
+                                    <div className="">
+                                        <Skeleton className="h-9 w-[160px] mt-2" />
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ">
+                                    <div className="">
+                                        <Skeleton className="h-9 w-[160px] mt-2" />
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ">
+                                    <div className="">
+                                        <Skeleton className="h-9 w-[160px] mt-2" />
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ">
+                                    <div className="">
+                                        <Skeleton className="h-9 w-[160px] mt-2" />
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ">
+                                    <div className="">
+                                        <Skeleton className="h-9 w-[160px] mt-2" />
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ">
+                                    <div className="">
+                                        <Skeleton className="h-9 w-[160px] mt-2" />
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ">
+                                    <div className="">
+                                        <Skeleton className="h-9 w-[160px] mt-2" />
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ">
+                                    <div className="">
+                                        <Skeleton className="h-9 w-[160px] mt-2" />
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </section>
                 <section>

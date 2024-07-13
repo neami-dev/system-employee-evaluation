@@ -197,7 +197,7 @@ export const getHoldTasksByEmployee = async (teamId, userId) => {
         const response = await api().get(`/team/${teamId}/task`, {
             params: {
                 assignees: [userId],
-                statuses: ["on hold"],
+                statuses: ["onhold"],
                 // 'date_updated_gt': startIso,
                 // 'date_updated_lt': endIso
             },
