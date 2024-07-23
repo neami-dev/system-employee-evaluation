@@ -32,15 +32,17 @@ import { Bar, Line } from "react-chartjs-2";
 import StatusCard from "./components/statusCard";
 import { onAuthStateChanged } from "firebase/auth";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 export default function page() {
-    const [clickupData, setClickupData] = useState({
-        allTasks: null,
-        completeTasks: null,
-        inProgressTasks: null,
-        holdTasks: null,
-        pendingTasks: null,
-    });
     const [tasksGroupedByStatus, setTasksGroupedByStatus] = useState([]);
     const [commits, setCommits] = useState(null);
     const [timeTrackedByEmployeeToday, setTimeTrackedByEmployeeToday] =
@@ -48,23 +50,36 @@ export default function page() {
 
     const [dataAtter, setDataAtter] = useState([]);
     const [dataMethodologyOfWork, setDataMethodologyOfWork] = useState([]);
+    const [slectedTypeBar, setSlectedTypeBar] = useState("weekly");
+
     useEffect(() => {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                getInfo(user?.uid);
+               await getInfo(user?.uid);
                 const data = await getEvaluation(user?.uid);
                 if (
-                    data?.attributes !== null &&
-                    data?.attributes !== undefined &&
                     data?.methodologyOfWork !== null &&
                     data?.methodologyOfWork !== undefined
                 ) {
-                    handleChartBarAtter(data?.attributes);
                     handleChartLineMethodologyOfWork(data?.methodologyOfWork);
                 }
             }
         });
     }, []);
+    useEffect(() => {
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+              await  getInfo(user?.uid);
+                const data = await getEvaluation(user?.uid);
+                if (
+                    data?.attributes !== null &&
+                    data?.attributes !== undefined
+                ) {
+                    handleChartBarAtter(data?.attributes);
+                }
+            }
+        });
+    }, [slectedTypeBar]);
     const getEvaluation = async (uid) => {
         const response = await getDocument("evaluation", uid);
         const data = response?.result?.data();
@@ -96,7 +111,6 @@ export default function page() {
             };
             const groupedTasks = groupTasksBystatus(allTasks || []);
             setTasksGroupedByStatus(Object.entries(groupedTasks));
-            console.log(Object.entries(groupedTasks));
 
             // function to get information from clickUp
             const [workTime, totalCommits] = await Promise.allSettled([
@@ -108,12 +122,14 @@ export default function page() {
             ]);
 
             setTimeTrackedByEmployeeToday(workTime?.value?.hours);
+            console.log(totalCommits);
             setCommits(totalCommits?.value);
         } catch (error) {
             console.log("error from dashboard", error.message);
         }
     };
     const handleChartBarAtter = async (data) => {
+         
         const dataArray = Object.entries(data).map(([date, value]) => ({
             date: new Date(date),
             value,
@@ -140,7 +156,7 @@ export default function page() {
                 }
                 weeks[key] += value / 7;
             });
-
+            
             return weeks;
         };
         const aggregateByMonths = (data) => {
@@ -182,10 +198,24 @@ export default function page() {
             return years;
         };
         const prepareChartData = (aggregatedData) => {
-            return Object.entries(aggregatedData).map(([key, value]) => ({
+           
+            const data = Object.entries(aggregatedData).map(([key, value]) => ({
                 label: key,
                 value,
             }));
+            // Sort data by week (W1, W2,...)
+            data.sort((a, b) => {
+                const [yearA, weekA] = a.label.split("-W").map(Number);
+                const [yearB, weekB] = b.label.split("-W").map(Number);
+
+                // Convert year and week to a date object
+                const dateA = new Date(yearA, 0, 1 + (weekA - 1) * 7);
+                const dateB = new Date(yearB, 0, 1 + (weekB - 1) * 7);
+
+                return dateA - dateB;
+            });
+
+            return data;
         };
         // Aggregating data
         const weeklyData = aggregateByWeeks(dataArray);
@@ -196,19 +226,38 @@ export default function page() {
         const weeklyChartData = prepareChartData(weeklyData);
         const monthlyChartData = prepareChartData(monthlyData);
         const yearlyChartData = prepareChartData(yearlyData);
+ 
 
-        console.log("Weekly Chart Data:", weeklyChartData);
-        console.log("Monthly Chart Data:", monthlyChartData);
-        console.log("Yearly Chart Data:", yearlyChartData);
-        setDataAtter(weeklyChartData.slice(-5));
+        if (slectedTypeBar === "weekly")
+            setDataAtter(weeklyChartData.slice(-5));
+        if (slectedTypeBar === "monthly")
+            setDataAtter(monthlyChartData.slice(-5));
+        if (slectedTypeBar === "yearly")
+            setDataAtter(yearlyChartData.slice(-5));
     };
     const handleChartLineMethodologyOfWork = async (data) => {
         const dataArray = await Promise.all(
             Object.entries(data).map(async ([taskId, value]) => {
                 const task = await getTaskById(taskId);
-                return { label: task?.name, value };
+
+                const date_closed = new Date(
+                    task?.date_closed * 1000
+                ).toLocaleDateString("en-US");
+
+                return {
+                    label: task?.name,
+                    value,
+                    date_closed,
+                };
             })
         );
+
+        // Sort the tasks by date_closed
+        dataArray.sort((a, b) => {
+            if (!a.date_closed) return 1;
+            if (!b.date_closed) return -1;
+            return new Date(a.date_closed) - new Date(b.date_closed);
+        });
 
         setDataMethodologyOfWork(dataArray.slice(-8));
     };
@@ -217,7 +266,7 @@ export default function page() {
         labels: dataMethodologyOfWork?.map((data) => data?.label),
         datasets: [
             {
-                label: "Dataset 1",
+                label: "",
                 data: dataMethodologyOfWork?.map((data) => data?.value),
                 fill: false,
                 borderColor: "rgb(255, 99, 132)",
@@ -301,7 +350,6 @@ export default function page() {
                         </div>
                         {/* show all tasks */}
                         {tasksGroupedByStatus?.map((tasks, index) => {
-                            console.log(tasks?.[0]);
                             return (
                                 <StatusCard
                                     key={index}
@@ -512,6 +560,7 @@ export default function page() {
                                 <line x1={15} x2={21} y1={12} y2={12} />
                             </svg>
                         </StatusCard>
+                        {/* this is skeleton */}
                         {tasksGroupedByStatus?.length == 0 && (
                             <>
                                 <div className="bg-white rounded-lg w-[260px] h-[115px] flex items-center justify-evenly ">
@@ -560,15 +609,9 @@ export default function page() {
                 </section>
                 <section>
                     <div className="flex w-full flex-wrap gap-4 lg:w-[86%] lg:ml-[106px] xl:w-[86%]  mt-8 xl:px-8 xl:ml-[135px]">
-                        <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[52%]  xl:w-[56%] mx-auto h-[350px] p-3  bg-white rounded-lg">
-                            <ul className="flex justify-between items-center ">
+                        <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[52%]  xl:w-[56%] mx-auto  p-3  bg-white rounded-lg">
+                            <ul className="flex justify-between items-center py-5 ">
                                 <li>General performance</li>
-                                <li></li>
-                                <li> </li>
-
-                                <li>
-                                    <AlignCenter className=" cursor-pointer text-slate-700" />
-                                </li>
                             </ul>
 
                             <Line
@@ -577,11 +620,35 @@ export default function page() {
                             />
                         </div>
 
-                        <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[42%]   mx-auto xl:w-[40%] h-[350px] p-3 bg-white rounded-lg">
-                            <ul className="flex justify-between items-center">
+                        <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[42%]   mx-auto xl:w-[40%]  p-3 bg-white rounded-lg">
+                            <ul className="flex justify-between items-center pb-2">
                                 <li>Statistics</li>
                                 <li>
-                                    <AlignCenter className=" cursor-pointer text-slate-700" />
+                                    <Select
+                                        onValueChange={(value) =>
+                                            setSlectedTypeBar(value)
+                                        }
+                                    >
+                                        <SelectTrigger className="">
+                                            <AlignCenter className=" cursor-pointer text-slate-700" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                {/* <SelectLabel>
+                                                    Weekly
+                                                </SelectLabel> */}
+                                                <SelectItem value="weekly">
+                                                    Weekly
+                                                </SelectItem>
+                                                <SelectItem value="monthly">
+                                                    Monthly
+                                                </SelectItem>
+                                                <SelectItem value="yearly">
+                                                    Yearly
+                                                </SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
                                 </li>
                             </ul>
                             <Bar
