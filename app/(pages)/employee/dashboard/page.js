@@ -29,7 +29,7 @@ import Loading from "@/components/component/Loading";
 import getDocument from "@/firebase/firestore/getDocument";
 import { Chart as ChartJS } from "chart.js/auto";
 import { Bar, Line } from "react-chartjs-2";
-import StatusCard from "./components/statusCard";
+
 import { onAuthStateChanged } from "firebase/auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -41,6 +41,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import StatusCard from "@/components/component/statusCard";
 
 export default function page() {
     const [tasksGroupedByStatus, setTasksGroupedByStatus] = useState([]);
@@ -55,7 +56,7 @@ export default function page() {
     useEffect(() => {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-               await getInfo(user?.uid);
+                await getInfo(user?.uid);
                 const data = await getEvaluation(user?.uid);
                 if (
                     data?.methodologyOfWork !== null &&
@@ -69,7 +70,7 @@ export default function page() {
     useEffect(() => {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-              await  getInfo(user?.uid);
+                await getInfo(user?.uid);
                 const data = await getEvaluation(user?.uid);
                 if (
                     data?.attributes !== null &&
@@ -129,7 +130,6 @@ export default function page() {
         }
     };
     const handleChartBarAtter = async (data) => {
-         
         const dataArray = Object.entries(data).map(([date, value]) => ({
             date: new Date(date),
             value,
@@ -156,7 +156,7 @@ export default function page() {
                 }
                 weeks[key] += value / 7;
             });
-            
+
             return weeks;
         };
         const aggregateByMonths = (data) => {
@@ -198,7 +198,6 @@ export default function page() {
             return years;
         };
         const prepareChartData = (aggregatedData) => {
-           
             const data = Object.entries(aggregatedData).map(([key, value]) => ({
                 label: key,
                 value,
@@ -226,7 +225,6 @@ export default function page() {
         const weeklyChartData = prepareChartData(weeklyData);
         const monthlyChartData = prepareChartData(monthlyData);
         const yearlyChartData = prepareChartData(yearlyData);
- 
 
         if (slectedTypeBar === "weekly")
             setDataAtter(weeklyChartData.slice(-5));
@@ -241,7 +239,7 @@ export default function page() {
                 const task = await getTaskById(taskId);
 
                 const date_closed = new Date(
-                    task?.date_closed * 1000
+                    Number(task?.date_closed)
                 ).toLocaleDateString("en-US");
 
                 return {
