@@ -29,6 +29,8 @@ import getDocument from "@/firebase/firestore/getDocument";
 import { format } from "date-fns";
 import getDocuments from "@/firebase/firestore/getDocuments";
 import StatusCard from "@/components/component/statusCard";
+import { Line } from "react-chartjs-2";
+import "chart.js/auto";
 
 export default function page() {
     const [clockifyWorkspaceId, setClockifyWorkspaceId] = useState([]);
@@ -41,6 +43,9 @@ export default function page() {
     const [inProgress, setInProgress] = useState(0);
     const [earlyDepartures, setEarlyDepartures] = useState(0);
     const [timeOff, setTimeOff] = useState(0);
+    const [dataAtter, setDataAtter] = useState([]);
+    const [dataMethodologyOfWork, setDataMethodologyOfWork] = useState([]);
+
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
@@ -49,7 +54,7 @@ export default function page() {
 
     const timeOfEntry = 9;
     const timeOfExit = 17;
-    console.log("totalEmployeesInHoliday", totalEmployeesInHoliday);
+   
     const getTotalEmployees = async () => {
         const employees = await getEmployees();
         let total = 0;
@@ -73,6 +78,7 @@ export default function page() {
         setTotalEmployees(total);
     };
     useEffect(() => {
+        getEvaluations();
         getTotalEmployees();
 
         onAuthStateChanged(auth, async (user) => {
@@ -86,7 +92,12 @@ export default function page() {
             }
         });
     }, []);
-
+    const getEvaluations = async () => {
+        const response = await getDocuments("evaluation");
+        response?.result.forEach((doc) => {
+            console.log(doc.data());
+        });
+    };
     useEffect(() => {
         try {
             const getTotalEmployeeInHoliday = async () => {
@@ -103,9 +114,6 @@ export default function page() {
 
                 holidays?.result?.forEach((doc) => {
                     const { from, to } = doc.data();
-
-                    console.log({ from, to });
-                    console.log("date", date);
 
                     if (isDateBetween(date, from, to)) {
                         total += 1;
@@ -149,30 +157,34 @@ export default function page() {
         }
     }, [date, clockifyWorkspaceId]);
 
-    const dataChart = [
-        {
-            id: "",
-            data: [
-                { x: "Jan", y: 49 },
-                { x: "Feb", y: 137 },
-                { x: "Mar", y: 61 },
-                { x: "Apr", y: 145 },
-                { x: "May", y: 26 },
-                { x: "Jun", y: 154 },
-            ],
-        },
-    ];
-    const chartBarData = [
-        { name: "Jan", count: 111 },
-        { name: "Feb", count: 157 },
-        { name: "Mar", count: 129 },
-        { name: "Apr", count: 150 },
-        { name: "May", count: 119 },
-        { name: "Jun", count: 72 },
-    ];
+    const data = {
+        labels: [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+        ],
+        datasets: [
+            {
+                label: "Sales",
+                data: [65, 59, 80, 81, 56, 55, 40],
+                fill: false,
+                backgroundColor: "rgb(75, 192, 192)",
+                borderColor: "rgba(75, 192, 192, 0.2)",
+            },
+        ],
+    };
 
-    const itemStyle =
-        "bg-white rounded-lg w-[260px] h-[115px] flex flex-col   justify-evenly ";
+    const options = {
+        scales: {
+            y: {
+                beginAtZero: true,
+            },
+        },
+    };
 
     return (
         <>
@@ -215,7 +227,7 @@ export default function page() {
                             </svg>
                         </span>
                     </StatusCard>
-                    
+
                     <StatusCard
                         text="Absent"
                         count={absent && absent - totalEmployeesInHoliday}
@@ -270,7 +282,7 @@ export default function page() {
                             </li>
                         </ul>
 
-                        <CurvedlineChart data={dataChart} />
+                        {/* <CurvedlineChart data={dataChart} /> */}
                     </div>
 
                     <div className="w-[90%] min-[426px]:w-[80%] min-[426px]:ml-[66px] sm:ml-auto sm:w-[70%] lg:w-[42%]   mx-auto xl:w-[40%] h-[350px] p-3 bg-white rounded-lg">
@@ -280,7 +292,7 @@ export default function page() {
                                 <AlignCenter className=" cursor-pointer text-slate-700" />
                             </li>
                         </ul>
-                        <BarChart data={chartBarData} />
+                        <Line data={data} options={options} />;
                     </div>
                 </div>
             </section>

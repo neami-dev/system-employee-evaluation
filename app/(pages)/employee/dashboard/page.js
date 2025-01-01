@@ -5,14 +5,7 @@ import React, { Suspense, useEffect, useState } from "react";
 import "react-circular-progressbar/dist/styles.css";
 import {
     getAllTasksByEmployee,
-    getAuthenticatedUserDetails,
-    getCompletedTasksByEmployee,
-    getHoldTasksByEmployee,
-    getInProgressTasksByEmployee,
-    getOpenTasksByEmployee,
-    getPendingTasksByEmployee,
     getTaskById,
-    getTeams,
 } from "@/app/api_services/actions/clickupActions";
 import { auth } from "@/firebase/firebase-config";
 
@@ -72,6 +65,7 @@ export default function page() {
             if (user) {
                 await getInfo(user?.uid);
                 const data = await getEvaluation(user?.uid);
+
                 if (
                     data?.attributes !== null &&
                     data?.attributes !== undefined
@@ -99,7 +93,7 @@ export default function page() {
                 clickupTeam,
                 clickupUser
             );
-
+            console.log("all tasks", allTasks);
             const groupTasksBystatus = (tasks) => {
                 return tasks.reduce((acc, task) => {
                     const status = task?.status?.status;
@@ -114,16 +108,16 @@ export default function page() {
             setTasksGroupedByStatus(Object.entries(groupedTasks));
 
             // function to get information from clickUp
-            const [workTime, totalCommits] = await Promise.allSettled([
-                getTimeTrackedByEmployeeToday(
-                    clockifyUserId,
-                    clockifyWorkspace
-                ),
-                getTotalCommitsForToday(),
-            ]);
+            const workTime = await getTimeTrackedByEmployeeToday(
+                clockifyUserId,
+                clockifyWorkspace
+            );
+            console.log("workTime",workTime);
+            
+            const totalCommits = await getTotalCommitsForToday();
 
             setTimeTrackedByEmployeeToday(workTime?.value?.hours);
-            console.log(totalCommits);
+            console.log("totalCommits", totalCommits);
             setCommits(totalCommits?.value);
         } catch (error) {
             console.log("error from dashboard", error.message);
@@ -312,17 +306,6 @@ export default function page() {
     };
     const optionsChartBar = {
         scales: {
-            // x: {
-            //     title: {
-            //         display: true,
-            //         text: 'Months',
-            //     },
-            //     ticks: {
-            //         callback: function(value, index, values) {
-            //             return `${value} (Custom)`;
-            //         },
-            //     },
-            // },
             y: {
                 title: {
                     display: false,

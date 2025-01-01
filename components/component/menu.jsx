@@ -61,7 +61,7 @@ export default function Menu() {
             // check if user is email verified
             console.log("emailVerified", user?.emailVerified);
             if (user?.emailVerified !== true) {
-                route.push("/invalid-email");
+                // route.push("/invalid-email");
                 return false;
             }
             // check cookies if exists
