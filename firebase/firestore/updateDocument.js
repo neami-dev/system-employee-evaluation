@@ -5,13 +5,23 @@ export default async function updateDocument({ collectionName, id, data }) {
     let result = null,
         error = null;
 
-    try {
+        try {
+        console.log("id : ", id);
+        console.log("data : ", data);
         const ref = doc(db, collectionName, id);
-
-        result = await updateDoc(ref, data);
-
+        console.log("ref : ", ref);
+        try {
+            result = await updateDoc(ref, data);
+            
+        } catch (error) {
+            console.log("error : ", error);
+            
+        }
+        
     } catch (e) {
         error = e?.message || "Error updating";
+        // console.log(error);
+        
     }
 
     return { result, error };
